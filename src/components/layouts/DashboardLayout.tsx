@@ -15,7 +15,9 @@ import {
   Users, 
   LogOut, 
   Menu,
-  X
+  X,
+  FileText,
+  Shield
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -31,7 +33,9 @@ export default function DashboardLayout() {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Reportes', href: '/dashboard/reportes', icon: FileText },
     { name: 'Usuarios', href: '/dashboard/usuarios', icon: Users },
+    { name: 'Roles', href: '/dashboard/roles', icon: Shield },
   ]
 
   return (

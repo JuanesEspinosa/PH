@@ -6,11 +6,12 @@ import DashboardLayout from '@/components/layouts/DashboardLayout'
 
 // Módulo de Autenticación
 import LoginView from '@/pages/auth/views/LoginView'
-import RegisterView from '@/pages/auth/views/RegisterView'
-import ForgotPasswordView from '@/pages/auth/views/ForgotPasswordView'
 
 // Módulo de Dashboard
 import DashboardPage from '@/pages/dashboard/dashboard/DashboardPage'
+
+// Módulo de Reportes
+import ReportesView from '@/pages/dashboard/reportes/ReportesView'
 
 // Módulo de Test (solo desarrollo)
 import LoadingTest from '@/pages/test/LoadingTest'
@@ -21,6 +22,12 @@ import UsuarioCreateView from '@/pages/dashboard/usuarios/views/UsuarioCreateVie
 import UsuarioEditView from '@/pages/dashboard/usuarios/views/UsuarioEditView'
 import UsuarioDetailView from '@/pages/dashboard/usuarios/views/UsuarioDetailView'
 
+// Módulo de Roles
+import RolesListView from '@/pages/dashboard/roles/views/RolesListView'
+import RolCreateView from '@/pages/dashboard/roles/views/RolCreateView'
+import RolEditView from '@/pages/dashboard/roles/views/RolEditView'
+import RolDetailView from '@/pages/dashboard/roles/views/RolDetailView'
+
 function App() {
   return (
     <Router>
@@ -30,8 +37,6 @@ function App() {
         
         {/* Módulo de Autenticación */}
         <Route path="/login" element={<LoginView />} />
-        <Route path="/register" element={<RegisterView />} />
-        <Route path="/forgot-password" element={<ForgotPasswordView />} />
 
         {/* Ruta de Test (solo desarrollo) */}
         <Route path="/test/loading" element={<LoadingTest />} />
@@ -48,11 +53,20 @@ function App() {
           {/* Dashboard Principal */}
           <Route index element={<DashboardPage />} />
           
+          {/* Módulo de Reportes */}
+          <Route path="reportes" element={<ReportesView />} />
+          
           {/* Módulo de Usuarios */}
           <Route path="usuarios" element={<UsuariosListView />} />
           <Route path="usuarios/nuevo" element={<UsuarioCreateView />} />
           <Route path="usuarios/:id" element={<UsuarioDetailView />} />
           <Route path="usuarios/:id/editar" element={<UsuarioEditView />} />
+          
+          {/* Módulo de Roles */}
+          <Route path="roles" element={<RolesListView />} />
+          <Route path="roles/nuevo" element={<RolCreateView />} />
+          <Route path="roles/:id" element={<RolDetailView />} />
+          <Route path="roles/:id/editar" element={<RolEditView />} />
         </Route>
       </Routes>
       <Toaster />
