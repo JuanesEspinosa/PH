@@ -18,9 +18,8 @@ import {
   Clipboard,
   LogOut, 
   Menu,
-  X,
   FileText,
-  Shield
+  Shield,
   X,
   Map,
   Leaf,

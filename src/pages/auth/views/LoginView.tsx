@@ -1,13 +1,14 @@
-import { LogIn } from 'lucide-react'
+import { Sprout } from 'lucide-react'
 import AuthFormCard from '../components/AuthFormCard'
 import LoginForm from '../components/LoginForm'
 
 export default function LoginView() {
   return (
     <AuthFormCard
-      icon={<LogIn className="h-6 w-6 text-white" />}
-      title="Iniciar Sesión"
-      description="Ingresa tus credenciales para acceder"
+      icon={<Sprout className="h-8 w-8 text-white" />}
+      title="Bienvenido de Vuelta"
+      description="Accede a tu sistema de gestión agrícola"
+      subtitle="Cultiva el futuro con tecnología"
       footer={<LoginForm />}
     >
       {null}
