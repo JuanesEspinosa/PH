@@ -1,14 +1,11 @@
-import { Request } from 'express';
+import 'express';
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: number;
-        email: string;
-        rol: 'admin' | 'usuario';
-      };
-    }
+declare module 'express' {
+  export interface Request {
+    user?: {
+      id: number;
+      email: string;
+      rol: 'admin' | 'usuario';
+    };
   }
 }
-
