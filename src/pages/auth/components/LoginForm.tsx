@@ -54,21 +54,10 @@ export default function LoginForm() {
             disabled={isPending}
           />
         </div>
-        <div className="flex items-center justify-between">
-          <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-            ¿Olvidaste tu contraseña?
-          </Link>
-        </div>
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending ? 'Iniciando sesión...' : 'Iniciar sesión'}
         </Button>
       </form>
-      <p className="text-sm text-center text-muted-foreground">
-        ¿No tienes cuenta?{' '}
-        <Link to="/register" className="text-primary hover:underline">
-          Regístrate aquí
-        </Link>
-      </p>
       <Link to="/" className="text-sm text-center text-muted-foreground hover:text-primary block">
         ← Volver al inicio
       </Link>

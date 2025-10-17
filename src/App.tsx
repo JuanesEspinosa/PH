@@ -6,11 +6,12 @@ import DashboardLayout from '@/components/layouts/DashboardLayout'
 
 // Módulo de Autenticación
 import LoginView from '@/pages/auth/views/LoginView'
-import RegisterView from '@/pages/auth/views/RegisterView'
-import ForgotPasswordView from '@/pages/auth/views/ForgotPasswordView'
 
 // Módulo de Dashboard
 import DashboardPage from '@/pages/dashboard/dashboard/DashboardPage'
+
+// Módulo de Reportes
+import ReportesView from '@/pages/dashboard/reportes/ReportesView'
 
 // Módulo de Test (solo desarrollo)
 import LoadingTest from '@/pages/test/LoadingTest'
@@ -39,6 +40,12 @@ import LaborCreateView from '@/pages/dashboard/labores/views/LaborCreateView'
 import LaborEditView from '@/pages/dashboard/labores/views/LaborEditView'
 import LaborDetailView from '@/pages/dashboard/labores/views/LaborDetailView'
 
+// Módulo de Roles
+import RolesListView from '@/pages/dashboard/roles/views/RolesListView'
+import RolCreateView from '@/pages/dashboard/roles/views/RolCreateView'
+import RolEditView from '@/pages/dashboard/roles/views/RolEditView'
+import RolDetailView from '@/pages/dashboard/roles/views/RolDetailView'
+
 function App() {
   return (
     <Router>
@@ -48,8 +55,6 @@ function App() {
         
         {/* Módulo de Autenticación */}
         <Route path="/login" element={<LoginView />} />
-        <Route path="/register" element={<RegisterView />} />
-        <Route path="/forgot-password" element={<ForgotPasswordView />} />
 
         {/* Ruta de Test (solo desarrollo) */}
         <Route path="/test/loading" element={<LoadingTest />} />
@@ -65,6 +70,9 @@ function App() {
         >
           {/* Dashboard Principal */}
           <Route index element={<DashboardPage />} />
+          
+          {/* Módulo de Reportes */}
+          <Route path="reportes" element={<ReportesView />} />
           
           {/* Módulo de Usuarios */}
           <Route path="usuarios" element={<UsuariosListView />} />
@@ -89,6 +97,12 @@ function App() {
           <Route path="labores/nuevo" element={<LaborCreateView />} />
           <Route path="labores/:id" element={<LaborDetailView />} />
           <Route path="labores/:id/editar" element={<LaborEditView />} />
+          
+          {/* Módulo de Roles */}
+          <Route path="roles" element={<RolesListView />} />
+          <Route path="roles/nuevo" element={<RolCreateView />} />
+          <Route path="roles/:id" element={<RolDetailView />} />
+          <Route path="roles/:id/editar" element={<RolEditView />} />
         </Route>
       </Routes>
       <Toaster />
