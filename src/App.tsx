@@ -18,6 +18,23 @@ import UsuarioCreateView from '@/pages/dashboard/usuarios/views/UsuarioCreateVie
 import UsuarioEditView from '@/pages/dashboard/usuarios/views/UsuarioEditView'
 import UsuarioDetailView from '@/pages/dashboard/usuarios/views/UsuarioDetailView'
 
+// Módulo de Lotes
+import LotesListView from '@/pages/dashboard/lotes/views/LotesListView'
+import LoteCreateView from '@/pages/dashboard/lotes/views/LoteCreateView'
+import LoteEditView from '@/pages/dashboard/lotes/views/LoteEditView'
+import LoteDetailView from '@/pages/dashboard/lotes/views/LoteDetailView'
+
+// Módulo de Cultivos
+import CultivosListView from '@/pages/dashboard/cultivos/views/CultivosListView'
+import CultivoCreateView from '@/pages/dashboard/cultivos/views/CultivoCreateView'
+import CultivoEditView from '@/pages/dashboard/cultivos/views/CultivoEditView'
+
+// Módulo de Planificación
+import PlanificacionListView from '@/pages/dashboard/planificacion/views/PlanificacionListView'
+import PlanificacionDetailView from '@/pages/dashboard/planificacion/views/PlanificacionDetailView'
+import MonitoreoView from '@/pages/dashboard/planificacion/views/MonitoreoView'
+import PlanificacionCreateView from '@/pages/dashboard/planificacion/views/PlanificacionCreateView'
+
 function App() {
   return (
     <Router>
@@ -47,6 +64,23 @@ function App() {
           <Route path="usuarios/nuevo" element={<UsuarioCreateView />} />
           <Route path="usuarios/:id" element={<UsuarioDetailView />} />
           <Route path="usuarios/:id/editar" element={<UsuarioEditView />} />
+          
+          {/* Módulo de Lotes */}
+          <Route path="lotes" element={<LotesListView />} />
+          <Route path="lotes/nuevo" element={<LoteCreateView />} />
+          <Route path="lotes/:id" element={<LoteDetailView />} />
+          <Route path="lotes/:id/editar" element={<LoteEditView />} />
+          
+          {/* Módulo de Cultivos */}
+          <Route path="cultivos" element={<CultivosListView />} />
+          <Route path="cultivos/nuevo" element={<CultivoCreateView />} />
+          <Route path="cultivos/:id/editar" element={<CultivoEditView />} />
+          
+          {/* Módulo de Planificación */}
+          <Route path="planificacion" element={<PlanificacionListView />} />
+          <Route path="planificacion/nueva" element={<PlanificacionCreateView />} />
+          <Route path="planificacion/:id" element={<PlanificacionDetailView />} />
+          <Route path="planificacion/monitoreo" element={<MonitoreoView />} />
         </Route>
       </Routes>
       <Toaster />

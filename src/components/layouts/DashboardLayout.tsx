@@ -15,7 +15,10 @@ import {
   Users, 
   LogOut, 
   Menu,
-  X
+  X,
+  Map,
+  Leaf,
+  Calendar
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -32,6 +35,9 @@ export default function DashboardLayout() {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Usuarios', href: '/dashboard/usuarios', icon: Users },
+    { name: 'Lotes', href: '/dashboard/lotes', icon: Map },
+    { name: 'Cultivos', href: '/dashboard/cultivos', icon: Leaf },
+    { name: 'Planificación', href: '/dashboard/planificacion', icon: Calendar },
   ]
 
   return (
