@@ -22,6 +22,24 @@ import UsuarioCreateView from '@/pages/dashboard/usuarios/views/UsuarioCreateVie
 import UsuarioEditView from '@/pages/dashboard/usuarios/views/UsuarioEditView'
 import UsuarioDetailView from '@/pages/dashboard/usuarios/views/UsuarioDetailView'
 
+// Módulo de Trabajadores
+import TrabajadoresListView from '@/pages/dashboard/trabajadores/views/TrabajadoresListView'
+import TrabajadorCreateView from '@/pages/dashboard/trabajadores/views/TrabajadorCreateView'
+import TrabajadorEditView from '@/pages/dashboard/trabajadores/views/TrabajadorEditView'
+import TrabajadorDetailView from '@/pages/dashboard/trabajadores/views/TrabajadorDetailView'
+
+// Módulo de Tipos de Labor
+import TiposLaborListView from '@/pages/dashboard/tipos-labor/views/TiposLaborListView'
+import TipoLaborCreateView from '@/pages/dashboard/tipos-labor/views/TipoLaborCreateView'
+import TipoLaborEditView from '@/pages/dashboard/tipos-labor/views/TipoLaborEditView'
+import TipoLaborDetailView from '@/pages/dashboard/tipos-labor/views/TipoLaborDetailView'
+
+// Módulo de Labores Agrícolas
+import LaboresListView from '@/pages/dashboard/labores/views/LaboresListView'
+import LaborCreateView from '@/pages/dashboard/labores/views/LaborCreateView'
+import LaborEditView from '@/pages/dashboard/labores/views/LaborEditView'
+import LaborDetailView from '@/pages/dashboard/labores/views/LaborDetailView'
+
 // Módulo de Roles
 import RolesListView from '@/pages/dashboard/roles/views/RolesListView'
 import RolCreateView from '@/pages/dashboard/roles/views/RolCreateView'
@@ -61,6 +79,24 @@ function App() {
           <Route path="usuarios/nuevo" element={<UsuarioCreateView />} />
           <Route path="usuarios/:id" element={<UsuarioDetailView />} />
           <Route path="usuarios/:id/editar" element={<UsuarioEditView />} />
+          
+          {/* Módulo de Trabajadores */}
+          <Route path="trabajadores" element={<TrabajadoresListView />} />
+          <Route path="trabajadores/nuevo" element={<TrabajadorCreateView />} />
+          <Route path="trabajadores/:id" element={<TrabajadorDetailView />} />
+          <Route path="trabajadores/:id/editar" element={<TrabajadorEditView />} />
+          
+          {/* Módulo de Tipos de Labor */}
+          <Route path="tipos-labor" element={<TiposLaborListView />} />
+          <Route path="tipos-labor/nuevo" element={<TipoLaborCreateView />} />
+          <Route path="tipos-labor/:id" element={<TipoLaborDetailView />} />
+          <Route path="tipos-labor/:id/editar" element={<TipoLaborEditView />} />
+          
+          {/* Módulo de Labores Agrícolas */}
+          <Route path="labores" element={<LaboresListView />} />
+          <Route path="labores/nuevo" element={<LaborCreateView />} />
+          <Route path="labores/:id" element={<LaborDetailView />} />
+          <Route path="labores/:id/editar" element={<LaborEditView />} />
           
           {/* Módulo de Roles */}
           <Route path="roles" element={<RolesListView />} />
