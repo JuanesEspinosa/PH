@@ -8,6 +8,13 @@ export interface JwtPayload {
   rol: 'admin' | 'usuario';
 }
 
+// Extender Request de Express
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: JwtPayload;
+  }
+}
+
 export const authMiddleware = async (
   req: Request,
   res: Response,

@@ -2,6 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
+import cultivosRoutes from './routes/cultivos.routes';
+import lotesRoutes from './routes/lotes.routes';
+import planificacionRoutes from './routes/planificacion.routes';
 import { errorHandler } from './middlewares/errorHandler';
 
 // Cargar variables de entorno
@@ -24,6 +27,9 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/cultivos', cultivosRoutes);
+app.use('/api/lotes', lotesRoutes);
+app.use('/api/planificacion', planificacionRoutes);
 
 // Manejador de errores
 app.use(errorHandler);
