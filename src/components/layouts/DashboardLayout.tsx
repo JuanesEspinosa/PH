@@ -13,8 +13,14 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { 
   LayoutDashboard, 
   Users, 
+  Briefcase,
+  Sprout,
+  Clipboard,
   LogOut, 
   Menu,
+  X,
+  FileText,
+  Shield
   X,
   Map,
   Leaf,
@@ -34,7 +40,12 @@ export default function DashboardLayout() {
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'Reportes', href: '/dashboard/reportes', icon: FileText },
     { name: 'Usuarios', href: '/dashboard/usuarios', icon: Users },
+    { name: 'Trabajadores', href: '/dashboard/trabajadores', icon: Briefcase },
+    { name: 'Tipos de Labor', href: '/dashboard/tipos-labor', icon: Sprout },
+    { name: 'Registro de Labores', href: '/dashboard/labores', icon: Clipboard },
+    { name: 'Roles', href: '/dashboard/roles', icon: Shield },
     { name: 'Lotes', href: '/dashboard/lotes', icon: Map },
     { name: 'Cultivos', href: '/dashboard/cultivos', icon: Leaf },
     { name: 'Planificación', href: '/dashboard/planificacion', icon: Calendar },
@@ -95,8 +106,8 @@ export default function DashboardLayout() {
         {/* Sidebar */}
         <aside
           className={`
-            fixed inset-y-0 left-0 top-16 z-30 w-64 transform bg-white border-r transition-transform duration-300 ease-in-out
-            lg:relative lg:top-0 lg:translate-x-0
+            fixed inset-y-0 left-0 top-16 z-30 w-64 bg-white border-r transition-transform duration-300 ease-in-out overflow-y-auto
+            lg:left-0 lg:translate-x-0
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
           `}
         >
@@ -127,7 +138,7 @@ export default function DashboardLayout() {
         )}
 
         {/* Main Content */}
-        <main className="flex-1 p-6 lg:p-8">
+        <main className="flex-1 p-6 lg:p-8 lg:ml-64">
           <Outlet />
         </main>
       </div>

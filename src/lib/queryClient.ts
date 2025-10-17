@@ -47,6 +47,36 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.usuarios.details(), id] as const,
     search: (query: string) => [...queryKeys.usuarios.all, 'search', query] as const,
   },
+  
+  // Trabajadores
+  trabajadores: {
+    all: ['trabajadores'] as const,
+    lists: () => [...queryKeys.trabajadores.all, 'list'] as const,
+    list: (filters?: string) => [...queryKeys.trabajadores.lists(), filters] as const,
+    details: () => [...queryKeys.trabajadores.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.trabajadores.details(), id] as const,
+    search: (query: string) => [...queryKeys.trabajadores.all, 'search', query] as const,
+  },
+  
+  // Tipos de Labor
+  tiposLabor: {
+    all: ['tiposLabor'] as const,
+    lists: () => [...queryKeys.tiposLabor.all, 'list'] as const,
+    list: (filters?: string) => [...queryKeys.tiposLabor.lists(), filters] as const,
+    details: () => [...queryKeys.tiposLabor.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.tiposLabor.details(), id] as const,
+    search: (query: string) => [...queryKeys.tiposLabor.all, 'search', query] as const,
+  },
+  
+  // Labores Agrícolas
+  labores: {
+    all: ['labores'] as const,
+    lists: () => [...queryKeys.labores.all, 'list'] as const,
+    list: (filters?: string) => [...queryKeys.labores.lists(), filters] as const,
+    details: () => [...queryKeys.labores.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.labores.details(), id] as const,
+    search: (query: string) => [...queryKeys.labores.all, 'search', query] as const,
+  },
 }
 
 
