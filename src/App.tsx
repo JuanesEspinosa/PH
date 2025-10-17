@@ -12,6 +12,9 @@ import ForgotPasswordView from '@/pages/auth/views/ForgotPasswordView'
 // Módulo de Dashboard
 import DashboardPage from '@/pages/dashboard/dashboard/DashboardPage'
 
+// Módulo de Test (solo desarrollo)
+import LoadingTest from '@/pages/test/LoadingTest'
+
 // Módulo de Usuarios
 import UsuariosListView from '@/pages/dashboard/usuarios/views/UsuariosListView'
 import UsuarioCreateView from '@/pages/dashboard/usuarios/views/UsuarioCreateView'
@@ -47,6 +50,9 @@ function App() {
         <Route path="/login" element={<LoginView />} />
         <Route path="/register" element={<RegisterView />} />
         <Route path="/forgot-password" element={<ForgotPasswordView />} />
+
+        {/* Ruta de Test (solo desarrollo) */}
+        <Route path="/test/loading" element={<LoadingTest />} />
 
         {/* Rutas protegidas - Dashboard */}
         <Route
