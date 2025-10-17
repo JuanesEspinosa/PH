@@ -7,26 +7,18 @@ export interface TokenPayload {
 }
 
 export const generateToken = (payload: TokenPayload): string => {
-  const options: SignOptions = {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
-  };
-  
   return jwt.sign(
     payload,
     process.env.JWT_SECRET || 'default_secret',
-    options
+    { expiresIn: '7d' }
   );
 };
 
 export const generateResetToken = (userId: number): string => {
-  const options: SignOptions = {
-    expiresIn: process.env.JWT_RESET_EXPIRES_IN || '1h'
-  };
-  
   return jwt.sign(
     { id: userId, type: 'reset' },
     process.env.JWT_SECRET || 'default_secret',
-    options
+    { expiresIn: '1h' }
   );
 };
 

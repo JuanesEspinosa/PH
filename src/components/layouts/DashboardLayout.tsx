@@ -20,8 +20,7 @@ import {
   Menu,
   X,
   FileText,
-  Shield
-  X,
+  Shield,
   Map,
   Leaf,
   Calendar
