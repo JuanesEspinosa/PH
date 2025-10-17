@@ -1,0 +1,2589 @@
+================================================================================
+PLAN DE TRABAJO - SISTEMA INTEGRAL DE GESTIÓN AGRÍCOLA
+Desarrollo Completo en Un Día - Metodología por Prompts
+================================================================================
+
+TIEMPO ESTIMADO TOTAL: 9-11 horas de trabajo intensivo
+ARQUITECTURA: React + TypeScript + Vite + TanStack Query + Zustand
+IDIOMA: 100% Español
+
+================================================================================
+ÍNDICE DE FASES
+================================================================================
+
+CONFIGURACIÓN BASE:
+├── Fase 1: Modelo de Datos y Tipos TypeScript (1h)
+├── Fase 2: Servicios y Mocks (1.5h)
+└── Fase 3: Componentes UI Base (1h)
+
+MÓDULOS PRINCIPALES:
+├── Fase 4: Dashboard (1h)
+├── Fase 5: Labores Agrícolas (1.5h)
+├── Fase 6: Trabajadores (1h)
+├── Fase 7: Cultivos y Lotes (1h)
+├── Fase 8: Inventario de Insumos (45min)
+├── Fase 9: Planificación (45min)
+├── Fase 10: Reportes (1h)
+└── Fase 11: Integración y Navegación (1h)
+
+SISTEMA DE SEGURIDAD Y PERMISOS:
+└── Fase 12: ⭐ MÓDULO DE ROLES Y PERMISOS (1h) - CRÍTICO
+    ├── 7 Roles diferenciados
+    ├── Sistema de permisos granulares
+    ├── Gestión de usuarios
+    ├── Auditoría y logs
+    └── Protección de rutas y componentes
+
+FUNCIONALIDADES AVANZADAS:
+├── Fase 13: Sincronización Offline y Funciones Avanzadas (1h)
+└── Fase 14: Trazabilidad y Mapas (45min)
+
+OPTIMIZACIÓN Y ENTREGA:
+├── Fase 15: Optimización y Polish (1h)
+├── Fase 16: Landing Page y Autenticación (45min)
+├── Fase 17: Documentación y Datos Demo (30min)
+├── Fase 18: Testing y Ajustes (30min)
+├── Fase 19: Preparación Integraciones Futuras (30min)
+├── Fase 20: Deployment y Configuración (30min)
+└── Fase 21: Revisión Final y Entrega (30min)
+
+================================================================================
+SISTEMA DE ROLES Y PERMISOS - RESUMEN
+================================================================================
+
+El sistema implementa 7 roles con permisos diferenciados:
+
+┌─────────────────────┬──────────────────────────────────────────────────────┐
+│ ROL                 │ DESCRIPCIÓN Y PERMISOS PRINCIPALES                   │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ 👑 SUPER_ADMIN      │ • Acceso total al sistema                            │
+│                     │ • Gestión de usuarios y roles                        │
+│                     │ • Configuración del sistema                          │
+│                     │ • Auditoría completa                                 │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ ⚙️  ADMINISTRADOR   │ • Gestión completa de operaciones                    │
+│                     │ • CRUD de labores, trabajadores, cultivos            │
+│                     │ • Gestión de inventario y planificación              │
+│                     │ • Reportes y exportaciones                           │
+│                     │ • NO gestiona usuarios del sistema                   │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ 👨‍💼 SUPERVISOR      │ • Supervisión de operaciones diarias                │
+│                     │ • Crear/editar labores (no eliminar)                 │
+│                     │ • Ajustar inventario de insumos                      │
+│                     │ • Gestionar actividades y asignaciones               │
+│                     │ • Ver y exportar reportes                            │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ 🌱 TECNICO_AGRICOLA │ • Registro y seguimiento de labores                  │
+│                     │ • Completar actividades asignadas                    │
+│                     │ • Ver información de cultivos y lotes                │
+│                     │ • Consultar reportes básicos                         │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ 👷 TRABAJADOR_CAMPO │ • Registrar labores propias                          │
+│                     │ • Completar actividades asignadas                    │
+│                     │ • Ver cultivos y lotes                               │
+│                     │ • Acceso limitado a información básica               │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ 💰 CONTADOR         │ • Acceso a información financiera                    │
+│                     │ • Ver salarios de trabajadores                       │
+│                     │ • Ver costos de insumos                              │
+│                     │ • Reportes financieros completos                     │
+│                     │ • Exportar datos contables                           │
+├─────────────────────┼──────────────────────────────────────────────────────┤
+│ 👁️  SOLO_LECTURA    │ • Visualización sin capacidad de edición             │
+│                     │ • Ver labores, trabajadores, cultivos                │
+│                     │ • Consultar reportes                                 │
+│                     │ • Ver trazabilidad                                   │
+└─────────────────────┴──────────────────────────────────────────────────────┘
+
+USUARIOS DE DEMOSTRACIÓN:
+• admin@agro.com / admin123 (Administrador)
+• supervisor@agro.com / super123 (Supervisor)
+• tecnico@agro.com / tecnico123 (Técnico Agrícola)
+• trabajador@agro.com / trab123 (Trabajador de Campo)
+• contador@agro.com / cont123 (Contador)
+
+================================================================================
+FASE 1: CONFIGURACIÓN BASE Y MODELO DE DATOS (1 hora)
+================================================================================
+
+PROMPT 1.1 - Modelo de Datos y Tipos TypeScript
+--------------------------------------------------------------------------------
+Crea el archivo src/types/agricola.ts con la definición completa del modelo de 
+datos para el sistema agrícola. Debe incluir:
+
+INTERFACES PRINCIPALES:
+- Trabajador: id, nombres, apellidos, documento, tipo_documento, telefono, 
+  email, cargo, fecha_ingreso, estado, foto_perfil, direccion
+- Cultivo: id, nombre, nombre_cientifico, variedad, tipo, ciclo_dias, 
+  descripcion, fecha_siembra, estado, imagen
+- Lote: id, codigo, nombre, cultivo_id, area_hectareas, ubicacion_gps 
+  (lat, lng), estado, mapa_visual_url, fecha_inicio, notas
+- Labor: id, fecha_hora, cultivo_id, lote_id, trabajador_id, tipo_labor 
+  (enum: SIEMBRA, RIEGO, FUMIGACION, COSECHA, PODA, FERTILIZACION, 
+  CONTROL_PLAGAS, DESYERBE, OTRO), descripcion, cantidad_recolectada, 
+  unidad_medida, peso_kg, coordenadas_gps, condiciones_clima, estado_labor, 
+  observaciones, fotografias[], insumos_utilizados[], maquinaria_utilizada[]
+- Insumo: id, nombre, tipo (FERTILIZANTE, PESTICIDA, HERBICIDA, SEMILLA, 
+  HERRAMIENTA, OTRO), unidad, cantidad_disponible, cantidad_minima, costo_unitario, 
+  proveedor, fecha_vencimiento, ubicacion_almacen
+- Maquinaria: id, nombre, tipo, marca, modelo, placa, estado, 
+  horas_uso, ultima_mantenimiento, proximo_mantenimiento
+- ActividadPlanificada: id, titulo, descripcion, fecha_programada, cultivo_id, 
+  lote_id, trabajador_asignado_id, tipo_labor, estado (PENDIENTE, EN_PROCESO, 
+  COMPLETADA, CANCELADA), prioridad
+- RegistroTrazabilidad: id, lote_id, fecha, tipo_evento, descripcion, 
+  usuario_id, datos_adicionales
+
+ENUMS:
+- TipoLabor, EstadoLabor, TipoInsumo, TipoCultivo, EstadoActividad, 
+  Prioridad, RolUsuario
+
+Incluye tipos para formularios, filtros, respuestas API y estadísticas.
+
+
+PROMPT 1.2 - Configuración de Servicios Base
+--------------------------------------------------------------------------------
+Actualiza src/lib/axios.ts para incluir configuración del backend agrícola.
+Configura baseURL para API local o mock: http://localhost:3000/api
+Implementa interceptores para manejo de tokens y errores en español.
+
+
+PROMPT 1.3 - Store Global de Estado
+--------------------------------------------------------------------------------
+Crea src/stores/agricolaStore.ts usando Zustand para manejar:
+- Estado de sincronización offline
+- Cultivos y lotes seleccionados actualmente
+- Filtros activos en las diferentes vistas
+- Configuración de unidades de medida
+- Preferencias de usuario (tema, idioma, vista por defecto)
+- Cola de sincronización para operaciones offline
+
+
+================================================================================
+FASE 2: SERVICIOS Y MOCKS (1.5 horas)
+================================================================================
+
+PROMPT 2.1 - Servicio Mock de Datos
+--------------------------------------------------------------------------------
+Crea src/services/mockDataService.ts con datos realistas simulados:
+- 15 trabajadores con diferentes cargos (operarios, supervisores, técnicos)
+- 8 cultivos diferentes (café, plátano, cacao, maíz, yuca, aguacate, cítricos, 
+  tomate) con información botánica real
+- 20 lotes distribuidos entre los cultivos con coordenadas GPS de Colombia
+- 100 registros de labores de los últimos 30 días con variedad de actividades
+- 30 insumos diferentes categorizados
+- 10 máquinas y herramientas
+- 25 actividades planificadas para los próximos 15 días
+- Datos de trazabilidad completa para 5 lotes
+
+Función para generar datos aleatorios adicionales.
+Implementa almacenamiento en localStorage para persistencia.
+
+
+PROMPT 2.2 - Servicios API Base
+--------------------------------------------------------------------------------
+Crea la carpeta src/services/api/ con los siguientes servicios:
+
+trabajadoresService.ts:
+- getTrabajadores(filtros)
+- getTrabajadorById(id)
+- createTrabajador(data)
+- updateTrabajador(id, data)
+- deleteTrabajador(id)
+- getTrabajadoresActivos()
+
+cultivosService.ts:
+- getCultivos(filtros)
+- getCultivoById(id)
+- createCultivo(data)
+- updateCultivo(id, data)
+- deleteCultivo(id)
+- getCultivosByTipo(tipo)
+
+lotesService.ts:
+- getLotes(filtros)
+- getLoteById(id)
+- createLote(data)
+- updateLote(id, data)
+- deleteLote(id)
+- getLotesByCultivo(cultivoId)
+
+laboresService.ts:
+- getLabores(filtros: fecha, cultivo, lote, trabajador, tipo)
+- getLaborById(id)
+- createLabor(data)
+- updateLabor(id, data)
+- deleteLabor(id)
+- getLaboresByFecha(fecha)
+- getLaboresDelDia()
+
+insumosService.ts:
+- getInsumos(filtros)
+- getInsumoById(id)
+- createInsumo(data)
+- updateInsumo(id, data)
+- ajustarInventario(id, cantidad, motivo)
+- getInsumosStockBajo()
+
+actividadesService.ts:
+- getActividades(filtros)
+- createActividad(data)
+- updateActividad(id, data)
+- completarActividad(id, resultados)
+- getActividadesPendientes()
+
+trazabilidadService.ts:
+- getTrazabilidadLote(loteId)
+- registrarEvento(data)
+
+Todos los servicios deben usar el mockDataService y simular delay de red.
+
+
+PROMPT 2.3 - Hooks de React Query
+--------------------------------------------------------------------------------
+Crea src/hooks/queries/ con hooks personalizados:
+
+useLaboresQuery.ts:
+- useLabores(filtros)
+- useLabor(id)
+- useCreateLabor()
+- useUpdateLabor()
+- useDeleteLabor()
+- useLaboresDelDia()
+
+useTrabajadoresQuery.ts:
+- useTrabajadores(filtros)
+- useTrabajador(id)
+- useCreateTrabajador()
+- useUpdateTrabajador()
+- useDeleteTrabajador()
+
+useCultivosQuery.ts:
+- useCultivos(filtros)
+- useCultivo(id)
+- useCreateCultivo()
+- useUpdateCultivo()
+
+useLotesQuery.ts:
+- useLotes(filtros)
+- useLote(id)
+- useCreateLote()
+- useUpdateLote()
+
+useInsumosQuery.ts:
+- useInsumos()
+- useAjustarInventario()
+- useInsumosStockBajo()
+
+useActividadesQuery.ts:
+- useActividades()
+- useCreateActividad()
+- useCompletarActividad()
+- useActividadesPendientes()
+
+useTrazabilidadQuery.ts:
+- useTrazabilidadLote(loteId)
+
+useEstadisticasQuery.ts:
+- useEstadisticasDashboard()
+- useEstadisticasCultivo(id)
+- useEstadisticasTrabajador(id)
+- useEstadisticasProduccion(fechaInicio, fechaFin)
+
+Implementa invalidación de cache automática y manejo de errores.
+
+
+================================================================================
+FASE 3: COMPONENTES UI BASE (1 hora)
+================================================================================
+
+PROMPT 3.1 - Componentes UI Adicionales
+--------------------------------------------------------------------------------
+Crea en src/components/ui/ los siguientes componentes usando shadcn/ui:
+
+- select.tsx (dropdown de selección)
+- textarea.tsx (áreas de texto)
+- badge.tsx (etiquetas de estado)
+- table.tsx (tablas responsivas)
+- tabs.tsx (pestañas)
+- calendar.tsx (calendario)
+- checkbox.tsx (casillas de verificación)
+- radio-group.tsx (grupos de radio)
+- alert.tsx (alertas y notificaciones)
+- skeleton.tsx (loading skeletons)
+- separator.tsx (separadores)
+- scroll-area.tsx (áreas con scroll)
+- switch.tsx (interruptores)
+- tooltip.tsx (tooltips informativos)
+
+Asegúrate de que todos estén estilizados con Tailwind y sean responsivos.
+
+
+PROMPT 3.2 - Componentes Comunes Agrícolas
+--------------------------------------------------------------------------------
+Crea src/components/common/ con componentes reutilizables:
+
+PageHeader.tsx:
+- Título, breadcrumbs, acciones principales
+- Props: title, description, actions, breadcrumbs
+
+LoadingSpinner.tsx:
+- Spinner personalizado con mensaje
+- Variantes: small, medium, large, fullscreen
+
+EmptyState.tsx:
+- Estado vacío con icono, mensaje y acción
+- Props: icon, title, description, action
+
+ErrorMessage.tsx:
+- Muestra errores con retry
+- Props: error, onRetry
+
+DataTable.tsx:
+- Tabla genérica con sorting, pagination, filtros
+- Props: columns, data, pagination, onSort, onFilter
+
+StatusBadge.tsx:
+- Badge de estado con colores semánticos
+- Props: status, variant
+
+SearchBar.tsx:
+- Barra de búsqueda con filtros rápidos
+- Props: onSearch, filters, placeholder
+
+FilterPanel.tsx:
+- Panel lateral de filtros avanzados
+- Props: filters, onApply, onReset
+
+ExportButton.tsx:
+- Botón para exportar datos (Excel, PDF)
+- Props: data, filename, format
+
+StatCard.tsx:
+- Tarjeta de estadística con icono y valor
+- Props: title, value, icon, trend, color
+
+DateRangePicker.tsx:
+- Selector de rango de fechas
+- Props: value, onChange, maxDate, minDate
+
+
+PROMPT 3.3 - Componentes de Formulario Agrícola
+--------------------------------------------------------------------------------
+Crea src/components/forms/ con componentes especializados:
+
+CultivoSelect.tsx:
+- Select de cultivos con búsqueda y preview
+
+LoteSelect.tsx:
+- Select de lotes filtrado por cultivo con mapa mini
+
+TrabajadorSelect.tsx:
+- Select de trabajadores con foto y cargo
+
+TipoLaborSelect.tsx:
+- Select de tipos de labor con iconos
+
+UnidadMedidaInput.tsx:
+- Input de cantidad con selector de unidad
+
+CoordenadasGPSInput.tsx:
+- Input de coordenadas con botón de captura actual
+- Validación de formato
+
+CondicionesClimaInput.tsx:
+- Selector de condiciones climáticas con iconos
+
+InsumoMultiSelect.tsx:
+- Multi-select de insumos con cantidades
+
+ImageUpload.tsx:
+- Upload de imágenes con preview y múltiples archivos
+- Compresión automática
+
+FechaHoraInput.tsx:
+- Selector de fecha y hora combinado
+
+
+================================================================================
+FASE 4: MÓDULO DE DASHBOARD (1 hora)
+================================================================================
+
+PROMPT 4.1 - Vista Principal del Dashboard
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/home/DashboardHomeView.tsx que incluya:
+
+SECCIÓN SUPERIOR:
+- Bienvenida personalizada con nombre y fecha actual
+- Resumen rápido: labores del día, trabajadores activos, alertas pendientes
+
+TARJETAS DE ESTADÍSTICAS:
+- Total de labores registradas hoy
+- Hectáreas trabajadas hoy
+- Kilogramos cosechados hoy
+- Actividades pendientes
+- Alertas críticas (stock bajo, mantenimientos)
+
+GRÁFICOS:
+- Gráfico de labores por tipo (últimos 7 días) - Bar chart
+- Gráfico de producción por cultivo (último mes) - Line chart
+- Distribución de actividades por estado - Donut chart
+
+LISTA DE ACTIVIDADES DEL DÍA:
+- Tabla con actividades programadas para hoy
+- Estado, responsable, cultivo, lote
+- Botón para marcar como completada
+
+ALERTAS Y NOTIFICACIONES:
+- Insumos con stock bajo
+- Mantenimientos de maquinaria próximos
+- Actividades atrasadas
+- Lotes que requieren atención
+
+ACCESOS RÁPIDOS:
+- Botón para registrar nueva labor
+- Botón para ver todas las labores
+- Botón para gestionar trabajadores
+- Botón para reportes
+
+Usa recharts para los gráficos.
+
+
+PROMPT 4.2 - Componentes del Dashboard
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/home/components/:
+
+ResumenDelDia.tsx:
+- Widget con resumen de actividades del día actual
+
+GraficoLaboresPorTipo.tsx:
+- Gráfico de barras agrupado por tipo de labor
+
+GraficoProduccionMensual.tsx:
+- Gráfico de líneas de producción
+
+ActividadesPendientesWidget.tsx:
+- Lista de actividades con acciones rápidas
+
+AlertasWidget.tsx:
+- Panel de alertas con niveles de prioridad
+
+AccesosRapidosWidget.tsx:
+- Grid de botones de acceso rápido
+
+TrabajadoresEnCampoWidget.tsx:
+- Lista de trabajadores activos con ubicación
+
+
+================================================================================
+FASE 5: MÓDULO DE LABORES (1.5 horas)
+================================================================================
+
+PROMPT 5.1 - Vista de Listado de Labores
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/labores/views/LaboresListView.tsx:
+
+FILTROS SUPERIORES:
+- Rango de fechas (última semana por defecto)
+- Cultivo (todos, o específico)
+- Lote (dependiente del cultivo)
+- Trabajador
+- Tipo de labor
+- Estado de labor
+- Búsqueda por texto
+
+TABLA DE LABORES:
+Columnas: Fecha/Hora, Cultivo, Lote, Trabajador, Tipo de Labor, 
+Cantidad, Peso, Estado, Acciones
+
+- Sorting por cualquier columna
+- Paginación (20 por página)
+- Acciones: Ver detalle, Editar, Eliminar
+- Indicadores visuales de estado
+- Click en fila para ver detalle
+
+ACCIONES SUPERIORES:
+- Botón "Nueva Labor" prominente
+- Exportar a Excel
+- Exportar a PDF
+- Filtros avanzados
+
+ESTADÍSTICAS RÁPIDAS:
+- Total de labores en el período
+- Total de hectáreas trabajadas
+- Total de kilogramos cosechados
+
+
+PROMPT 5.2 - Formulario de Registro de Labor
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/labores/components/LaborForm.tsx:
+
+FORMULARIO MULTI-PASO (3 pasos):
+
+PASO 1 - Información Básica:
+- Fecha y hora (default: ahora)
+- Cultivo* (requerido)
+- Lote* (requerido, filtrado por cultivo)
+- Trabajador responsable* (requerido)
+- Tipo de labor* (requerido)
+
+PASO 2 - Detalles de la Labor:
+- Descripción de la actividad
+- Cantidad recolectada (si aplica)
+- Unidad de medida
+- Peso en kg/toneladas
+- Coordenadas GPS (con botón "Usar ubicación actual")
+- Condiciones climáticas
+- Estado de la labor
+
+PASO 3 - Recursos y Evidencias:
+- Insumos utilizados (multi-select con cantidades)
+- Maquinaria utilizada (multi-select)
+- Observaciones adicionales
+- Fotografías (máximo 5, con preview)
+
+VALIDACIONES:
+- Campos requeridos marcados con *
+- Validación de formatos (GPS, números)
+- Validación de disponibilidad de insumos
+- Alertas si el stock de insumos queda bajo
+
+FUNCIONALIDADES:
+- Guardar como borrador
+- Vista previa antes de enviar
+- Botón de "Captura rápida" para labores simples
+- Modo offline (guardar localmente y sincronizar después)
+
+Botones: Anterior, Siguiente, Guardar Borrador, Registrar Labor
+
+
+PROMPT 5.3 - Vistas de Detalle y Edición
+--------------------------------------------------------------------------------
+Crea las siguientes vistas:
+
+src/pages/dashboard/labores/views/LaborDetailView.tsx:
+- Muestra toda la información de la labor
+- Galería de fotos
+- Mapa con ubicación GPS
+- Lista de insumos y maquinaria utilizados
+- Información del trabajador con foto
+- Botones: Editar, Eliminar, Exportar, Compartir
+- Timeline de cambios si hubo ediciones
+
+src/pages/dashboard/labores/views/LaborCreateView.tsx:
+- Wrapper que contiene LaborForm en modo creación
+- Título: "Registrar Nueva Labor"
+
+src/pages/dashboard/labores/views/LaborEditView.tsx:
+- Wrapper que contiene LaborForm en modo edición
+- Carga datos existentes
+- Título: "Editar Labor"
+
+
+PROMPT 5.4 - Componentes del Módulo de Labores
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/labores/components/:
+
+LaboresTable.tsx:
+- Tabla optimizada para labores con todas las columnas
+
+LaborCard.tsx:
+- Card para vista de grid alternativa
+
+FiltrosLabores.tsx:
+- Panel de filtros completo
+
+LaborQuickCreate.tsx:
+- Modal de creación rápida con campos mínimos
+
+LaboresCalendar.tsx:
+- Vista de calendario con labores
+
+LaborExportDialog.tsx:
+- Dialog para configurar exportación
+
+
+================================================================================
+FASE 6: MÓDULO DE TRABAJADORES (1 hora)
+================================================================================
+
+PROMPT 6.1 - Gestión de Trabajadores
+--------------------------------------------------------------------------------
+Crea las vistas completas de trabajadores:
+
+src/pages/dashboard/trabajadores/views/TrabajadoresListView.tsx:
+- Tabla con: Foto, Nombre Completo, Documento, Cargo, Teléfono, 
+  Estado, Acciones
+- Filtros: Cargo, Estado, Búsqueda por nombre/documento
+- Vista de grid con cards como alternativa
+- Estadísticas: Total activos, Por cargo
+- Botón "Nuevo Trabajador"
+- Exportar listado
+
+src/pages/dashboard/trabajadores/views/TrabajadorCreateView.tsx:
+- Formulario completo con todos los campos
+- Upload de foto de perfil
+- Validación de documento único
+- Sección de datos personales
+- Sección de datos laborales
+- Sección de contacto
+
+src/pages/dashboard/trabajadores/views/TrabajadorDetailView.tsx:
+- Perfil completo del trabajador
+- Foto grande, datos completos
+- Historial de labores realizadas
+- Estadísticas personales (labores completadas, hectáreas trabajadas)
+- Actividades asignadas
+- Rendimiento y productividad
+- Botones: Editar, Desactivar/Activar
+
+src/pages/dashboard/trabajadores/views/TrabajadorEditView.tsx:
+- Formulario de edición con datos precargados
+- Igual estructura que create
+
+
+PROMPT 6.2 - Componentes de Trabajadores
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/trabajadores/components/:
+
+TrabajadorForm.tsx:
+- Formulario reutilizable para crear/editar
+- Campos agrupados en secciones
+
+TrabajadoresTable.tsx:
+- Tabla optimizada con sorting y filtros
+
+TrabajadorCard.tsx:
+- Card para vista de grid
+
+TrabajadorAvatar.tsx:
+- Avatar con foto o iniciales
+
+HistorialLaboresTrabajador.tsx:
+- Timeline de labores del trabajador
+
+EstadisticasTrabajador.tsx:
+- Dashboard de estadísticas individuales
+
+
+================================================================================
+FASE 7: MÓDULO DE CULTIVOS Y LOTES (1 hora)
+================================================================================
+
+PROMPT 7.1 - Gestión de Cultivos
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/cultivos/views/:
+
+CultivosListView.tsx:
+- Grid de cards con imagen, nombre, variedad, lotes asociados
+- Filtros por tipo de cultivo
+- Búsqueda
+- Estadísticas: Total de cultivos, Hectáreas totales
+- Botón "Nuevo Cultivo"
+
+CultivoCreateView.tsx:
+- Formulario con: Nombre, Nombre científico, Variedad, Tipo, 
+  Ciclo en días, Descripción, Imagen
+- Upload de imagen del cultivo
+
+CultivoDetailView.tsx:
+- Información completa del cultivo
+- Lista de lotes asociados
+- Estadísticas: Total de lotes, Área total, Producción total
+- Gráfico de producción histórica
+- Historial de labores en este cultivo
+- Próximas actividades programadas
+
+CultivoEditView.tsx:
+- Formulario de edición
+
+
+PROMPT 7.2 - Gestión de Lotes
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/lotes/views/:
+
+LotesListView.tsx:
+- Tabla con: Código, Nombre, Cultivo, Área (ha), Estado, 
+  Ubicación GPS, Acciones
+- Filtros por cultivo, estado
+- Vista de mapa con marcadores de todos los lotes
+- Toggle entre vista tabla y vista mapa
+- Botón "Nuevo Lote"
+
+LoteCreateView.tsx:
+- Formulario con: Código*, Nombre*, Cultivo*, Área en hectáreas*, 
+  Coordenadas GPS, Estado, Notas
+- Selector de ubicación en mapa interactivo
+- Validación de código único
+
+LoteDetailView.tsx:
+- Información del lote
+- Mapa grande con el marcador
+- Información del cultivo asociado
+- Historial completo de labores en el lote
+- Trazabilidad completa
+- Estadísticas de producción del lote
+- Timeline de eventos
+- Próximas actividades
+
+LoteEditView.tsx:
+- Formulario de edición
+
+
+PROMPT 7.3 - Componentes de Cultivos y Lotes
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/cultivos/components/ y 
+src/pages/dashboard/lotes/components/:
+
+CultivoForm.tsx:
+- Formulario reutilizable
+
+CultivoCard.tsx:
+- Card visual con imagen
+
+LoteForm.tsx:
+- Formulario con selector de mapa
+
+LoteCard.tsx:
+- Card de lote
+
+MapaLotes.tsx:
+- Mapa interactivo con todos los lotes usando Leaflet o Google Maps
+- Marcadores clicables
+- Filtros de cultivo en el mapa
+
+TrazabilidadTimeline.tsx:
+- Timeline visual de eventos del lote
+
+EstadisticasLote.tsx:
+- Stats del lote
+
+
+================================================================================
+FASE 8: MÓDULO DE INVENTARIO DE INSUMOS (45 minutos)
+================================================================================
+
+PROMPT 8.1 - Gestión de Insumos
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/insumos/views/:
+
+InsumosListView.tsx:
+- Tabla: Nombre, Tipo, Cantidad Disponible, Unidad, Stock Mínimo, 
+  Estado (indicador visual), Acciones
+- Filtros por tipo, estado de stock
+- Búsqueda
+- Alertas de stock bajo destacadas
+- Botones: Nuevo Insumo, Ajustar Inventario
+- Exportar inventario
+
+InsumoCreateView.tsx:
+- Formulario: Nombre*, Tipo*, Unidad*, Cantidad inicial, 
+  Stock mínimo, Costo unitario, Proveedor, Fecha de vencimiento, 
+  Ubicación en almacén
+
+InsumoDetailView.tsx:
+- Información completa
+- Historial de movimientos (entradas, salidas, ajustes)
+- Gráfico de consumo mensual
+- Alertas de vencimiento
+- Labores donde se ha utilizado
+- Botones: Editar, Ajustar Inventario
+
+AjustarInventarioView.tsx:
+- Formulario para ajustar cantidad
+- Tipo de movimiento (Entrada, Salida, Ajuste, Merma)
+- Cantidad
+- Motivo
+- Fecha
+- Observaciones
+
+
+PROMPT 8.2 - Componentes de Insumos
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/insumos/components/:
+
+InsumoForm.tsx:
+- Formulario reutilizable
+
+InsumosTable.tsx:
+- Tabla con indicadores de stock
+
+InsumoStockBadge.tsx:
+- Badge de estado de stock con colores
+
+AjusteInventarioForm.tsx:
+- Formulario de ajuste
+
+HistorialMovimientos.tsx:
+- Tabla de movimientos
+
+AlertasStockBajo.tsx:
+- Widget de alertas
+
+
+================================================================================
+FASE 9: MÓDULO DE PLANIFICACIÓN (45 minutos)
+================================================================================
+
+PROMPT 9.1 - Planificación de Actividades
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/planificacion/views/:
+
+PlanificacionView.tsx:
+- Vista principal con calendario mensual
+- Actividades marcadas en el calendario por fecha
+- Colores por tipo de labor
+- Panel lateral con actividades del día seleccionado
+- Filtros por cultivo, trabajador, estado
+- Botones: Nueva Actividad, Vista Semanal, Vista Mensual
+
+ActividadCreateView.tsx:
+- Formulario: Título*, Descripción, Fecha programada*, 
+  Hora estimada, Cultivo, Lote, Trabajador asignado, 
+  Tipo de labor, Prioridad, Duración estimada, Notas
+
+ActividadDetailView.tsx:
+- Información completa
+- Estado actual
+- Resultados al completar
+- Botones: Editar, Completar, Cancelar, Asignar Trabajador
+
+
+PROMPT 9.2 - Componentes de Planificación
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/planificacion/components/:
+
+CalendarioActividades.tsx:
+- Calendario interactivo con actividades
+- Usa react-big-calendar o similar
+
+ActividadForm.tsx:
+- Formulario reutilizable
+
+ListaActividades.tsx:
+- Lista de actividades con filtros
+
+ActividadCard.tsx:
+- Card de actividad
+
+CompletarActividadDialog.tsx:
+- Modal para completar con resultados
+
+
+================================================================================
+FASE 10: MÓDULO DE REPORTES (1 hora)
+================================================================================
+
+PROMPT 10.1 - Vista Principal de Reportes
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/reportes/ReportesView.tsx:
+
+NAVEGACIÓN POR PESTAÑAS:
+- Resumen General
+- Reportes por Cultivo
+- Reportes por Trabajador
+- Reportes de Producción
+- Reportes de Insumos
+
+PESTAÑA RESUMEN GENERAL:
+- Selector de rango de fechas
+- Cards con KPIs principales:
+  * Total de labores realizadas
+  * Hectáreas trabajadas
+  * Producción total (kg)
+  * Trabajadores activos
+  * Insumos utilizados
+- Gráfico de labores por tipo
+- Gráfico de producción por cultivo
+- Tabla de top 5 cultivos más productivos
+- Tabla de top 5 trabajadores más activos
+
+PESTAÑA POR CULTIVO:
+- Selector de cultivo
+- Selector de rango de fechas
+- Estadísticas del cultivo
+- Gráfico de producción en el tiempo
+- Tabla de labores realizadas
+- Rendimiento por hectárea
+- Costo de insumos
+- Botón exportar reporte
+
+PESTAÑA POR TRABAJADOR:
+- Selector de trabajador
+- Selector de rango de fechas
+- Estadísticas del trabajador
+- Labores completadas
+- Producción recolectada
+- Gráfico de productividad
+- Tabla detallada de actividades
+
+PESTAÑA DE PRODUCCIÓN:
+- Comparativas entre cultivos
+- Tendencias de producción
+- Proyecciones
+- Análisis de rendimiento
+
+PESTAÑA DE INSUMOS:
+- Consumo por tipo
+- Costo total
+- Eficiencia de uso
+
+
+PROMPT 10.2 - Componentes de Reportes
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/reportes/components/:
+
+ReporteResumenGeneral.tsx:
+- Dashboard con todos los KPIs
+
+ReportePorCultivo.tsx:
+- Reporte detallado de cultivo
+
+ReportePorTrabajador.tsx:
+- Reporte detallado de trabajador
+
+ReporteProduccion.tsx:
+- Análisis de producción
+
+ReporteInsumos.tsx:
+- Análisis de insumos
+
+GraficoComparativo.tsx:
+- Gráficos de comparación
+
+ExportReportButton.tsx:
+- Botón con opciones de exportación
+
+FiltrosReporte.tsx:
+- Panel de filtros para reportes
+
+
+================================================================================
+FASE 11: INTEGRACIÓN Y NAVEGACIÓN (1 hora)
+================================================================================
+
+PROMPT 11.1 - Configuración de Rutas
+--------------------------------------------------------------------------------
+Actualiza src/App.tsx con todas las rutas del sistema:
+
+RUTAS PÚBLICAS:
+- / -> LandingPage
+- /login -> LoginView
+- /registro -> RegisterView
+- /recuperar-password -> ForgotPasswordView
+
+RUTAS PROTEGIDAS (requieren autenticación):
+- /dashboard -> DashboardHomeView
+- /dashboard/labores -> LaboresListView
+- /dashboard/labores/nueva -> LaborCreateView
+- /dashboard/labores/:id -> LaborDetailView
+- /dashboard/labores/:id/editar -> LaborEditView
+- /dashboard/trabajadores -> TrabajadoresListView
+- /dashboard/trabajadores/nuevo -> TrabajadorCreateView
+- /dashboard/trabajadores/:id -> TrabajadorDetailView
+- /dashboard/trabajadores/:id/editar -> TrabajadorEditView
+- /dashboard/cultivos -> CultivosListView
+- /dashboard/cultivos/nuevo -> CultivoCreateView
+- /dashboard/cultivos/:id -> CultivoDetailView
+- /dashboard/cultivos/:id/editar -> CultivoEditView
+- /dashboard/lotes -> LotesListView
+- /dashboard/lotes/nuevo -> LoteCreateView
+- /dashboard/lotes/:id -> LoteDetailView
+- /dashboard/lotes/:id/editar -> LoteEditView
+- /dashboard/insumos -> InsumosListView
+- /dashboard/insumos/nuevo -> InsumoCreateView
+- /dashboard/insumos/:id -> InsumoDetailView
+- /dashboard/insumos/:id/ajustar -> AjustarInventarioView
+- /dashboard/planificacion -> PlanificacionView
+- /dashboard/planificacion/nueva -> ActividadCreateView
+- /dashboard/planificacion/:id -> ActividadDetailView
+- /dashboard/reportes -> ReportesView
+- /dashboard/trazabilidad/:loteId -> TrazabilidadView
+
+Configura React Router con lazy loading para optimización.
+
+
+PROMPT 11.2 - Layout del Dashboard
+--------------------------------------------------------------------------------
+Actualiza src/components/layouts/DashboardLayout.tsx:
+
+SIDEBAR:
+- Logo del sistema "AgroGest"
+- Menú de navegación con iconos:
+  * 🏠 Inicio
+  * 📋 Labores Agrícolas
+  * 👥 Trabajadores
+  * 🌱 Cultivos
+  * 📍 Lotes
+  * 📦 Inventario de Insumos
+  * 📅 Planificación
+  * 📊 Reportes
+  * 🔍 Trazabilidad
+- Indicadores de notificaciones
+- Usuario actual con dropdown
+- Botón de cerrar sesión
+
+HEADER:
+- Breadcrumbs dinámicos
+- Barra de búsqueda global
+- Notificaciones con badge
+- Perfil de usuario con menú
+
+CONTENIDO:
+- Área principal responsiva
+- Scroll independiente
+
+RESPONSIVE:
+- Sidebar colapsable en móvil
+- Menú hamburguesa
+- Optimizado para tablets
+
+
+PROMPT 11.3 - Búsqueda Global
+--------------------------------------------------------------------------------
+Crea src/components/common/GlobalSearch.tsx:
+
+- Barra de búsqueda en el header
+- Búsqueda en tiempo real mientras se escribe
+- Resultados agrupados por categoría:
+  * Labores
+  * Trabajadores
+  * Cultivos
+  * Lotes
+  * Insumos
+- Navegación con teclado (arrows, enter, esc)
+- Resultados con preview
+- Límite de 5 resultados por categoría
+- Link "Ver todos" para cada categoría
+
+
+================================================================================
+FASE 12: MÓDULO DE ROLES Y PERMISOS (1 hora)
+================================================================================
+
+PROMPT 12.1 - Modelo de Datos de Roles y Permisos
+--------------------------------------------------------------------------------
+Crea src/types/roles.ts con el sistema completo de roles:
+
+INTERFACES:
+```typescript
+// Roles del sistema
+enum RolUsuario {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  ADMINISTRADOR = 'ADMINISTRADOR',
+  SUPERVISOR = 'SUPERVISOR',
+  TECNICO_AGRICOLA = 'TECNICO_AGRICOLA',
+  TRABAJADOR_CAMPO = 'TRABAJADOR_CAMPO',
+  CONTADOR = 'CONTADOR',
+  SOLO_LECTURA = 'SOLO_LECTURA'
+}
+
+// Permisos granulares
+enum Permiso {
+  // Labores
+  LABORES_VER = 'labores:ver',
+  LABORES_CREAR = 'labores:crear',
+  LABORES_EDITAR = 'labores:editar',
+  LABORES_ELIMINAR = 'labores:eliminar',
+  LABORES_EXPORTAR = 'labores:exportar',
+  
+  // Trabajadores
+  TRABAJADORES_VER = 'trabajadores:ver',
+  TRABAJADORES_CREAR = 'trabajadores:crear',
+  TRABAJADORES_EDITAR = 'trabajadores:editar',
+  TRABAJADORES_ELIMINAR = 'trabajadores:eliminar',
+  TRABAJADORES_VER_SALARIOS = 'trabajadores:ver_salarios',
+  
+  // Cultivos
+  CULTIVOS_VER = 'cultivos:ver',
+  CULTIVOS_CREAR = 'cultivos:crear',
+  CULTIVOS_EDITAR = 'cultivos:editar',
+  CULTIVOS_ELIMINAR = 'cultivos:eliminar',
+  
+  // Lotes
+  LOTES_VER = 'lotes:ver',
+  LOTES_CREAR = 'lotes:crear',
+  LOTES_EDITAR = 'lotes:editar',
+  LOTES_ELIMINAR = 'lotes:eliminar',
+  
+  // Insumos
+  INSUMOS_VER = 'insumos:ver',
+  INSUMOS_CREAR = 'insumos:crear',
+  INSUMOS_EDITAR = 'insumos:editar',
+  INSUMOS_AJUSTAR = 'insumos:ajustar',
+  INSUMOS_VER_COSTOS = 'insumos:ver_costos',
+  
+  // Actividades
+  ACTIVIDADES_VER = 'actividades:ver',
+  ACTIVIDADES_CREAR = 'actividades:crear',
+  ACTIVIDADES_EDITAR = 'actividades:editar',
+  ACTIVIDADES_COMPLETAR = 'actividades:completar',
+  
+  // Reportes
+  REPORTES_VER = 'reportes:ver',
+  REPORTES_EXPORTAR = 'reportes:exportar',
+  REPORTES_FINANCIEROS = 'reportes:financieros',
+  
+  // Trazabilidad
+  TRAZABILIDAD_VER = 'trazabilidad:ver',
+  TRAZABILIDAD_EXPORTAR = 'trazabilidad:exportar',
+  
+  // Configuración
+  CONFIGURACION_VER = 'configuracion:ver',
+  CONFIGURACION_EDITAR = 'configuracion:editar',
+  
+  // Usuarios
+  USUARIOS_VER = 'usuarios:ver',
+  USUARIOS_CREAR = 'usuarios:crear',
+  USUARIOS_EDITAR = 'usuarios:editar',
+  USUARIOS_ELIMINAR = 'usuarios:eliminar',
+  USUARIOS_GESTIONAR_ROLES = 'usuarios:gestionar_roles'
+}
+
+interface Usuario {
+  id: string;
+  nombres: string;
+  apellidos: string;
+  email: string;
+  rol: RolUsuario;
+  permisos_adicionales?: Permiso[];
+  permisos_revocados?: Permiso[];
+  trabajador_id?: string; // Si está asociado a un trabajador
+  estado: 'ACTIVO' | 'INACTIVO' | 'BLOQUEADO';
+  foto_perfil?: string;
+  fecha_creacion: Date;
+  ultimo_acceso?: Date;
+}
+
+interface RolConfig {
+  nombre: RolUsuario;
+  descripcion: string;
+  permisos: Permiso[];
+  color: string;
+  icono: string;
+}
+```
+
+MATRIZ DE PERMISOS POR ROL:
+Definir claramente qué puede hacer cada rol.
+
+
+PROMPT 12.2 - Configuración de Roles
+--------------------------------------------------------------------------------
+Crea src/config/rolesConfig.ts con la matriz completa de permisos:
+
+```typescript
+export const ROLES_CONFIG: Record<RolUsuario, RolConfig> = {
+  [RolUsuario.SUPER_ADMIN]: {
+    nombre: RolUsuario.SUPER_ADMIN,
+    descripcion: 'Acceso total al sistema, incluye gestión de usuarios',
+    color: 'purple',
+    icono: '👑',
+    permisos: [
+      // Todos los permisos
+      ...Object.values(Permiso)
+    ]
+  },
+  
+  [RolUsuario.ADMINISTRADOR]: {
+    nombre: RolUsuario.ADMINISTRADOR,
+    descripcion: 'Gestión completa excepto usuarios del sistema',
+    color: 'blue',
+    icono: '⚙️',
+    permisos: [
+      // Labores - todos
+      Permiso.LABORES_VER,
+      Permiso.LABORES_CREAR,
+      Permiso.LABORES_EDITAR,
+      Permiso.LABORES_ELIMINAR,
+      Permiso.LABORES_EXPORTAR,
+      
+      // Trabajadores - todos
+      Permiso.TRABAJADORES_VER,
+      Permiso.TRABAJADORES_CREAR,
+      Permiso.TRABAJADORES_EDITAR,
+      Permiso.TRABAJADORES_ELIMINAR,
+      Permiso.TRABAJADORES_VER_SALARIOS,
+      
+      // Cultivos y Lotes - todos
+      Permiso.CULTIVOS_VER,
+      Permiso.CULTIVOS_CREAR,
+      Permiso.CULTIVOS_EDITAR,
+      Permiso.CULTIVOS_ELIMINAR,
+      Permiso.LOTES_VER,
+      Permiso.LOTES_CREAR,
+      Permiso.LOTES_EDITAR,
+      Permiso.LOTES_ELIMINAR,
+      
+      // Insumos - todos
+      Permiso.INSUMOS_VER,
+      Permiso.INSUMOS_CREAR,
+      Permiso.INSUMOS_EDITAR,
+      Permiso.INSUMOS_AJUSTAR,
+      Permiso.INSUMOS_VER_COSTOS,
+      
+      // Actividades - todos
+      Permiso.ACTIVIDADES_VER,
+      Permiso.ACTIVIDADES_CREAR,
+      Permiso.ACTIVIDADES_EDITAR,
+      Permiso.ACTIVIDADES_COMPLETAR,
+      
+      // Reportes - todos
+      Permiso.REPORTES_VER,
+      Permiso.REPORTES_EXPORTAR,
+      Permiso.REPORTES_FINANCIEROS,
+      
+      // Trazabilidad
+      Permiso.TRAZABILIDAD_VER,
+      Permiso.TRAZABILIDAD_EXPORTAR,
+      
+      // Configuración
+      Permiso.CONFIGURACION_VER,
+      Permiso.CONFIGURACION_EDITAR
+    ]
+  },
+  
+  [RolUsuario.SUPERVISOR]: {
+    nombre: RolUsuario.SUPERVISOR,
+    descripcion: 'Supervisión de operaciones, edición limitada',
+    color: 'green',
+    icono: '👨‍💼',
+    permisos: [
+      // Labores - ver, crear, editar (no eliminar)
+      Permiso.LABORES_VER,
+      Permiso.LABORES_CREAR,
+      Permiso.LABORES_EDITAR,
+      Permiso.LABORES_EXPORTAR,
+      
+      // Trabajadores - ver y editar
+      Permiso.TRABAJADORES_VER,
+      Permiso.TRABAJADORES_EDITAR,
+      
+      // Cultivos y Lotes - ver
+      Permiso.CULTIVOS_VER,
+      Permiso.LOTES_VER,
+      
+      // Insumos - ver y ajustar
+      Permiso.INSUMOS_VER,
+      Permiso.INSUMOS_AJUSTAR,
+      
+      // Actividades - todos
+      Permiso.ACTIVIDADES_VER,
+      Permiso.ACTIVIDADES_CREAR,
+      Permiso.ACTIVIDADES_EDITAR,
+      Permiso.ACTIVIDADES_COMPLETAR,
+      
+      // Reportes - ver y exportar
+      Permiso.REPORTES_VER,
+      Permiso.REPORTES_EXPORTAR,
+      
+      // Trazabilidad
+      Permiso.TRAZABILIDAD_VER,
+      Permiso.TRAZABILIDAD_EXPORTAR
+    ]
+  },
+  
+  [RolUsuario.TECNICO_AGRICOLA]: {
+    nombre: RolUsuario.TECNICO_AGRICOLA,
+    descripcion: 'Técnico especializado en labores agrícolas',
+    color: 'teal',
+    icono: '🌱',
+    permisos: [
+      // Labores - ver, crear, editar
+      Permiso.LABORES_VER,
+      Permiso.LABORES_CREAR,
+      Permiso.LABORES_EDITAR,
+      
+      // Trabajadores - solo ver
+      Permiso.TRABAJADORES_VER,
+      
+      // Cultivos y Lotes - ver
+      Permiso.CULTIVOS_VER,
+      Permiso.LOTES_VER,
+      
+      // Insumos - ver
+      Permiso.INSUMOS_VER,
+      
+      // Actividades - ver y completar
+      Permiso.ACTIVIDADES_VER,
+      Permiso.ACTIVIDADES_COMPLETAR,
+      
+      // Reportes - ver
+      Permiso.REPORTES_VER,
+      
+      // Trazabilidad
+      Permiso.TRAZABILIDAD_VER
+    ]
+  },
+  
+  [RolUsuario.TRABAJADOR_CAMPO]: {
+    nombre: RolUsuario.TRABAJADOR_CAMPO,
+    descripcion: 'Trabajador de campo, registro de labores propias',
+    color: 'amber',
+    icono: '👷',
+    permisos: [
+      // Labores - solo ver y crear propias
+      Permiso.LABORES_VER,
+      Permiso.LABORES_CREAR,
+      
+      // Cultivos y Lotes - ver
+      Permiso.CULTIVOS_VER,
+      Permiso.LOTES_VER,
+      
+      // Actividades - ver asignadas
+      Permiso.ACTIVIDADES_VER,
+      Permiso.ACTIVIDADES_COMPLETAR,
+      
+      // Trazabilidad - ver
+      Permiso.TRAZABILIDAD_VER
+    ]
+  },
+  
+  [RolUsuario.CONTADOR]: {
+    nombre: RolUsuario.CONTADOR,
+    descripcion: 'Acceso a información financiera y reportes',
+    color: 'indigo',
+    icono: '💰',
+    permisos: [
+      // Labores - solo ver
+      Permiso.LABORES_VER,
+      Permiso.LABORES_EXPORTAR,
+      
+      // Trabajadores - ver con salarios
+      Permiso.TRABAJADORES_VER,
+      Permiso.TRABAJADORES_VER_SALARIOS,
+      
+      // Insumos - ver con costos
+      Permiso.INSUMOS_VER,
+      Permiso.INSUMOS_VER_COSTOS,
+      
+      // Reportes - todos incluidos financieros
+      Permiso.REPORTES_VER,
+      Permiso.REPORTES_EXPORTAR,
+      Permiso.REPORTES_FINANCIEROS
+    ]
+  },
+  
+  [RolUsuario.SOLO_LECTURA]: {
+    nombre: RolUsuario.SOLO_LECTURA,
+    descripcion: 'Solo visualización de información',
+    color: 'gray',
+    icono: '👁️',
+    permisos: [
+      Permiso.LABORES_VER,
+      Permiso.TRABAJADORES_VER,
+      Permiso.CULTIVOS_VER,
+      Permiso.LOTES_VER,
+      Permiso.INSUMOS_VER,
+      Permiso.ACTIVIDADES_VER,
+      Permiso.REPORTES_VER,
+      Permiso.TRAZABILIDAD_VER
+    ]
+  }
+};
+```
+
+
+PROMPT 12.3 - Servicio de Autenticación y Autorización
+--------------------------------------------------------------------------------
+Actualiza src/stores/authStore.ts para incluir gestión completa de roles:
+
+```typescript
+interface AuthState {
+  usuario: Usuario | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  
+  // Acciones
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => void;
+  verificarPermiso: (permiso: Permiso) => boolean;
+  verificarPermisos: (permisos: Permiso[]) => boolean;
+  verificarRol: (roles: RolUsuario[]) => boolean;
+  puedeEditar: (recurso: string, idRecurso: string) => boolean;
+}
+
+// Usuarios de demostración
+const USUARIOS_DEMO = [
+  {
+    id: '1',
+    nombres: 'Carlos',
+    apellidos: 'Administrador',
+    email: 'admin@agro.com',
+    password: 'admin123',
+    rol: RolUsuario.ADMINISTRADOR,
+    estado: 'ACTIVO'
+  },
+  {
+    id: '2',
+    nombres: 'María',
+    apellidos: 'Supervisora',
+    email: 'supervisor@agro.com',
+    password: 'super123',
+    rol: RolUsuario.SUPERVISOR,
+    estado: 'ACTIVO'
+  },
+  {
+    id: '3',
+    nombres: 'Juan',
+    apellidos: 'Técnico',
+    email: 'tecnico@agro.com',
+    password: 'tecnico123',
+    rol: RolUsuario.TECNICO_AGRICOLA,
+    trabajador_id: 't001',
+    estado: 'ACTIVO'
+  },
+  {
+    id: '4',
+    nombres: 'Pedro',
+    apellidos: 'Campo',
+    email: 'trabajador@agro.com',
+    password: 'trab123',
+    rol: RolUsuario.TRABAJADOR_CAMPO,
+    trabajador_id: 't002',
+    estado: 'ACTIVO'
+  },
+  {
+    id: '5',
+    nombres: 'Ana',
+    apellidos: 'Contadora',
+    email: 'contador@agro.com',
+    password: 'cont123',
+    rol: RolUsuario.CONTADOR,
+    estado: 'ACTIVO'
+  }
+];
+```
+
+Implementar funciones:
+- verificarPermiso: Verifica si el usuario tiene un permiso específico
+- verificarPermisos: Verifica múltiples permisos (todos requeridos)
+- verificarRol: Verifica si el usuario tiene uno de los roles especificados
+- puedeEditar: Lógica especial (ej: trabajador solo edita sus propias labores)
+
+
+PROMPT 12.4 - Utilidades y Hooks de Permisos
+--------------------------------------------------------------------------------
+Crea src/utils/permissions.ts:
+
+```typescript
+import { useAuthStore } from '@/stores/authStore';
+import { Permiso, RolUsuario } from '@/types/roles';
+
+// Hook para verificar permisos
+export const usePermissions = () => {
+  const { verificarPermiso, verificarPermisos, verificarRol } = useAuthStore();
+  
+  return {
+    tienePermiso: verificarPermiso,
+    tienePermisos: verificarPermisos,
+    tieneRol: verificarRol,
+    esAdmin: () => verificarRol([RolUsuario.SUPER_ADMIN, RolUsuario.ADMINISTRADOR]),
+    esSupervisor: () => verificarRol([RolUsuario.SUPERVISOR]),
+    esTrabajador: () => verificarRol([RolUsuario.TRABAJADOR_CAMPO])
+  };
+};
+
+// HOC para proteger componentes
+export const ConPermiso = ({ 
+  permiso, 
+  permisos, 
+  children, 
+  fallback = null 
+}: {
+  permiso?: Permiso;
+  permisos?: Permiso[];
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}) => {
+  const { verificarPermiso, verificarPermisos } = useAuthStore();
+  
+  if (permiso && !verificarPermiso(permiso)) {
+    return fallback;
+  }
+  
+  if (permisos && !verificarPermisos(permisos)) {
+    return fallback;
+  }
+  
+  return children;
+};
+
+// HOC para proteger por rol
+export const ConRol = ({ 
+  roles, 
+  children, 
+  fallback = null 
+}: {
+  roles: RolUsuario[];
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}) => {
+  const { verificarRol } = useAuthStore();
+  
+  if (!verificarRol(roles)) {
+    return fallback;
+  }
+  
+  return children;
+};
+```
+
+
+PROMPT 12.5 - Módulo de Gestión de Usuarios
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/usuarios/views/:
+
+UsuariosListView.tsx:
+- Tabla con: Avatar, Nombre, Email, Rol (con badge de color), 
+  Estado, Último acceso, Acciones
+- Filtros por rol, estado
+- Búsqueda por nombre o email
+- Solo visible para ADMIN y SUPER_ADMIN
+- Botón "Nuevo Usuario"
+- Indicadores visuales de usuarios conectados
+
+UsuarioCreateView.tsx:
+- Formulario:
+  * Datos personales (nombres, apellidos, email)
+  * Contraseña inicial
+  * Rol (selector con descripción de cada rol)
+  * Asociar a trabajador existente (opcional)
+  * Permisos adicionales (multi-select)
+  * Permisos revocados (multi-select)
+  * Estado inicial
+  * Foto de perfil
+- Preview de permisos efectivos del usuario
+- Solo SUPER_ADMIN puede crear otros SUPER_ADMIN
+
+UsuarioDetailView.tsx:
+- Información completa del usuario
+- Badge de rol con color
+- Lista de permisos efectivos
+- Permisos adicionales concedidos
+- Permisos revocados
+- Historial de acceso
+- Actividad reciente
+- Botones: Editar, Cambiar Contraseña, Bloquear/Desbloquear
+
+UsuarioEditView.tsx:
+- Formulario de edición
+- No permite cambiar el email
+- Permite cambiar rol (solo SUPER_ADMIN)
+- Gestionar permisos adicionales
+
+
+PROMPT 12.6 - Componentes de Gestión de Usuarios
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/usuarios/components/:
+
+UsuarioForm.tsx:
+- Formulario completo reutilizable
+- Selector de rol con tarjetas visuales
+- Preview de permisos en tiempo real
+
+RolBadge.tsx:
+- Badge visual del rol con icono y color
+
+PermisosManager.tsx:
+- Componente para gestionar permisos adicionales y revocados
+- Agrupados por categoría (Labores, Trabajadores, etc.)
+- Checkboxes con descripciones
+- Indicadores de permisos heredados del rol
+
+UsuarioAvatar.tsx:
+- Avatar con estado (online/offline)
+- Indicador de rol
+
+CambiarPasswordDialog.tsx:
+- Modal para cambiar contraseña
+- Validaciones de seguridad
+
+HistorialAccesoTable.tsx:
+- Tabla de sesiones del usuario
+
+
+PROMPT 12.7 - Protección de Rutas y Componentes
+--------------------------------------------------------------------------------
+Actualiza src/components/auth/ProtectedRoute.tsx para incluir permisos:
+
+```typescript
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiereRoles?: RolUsuario[];
+  requierePermiso?: Permiso;
+  requierePermisos?: Permiso[];
+  redirigirA?: string;
+}
+
+const ProtectedRoute = ({ 
+  children, 
+  requiereRoles,
+  requierePermiso,
+  requierePermisos,
+  redirigirA = '/dashboard'
+}: ProtectedRouteProps) => {
+  const { usuario, verificarRol, verificarPermiso, verificarPermisos } = useAuthStore();
+  
+  // Verificar autenticación
+  if (!usuario) {
+    return <Navigate to="/login" />;
+  }
+  
+  // Verificar roles
+  if (requiereRoles && !verificarRol(requiereRoles)) {
+    return <AccesoDenegado />;
+  }
+  
+  // Verificar permiso único
+  if (requierePermiso && !verificarPermiso(requierePermiso)) {
+    return <AccesoDenegado />;
+  }
+  
+  // Verificar múltiples permisos
+  if (requierePermisos && !verificarPermisos(requierePermisos)) {
+    return <AccesoDenegado />;
+  }
+  
+  return children;
+};
+```
+
+Crear componente AccesoDenegado.tsx:
+- Página amigable de acceso denegado
+- Explicar por qué no tiene acceso
+- Botón para volver al dashboard
+- Enlace para solicitar permisos
+
+
+PROMPT 12.8 - Aplicar Permisos en Toda la Aplicación
+--------------------------------------------------------------------------------
+Actualizar TODOS los componentes para respetar permisos:
+
+EJEMPLO EN LABORES:
+```typescript
+// En LaboresListView.tsx
+const { tienePermiso } = usePermissions();
+
+// Botón de crear
+{tienePermiso(Permiso.LABORES_CREAR) && (
+  <Button onClick={() => navigate('/dashboard/labores/nueva')}>
+    Nueva Labor
+  </Button>
+)}
+
+// Botón de editar en tabla
+{tienePermiso(Permiso.LABORES_EDITAR) && (
+  <Button onClick={() => handleEdit(labor.id)}>Editar</Button>
+)}
+
+// Botón de eliminar
+{tienePermiso(Permiso.LABORES_ELIMINAR) && (
+  <Button onClick={() => handleDelete(labor.id)}>Eliminar</Button>
+)}
+```
+
+Aplicar en:
+- Botones de acción
+- Menús de navegación
+- Campos de formulario
+- Pestañas
+- Secciones completas
+
+
+PROMPT 12.9 - Vista de Configuración de Roles
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/roles/RolesConfigView.tsx:
+
+Solo para SUPER_ADMIN:
+- Tabla de todos los roles disponibles
+- Card de cada rol con:
+  * Nombre y descripción
+  * Color e icono
+  * Cantidad de usuarios con ese rol
+  * Lista completa de permisos
+  * Botón "Ver permisos detallados"
+- Comparador de roles (seleccionar 2 roles y ver diferencias)
+- Matriz de permisos visual
+
+RolDetailDialog.tsx:
+- Modal con detalles completos del rol
+- Lista de permisos agrupados por categoría
+- Lista de usuarios con ese rol
+- Sugerencias de uso
+
+
+PROMPT 12.10 - Auditoría y Logs
+--------------------------------------------------------------------------------
+Crea src/services/auditService.ts:
+
+Registrar eventos importantes:
+- Inicio de sesión
+- Cierre de sesión
+- Cambios de rol
+- Concesión/revocación de permisos
+- Acceso denegado
+- Cambios en datos sensibles
+
+Interface AuditLog:
+```typescript
+interface AuditLog {
+  id: string;
+  fecha_hora: Date;
+  usuario_id: string;
+  usuario_nombre: string;
+  accion: string;
+  recurso: string;
+  recurso_id?: string;
+  detalles: any;
+  ip_address?: string;
+  user_agent?: string;
+}
+```
+
+Vista de auditoría (solo SUPER_ADMIN):
+- Tabla de logs
+- Filtros por usuario, acción, fecha
+- Exportar logs
+
+
+PROMPT 12.11 - Indicadores Visuales de Permisos
+--------------------------------------------------------------------------------
+Crear componentes visuales para mostrar permisos:
+
+PermisosBadgeGroup.tsx:
+- Grupo de badges de permisos
+- Colores por categoría
+
+MatrizPermisosTable.tsx:
+- Tabla comparativa de roles y permisos
+- Checkmarks visuales
+
+RolComparator.tsx:
+- Comparador visual de 2 roles
+- Diferencias destacadas
+
+
+PROMPT 12.12 - Testing de Permisos
+--------------------------------------------------------------------------------
+Crear checklist de testing:
+
+Verificar para cada rol:
+- [ ] Login exitoso
+- [ ] Navegación solo muestra opciones permitidas
+- [ ] Botones solo aparecen si tiene permiso
+- [ ] Rutas protegidas correctamente
+- [ ] API respeta permisos (mock)
+- [ ] No puede acceder a recursos no permitidos
+- [ ] Mensajes de acceso denegado apropiados
+
+Crear documento TESTING_ROLES.md con matriz completa.
+
+
+================================================================================
+FASE 13: FUNCIONALIDADES AVANZADAS (1 hora)
+================================================================================
+
+PROMPT 13.1 - Sistema de Sincronización Offline
+--------------------------------------------------------------------------------
+Crea src/services/offlineService.ts:
+
+- Detectar estado de conexión
+- Cola de operaciones pendientes
+- Almacenar operaciones en IndexedDB o localStorage
+- Sincronizar automáticamente al recuperar conexión
+- Mostrar indicador de modo offline
+- Resolver conflictos de sincronización
+- Notificar al usuario del estado de sincronización
+
+Crea src/components/common/OfflineIndicator.tsx:
+- Banner superior cuando está offline
+- Estado de sincronización
+- Contador de operaciones pendientes
+
+
+PROMPT 12.2 - Sistema de Exportación
+--------------------------------------------------------------------------------
+Crea src/services/exportService.ts:
+
+Funciones para exportar a:
+- Excel (usando xlsx o similar):
+  * Exportar labores
+  * Exportar trabajadores
+  * Exportar inventario
+  * Exportar reportes
+  * Múltiples hojas
+  * Formato con colores y estilos
+
+- PDF (usando jsPDF o similar):
+  * Reportes formateados
+  * Logo y encabezado
+  * Tablas con paginación
+  * Gráficos incluidos
+  * Pie de página con fecha
+
+- CSV:
+  * Datos tabulares simples
+
+
+PROMPT 12.3 - Sistema de Permisos y Roles
+--------------------------------------------------------------------------------
+Actualiza src/stores/authStore.ts para incluir roles:
+
+ROLES:
+- ADMIN: Acceso total
+- SUPERVISOR: Lectura total, edición parcial
+- TRABAJADOR: Solo registrar labores propias
+
+Crea src/utils/permissions.ts:
+- Función para verificar permisos
+- HOC para proteger componentes
+- Hook usePermissions()
+
+Implementa restricciones en:
+- Edición de trabajadores (solo admin)
+- Eliminación de registros (admin y supervisor)
+- Edición de inventario (admin y supervisor)
+- Creación de cultivos y lotes (admin)
+
+
+PROMPT 12.4 - Sistema de Notificaciones
+--------------------------------------------------------------------------------
+Crea src/services/notificationService.ts:
+
+- Sistema de notificaciones push (simulado)
+- Notificaciones en app
+- Store de notificaciones no leídas
+- Tipos de notificaciones:
+  * Stock bajo
+  * Actividades vencidas
+  * Mantenimientos pendientes
+  * Nuevas asignaciones
+  * Labores completadas
+- Badge de contador en header
+- Panel de notificaciones dropdown
+- Marcar como leídas
+- Limpiar todas
+
+
+================================================================================
+FASE 14: TRAZABILIDAD Y MAPAS (45 minutos)
+================================================================================
+
+PROMPT 14.1 - Vista de Trazabilidad
+--------------------------------------------------------------------------------
+Crea src/pages/dashboard/trazabilidad/TrazabilidadView.tsx:
+
+- Selector de lote
+- Timeline vertical completa del lote:
+  * Fecha de siembra
+  * Todas las labores realizadas
+  * Insumos aplicados
+  * Trabajadores involucrados
+  * Condiciones climáticas en cada labor
+  * Fotografías de evidencia
+  * Eventos importantes
+  * Cosechas
+- Información del cultivo
+- Mapa con ubicación del lote
+- Estadísticas del lote
+- Botón exportar trazabilidad completa a PDF
+- Código QR para compartir trazabilidad
+
+
+PROMPT 13.2 - Componentes de Mapas
+--------------------------------------------------------------------------------
+Crea src/components/maps/:
+
+MapaInteractivo.tsx:
+- Componente de mapa usando Leaflet
+- Marcadores personalizados por tipo
+- Popup con información
+- Captura de coordenadas al hacer click
+
+MapaLotesGeneral.tsx:
+- Mapa con todos los lotes
+- Filtros por cultivo
+- Clustering de marcadores cercanos
+- Info window con datos del lote
+
+SelectorUbicacion.tsx:
+- Selector de ubicación para formularios
+- Búsqueda de dirección
+- Botón "Usar mi ubicación"
+
+
+================================================================================
+FASE 15: OPTIMIZACIÓN Y POLISH (1 hora)
+================================================================================
+
+PROMPT 15.1 - Loading States y Skeletons
+--------------------------------------------------------------------------------
+Implementa loading states en todas las vistas:
+- Skeleton loaders para tablas
+- Skeleton loaders para cards
+- Skeleton loaders para gráficos
+- Loading spinners para acciones
+- Indicadores de progreso en uploads
+- Disabled states durante operaciones
+
+Crea componentes:
+- TableSkeleton.tsx
+- CardSkeleton.tsx
+- ChartSkeleton.tsx
+
+
+PROMPT 14.2 - Error Handling y Validaciones
+--------------------------------------------------------------------------------
+Implementa manejo de errores robusto:
+- Error boundaries en componentes principales
+- Mensajes de error amigables en español
+- Validaciones en todos los formularios
+- Feedback visual en operaciones
+- Toasts de éxito/error
+- Confirmaciones para acciones destructivas
+- Retry automático en fallos de red
+
+
+PROMPT 14.3 - Responsive Design
+--------------------------------------------------------------------------------
+Optimiza para todos los dispositivos:
+- Tablets (768px - 1024px):
+  * Sidebar colapsable
+  * Tablas con scroll horizontal
+  * Grids de 2 columnas
+- Móviles (< 768px):
+  * Menú hamburguesa
+  * Cards en lista vertical
+  * Formularios en una columna
+  * Botones de acción flotantes
+- Desktop (> 1024px):
+  * Máximo aprovechamiento de espacio
+  * Múltiples paneles
+  * Grids de 3-4 columnas
+
+Prueba todas las vistas en diferentes tamaños.
+
+
+PROMPT 14.4 - Accesibilidad
+--------------------------------------------------------------------------------
+Implementa mejoras de accesibilidad:
+- Labels en todos los inputs
+- Roles ARIA apropiados
+- Focus visible
+- Navegación por teclado
+- Contraste de colores adecuado
+- Textos alternativos en imágenes
+- Mensajes de error asociados a campos
+
+
+================================================================================
+FASE 16: LANDING PAGE Y AUTENTICACIÓN (45 minutos)
+================================================================================
+
+PROMPT 16.1 - Landing Page Moderna
+--------------------------------------------------------------------------------
+Crea src/pages/Home/LandingPage.tsx con diseño moderno:
+
+HERO SECTION:
+- Título principal: "Sistema de Gestión Agrícola Integral"
+- Subtítulo: "Controla, planifica y optimiza todas las labores 
+  de tu cultivo desde cualquier dispositivo"
+- Imagen o ilustración de agricultura
+- Botones: "Comenzar Gratis" y "Ver Demo"
+
+SECCIÓN DE CARACTERÍSTICAS:
+- Grid de 6 características principales con iconos:
+  * Registro de labores en campo
+  * Gestión de trabajadores
+  * Control de inventario
+  * Planificación de actividades
+  * Reportes y estadísticas
+  * Trazabilidad completa
+
+SECCIÓN DE BENEFICIOS:
+- 3 cards con beneficios:
+  * Aumenta la productividad
+  * Reduce costos operativos
+  * Mejora la toma de decisiones
+
+SECCIÓN DE CAPTURAS:
+- Screenshots o mockups del sistema
+
+FOOTER:
+- Links
+- Información de contacto
+
+Diseño moderno con gradientes y animaciones sutiles.
+
+
+PROMPT 15.2 - Sistema de Autenticación Completo
+--------------------------------------------------------------------------------
+Mejora los componentes de autenticación existentes:
+
+LoginForm.tsx:
+- Validaciones robustas
+- Recordar sesión
+- Link a recuperar contraseña
+- Feedback de errores
+- Loading state
+
+RegisterForm.tsx:
+- Validación de contraseña fuerte
+- Confirmación de contraseña
+- Términos y condiciones
+- Validación de email
+
+ForgotPasswordForm.tsx:
+- Envío de email de recuperación
+- Confirmación visual
+
+Implementa autenticación simulada en authService.ts:
+- Login con usuario demo
+- Usuarios de prueba con diferentes roles:
+  * admin@agro.com / admin123 (Administrador)
+  * supervisor@agro.com / super123 (Supervisor)
+  * trabajador@agro.com / trab123 (Trabajador)
+- Generar tokens falsos
+- Almacenar en localStorage
+
+
+================================================================================
+FASE 17: DOCUMENTACIÓN Y DATOS DE DEMOSTRACIÓN (30 minutos)
+================================================================================
+
+PROMPT 17.1 - Inicialización de Datos de Demo
+--------------------------------------------------------------------------------
+Crea src/utils/initializeDemoData.ts:
+
+- Función para verificar si existen datos en localStorage
+- Si no existen, generar automáticamente:
+  * 15 trabajadores realistas
+  * 8 cultivos con información real
+  * 20 lotes con coordenadas de Colombia
+  * 100 labores de los últimos 30 días con datos coherentes
+  * 30 insumos
+  * 10 máquinas
+  * 25 actividades planificadas
+
+- Llamar esta función en el inicio de la aplicación (main.tsx)
+- Botón en settings para "Restablecer datos de demostración"
+
+
+PROMPT 16.2 - Crear README Completo
+--------------------------------------------------------------------------------
+Crea README_SISTEMA_AGRICOLA.md con:
+
+# Sistema de Gestión Agrícola Integral - AgroGest
+
+## Descripción
+[Descripción completa del sistema]
+
+## Características Principales
+[Lista de módulos y funcionalidades]
+
+## Tecnologías Utilizadas
+- React 18
+- TypeScript
+- Vite
+- TanStack Query (React Query)
+- Zustand
+- Tailwind CSS
+- shadcn/ui
+- Recharts
+- React Router
+- Axios
+- date-fns
+- React Leaflet
+
+## Instalación
+```bash
+npm install
+npm run dev
+```
+
+## Usuarios de Demostración
+[Lista de usuarios]
+
+## Estructura del Proyecto
+[Árbol de carpetas explicado]
+
+## Módulos del Sistema
+[Descripción de cada módulo]
+
+## Funcionalidades Destacadas
+[Lista detallada]
+
+## Capturas de Pantalla
+[Descripción de vistas principales]
+
+## Modelo de Datos
+[Esquema de entidades]
+
+## API Endpoints (Simulados)
+[Lista de endpoints]
+
+## Roadmap - Integraciones Futuras
+- [ ] Sensores IoT
+- [ ] Estaciones meteorológicas
+- [ ] Básculas digitales
+- [ ] GPS automático
+- [ ] Drones para mapeo
+- [ ] Sistema de riego automatizado
+
+## Licencia
+[Licencia del proyecto]
+
+
+PROMPT 16.3 - Documentación de Componentes
+--------------------------------------------------------------------------------
+Crea DOCUMENTACION_TECNICA.md con:
+
+- Arquitectura del sistema
+- Flujo de datos
+- Estructura de componentes
+- Patrones utilizados
+- Hooks personalizados
+- Servicios y APIs
+- Store de estado
+- Manejo de errores
+- Sistema de caché
+- Offline mode
+- Sistema de permisos
+
+
+================================================================================
+FASE 18: TESTING Y AJUSTES FINALES (30 minutos)
+================================================================================
+
+PROMPT 18.1 - Testing Manual Completo
+--------------------------------------------------------------------------------
+Prueba todas las funcionalidades siguiendo este checklist:
+
+MÓDULO DE LABORES:
+- [ ] Crear nueva labor con todos los campos
+- [ ] Editar labor existente
+- [ ] Eliminar labor con confirmación
+- [ ] Filtrar por fecha, cultivo, trabajador
+- [ ] Búsqueda de labores
+- [ ] Exportar labores a Excel
+- [ ] Ver detalle de labor con fotos
+
+MÓDULO DE TRABAJADORES:
+- [ ] Crear nuevo trabajador
+- [ ] Editar trabajador
+- [ ] Ver detalle con historial
+- [ ] Filtrar y buscar
+- [ ] Activar/desactivar
+
+MÓDULO DE CULTIVOS Y LOTES:
+- [ ] Crear cultivo
+- [ ] Crear lote asociado
+- [ ] Ver en mapa
+- [ ] Ver trazabilidad
+
+MÓDULO DE INSUMOS:
+- [ ] Ver inventario
+- [ ] Ajustar stock
+- [ ] Ver alertas de stock bajo
+
+MÓDULO DE PLANIFICACIÓN:
+- [ ] Crear actividad
+- [ ] Completar actividad
+- [ ] Ver calendario
+
+DASHBOARD:
+- [ ] Ver estadísticas correctas
+- [ ] Ver gráficos
+- [ ] Alertas funcionando
+
+REPORTES:
+- [ ] Generar reporte general
+- [ ] Exportar reporte a PDF
+
+SISTEMA:
+- [ ] Login/Logout
+- [ ] Roles funcionando
+- [ ] Búsqueda global
+- [ ] Responsive en móvil
+- [ ] Modo offline (simular desconexión)
+
+Documentar cualquier bug encontrado.
+
+
+PROMPT 17.2 - Ajustes de UI/UX
+--------------------------------------------------------------------------------
+Realizar ajustes finales:
+- Revisar consistencia de colores
+- Verificar espaciados y alineaciones
+- Optimizar tiempos de carga
+- Ajustar animaciones
+- Mejorar feedback visual
+- Revisar textos y traducciones
+- Verificar iconos consistentes
+- Mejorar contraste de textos
+- Ajustar tamaños de fuente
+- Optimizar para tablets
+
+
+PROMPT 17.3 - Optimización de Performance
+--------------------------------------------------------------------------------
+- Implementar lazy loading de rutas
+- Optimizar re-renders con React.memo
+- Implementar virtualization en listas largas
+- Optimizar bundle size
+- Configurar staleTime en queries
+- Implementar pagination en tablas grandes
+- Lazy load de imágenes
+- Debounce en búsquedas
+
+
+================================================================================
+FASE 19: PREPARACIÓN PARA INTEGRACIÓN FUTURA (30 minutos)
+================================================================================
+
+PROMPT 19.1 - Documentación de Integraciones Futuras
+--------------------------------------------------------------------------------
+Crea INTEGRACIONES_FUTURAS.md con:
+
+## Preparación para Sensores IoT
+
+### Endpoints necesarios:
+- POST /api/sensores/temperatura
+- POST /api/sensores/humedad
+- POST /api/sensores/ph-suelo
+
+### Estructura de datos:
+```typescript
+interface SensorData {
+  sensor_id: string;
+  lote_id: string;
+  tipo_sensor: string;
+  valor: number;
+  unidad: string;
+  timestamp: Date;
+  coordenadas?: GPSCoordinates;
+}
+```
+
+## Integración con Estaciones Meteorológicas
+
+### Endpoints:
+- GET /api/clima/actual/:loteId
+- GET /api/clima/pronostico/:loteId
+
+### Datos esperados:
+- Temperatura
+- Humedad
+- Precipitación
+- Velocidad del viento
+- Radiación solar
+
+## Integración con Básculas Digitales
+
+### Protocolo:
+- Conexión Bluetooth o WiFi
+- Actualización automática del peso en formulario
+- Endpoint: POST /api/lecturas-bascula
+
+## GPS Automático
+
+### Funcionalidad:
+- Captura automática de coordenadas
+- Tracking de rutas del trabajador
+- Geofencing de lotes
+
+## Drones y Mapeo Aéreo
+
+### Funcionalidad:
+- Upload de imágenes aéreas
+- Análisis de NDVI
+- Detección de problemas
+
+## Sistema de Riego Automatizado
+
+### Control:
+- Activación remota de riego
+- Programación de riegos
+- Monitoreo de consumo de agua
+
+
+PROMPT 18.2 - Estructura de Base de Datos SQL
+--------------------------------------------------------------------------------
+Crea DATABASE_SCHEMA.sql con el esquema completo de base de datos:
+
+```sql
+-- Tabla de trabajadores
+CREATE TABLE trabajadores (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  nombres VARCHAR(100) NOT NULL,
+  apellidos VARCHAR(100) NOT NULL,
+  tipo_documento ENUM('CC', 'CE', 'PA') NOT NULL,
+  numero_documento VARCHAR(20) UNIQUE NOT NULL,
+  ...
+);
+
+-- [Todas las tablas necesarias]
+```
+
+Incluir:
+- Todas las tablas
+- Relaciones (FK)
+- Índices
+- Constraints
+- Triggers útiles
+
+
+PROMPT 18.3 - API REST Endpoints Documentation
+--------------------------------------------------------------------------------
+Crea API_ENDPOINTS.md con documentación completa estilo OpenAPI:
+
+Para cada endpoint:
+- Método HTTP
+- URL
+- Descripción
+- Parámetros
+- Body request
+- Response exitosa
+- Códigos de error
+- Ejemplos
+
+Grupos:
+- Autenticación
+- Labores
+- Trabajadores
+- Cultivos
+- Lotes
+- Insumos
+- Actividades
+- Reportes
+- Trazabilidad
+- Sensores (futuro)
+
+
+================================================================================
+FASE 20: DEPLOYMENT Y CONFIGURACIÓN (30 minutos)
+================================================================================
+
+PROMPT 20.1 - Configuración de Variables de Entorno
+--------------------------------------------------------------------------------
+Crea .env.example con todas las variables necesarias:
+
+```env
+# API Configuration
+VITE_API_BASE_URL=http://localhost:3000/api
+VITE_USE_MOCK_DATA=true
+
+# Map Configuration
+VITE_GOOGLE_MAPS_API_KEY=your_key_here
+VITE_MAPBOX_TOKEN=your_token_here
+
+# Storage
+VITE_STORAGE_PREFIX=agro_gest_
+
+# Features
+VITE_ENABLE_OFFLINE_MODE=true
+VITE_ENABLE_NOTIFICATIONS=true
+
+# Environment
+VITE_ENVIRONMENT=development
+```
+
+Actualizar servicios para usar estas variables.
+
+
+PROMPT 19.2 - Scripts de Build y Deploy
+--------------------------------------------------------------------------------
+Actualiza package.json con scripts útiles:
+
+```json
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "clean": "rm -rf dist node_modules",
+    "reset-demo": "node scripts/resetDemoData.js"
+  }
+}
+```
+
+Crear script scripts/resetDemoData.js para reiniciar datos de demo.
+
+
+PROMPT 19.3 - Guía de Deployment
+--------------------------------------------------------------------------------
+Actualiza DEPLOYMENT.md con instrucciones para:
+
+- Deployment en Vercel
+- Deployment en Netlify  
+- Deployment en servidor propio
+- Configuración de nginx
+- Certificados SSL
+- Variables de entorno en producción
+- Optimizaciones de build
+
+
+================================================================================
+FASE 21: REVISIÓN FINAL Y ENTREGA (30 minutos)
+================================================================================
+
+PROMPT 21.1 - Revisión General del Sistema
+--------------------------------------------------------------------------------
+Hacer una revisión completa:
+
+1. Verificar que todos los módulos estén implementados
+2. Probar flujo completo de usuario desde login hasta exportar reporte
+3. Verificar datos de demostración coherentes
+4. Revisar todos los textos en español
+5. Verificar responsive en 3 tamaños (móvil, tablet, desktop)
+6. Verificar que no haya console.errors
+7. Verificar que todos los links funcionen
+8. Revisar documentación completa
+
+
+PROMPT 20.2 - Crear Video/GIF de Demostración
+--------------------------------------------------------------------------------
+Preparar material de demostración:
+- Screenshots de cada módulo
+- Crear DEMO_GUIDE.md con guía paso a paso
+- Lista de flujos de usuario para demonstrar
+
+
+PROMPT 20.3 - Checklist Final
+--------------------------------------------------------------------------------
+Verificar que esté completo:
+
+FUNCIONALIDAD:
+- [x] Dashboard con estadísticas en tiempo real
+- [x] Módulo de labores completo (CRUD + filtros + exportación)
+- [x] Módulo de trabajadores completo
+- [x] Módulo de cultivos y lotes completo
+- [x] Módulo de inventario de insumos
+- [x] Módulo de planificación con calendario
+- [x] Módulo de reportes con gráficos
+- [x] Sistema de trazabilidad por lote
+- [x] Sistema de autenticación con roles
+- [x] Búsqueda global
+- [x] Modo offline con sincronización
+- [x] Exportación a Excel y PDF
+- [x] Sistema de notificaciones
+- [x] Mapas interactivos
+- [x] Upload de imágenes
+- [x] Formularios optimizados para móvil
+- [x] Validaciones completas
+
+DOCUMENTACIÓN:
+- [x] README completo
+- [x] Documentación técnica
+- [x] Documentación de API
+- [x] Esquema de base de datos
+- [x] Guía de deployment
+- [x] Documentación de integraciones futuras
+
+CALIDAD:
+- [x] Todo en español
+- [x] Responsive design
+- [x] Accesibilidad básica
+- [x] Loading states
+- [x] Error handling
+- [x] Datos de demostración realistas
+- [x] Performance optimizado
+
+
+================================================================================
+RESUMEN EJECUTIVO
+================================================================================
+
+Este plan de trabajo está diseñado para completarse en aproximadamente 9-11 
+horas de trabajo enfocado, dividido en 21 fases progresivas.
+
+ORDEN DE EJECUCIÓN:
+1. Primero completar Fases 1-3 (Configuración base, tipos, servicios, UI)
+2. Luego Fases 4-11 (Implementación de módulos principales)
+3. Después Fase 12 (Sistema de roles y permisos - FUNDAMENTAL)
+4. Continuar Fases 13-14 (Funcionalidades avanzadas)
+5. Finalmente Fases 15-21 (Optimización, documentación, deployment)
+
+PRIORIDADES SI HAY LIMITACIÓN DE TIEMPO:
+- CRÍTICA: Fase 12 (Sistema de roles - integrar antes de avanzar mucho)
+- ALTA: Fases 1-8 (Core funcional del sistema)
+- MEDIA: Fases 9-11, 13-14 (Funcionalidades adicionales)
+- BAJA: Fases 15-21 (Polish y documentación)
+
+TECNOLOGÍAS PRINCIPALES:
+- Frontend: React 18 + TypeScript + Vite
+- State: TanStack Query + Zustand
+- UI: Tailwind CSS + shadcn/ui
+- Gráficos: Recharts
+- Mapas: React Leaflet
+- Formularios: React Hook Form + Zod
+
+DATOS DE DEMOSTRACIÓN:
+Todos los datos son simulados pero realistas, basados en agricultura 
+colombiana típica. El sistema funciona completamente con datos mock sin 
+necesidad de backend.
+
+PREPARACIÓN PARA PRODUCCIÓN:
+El código está estructurado para facilitar el reemplazo de servicios mock 
+por llamadas reales a API. Solo requiere actualizar los archivos en 
+src/services/api/ para apuntar a endpoints reales.
+
+================================================================================
+NOTAS IMPORTANTES
+================================================================================
+
+1. Cada prompt debe ejecutarse en orden y esperar a que se complete antes 
+   de pasar al siguiente.
+
+2. Si algún prompt es muy grande, se puede dividir en sub-prompts más 
+   pequeños enfocados en componentes específicos.
+
+3. Después de cada fase, hacer una prueba rápida de que todo funciona antes 
+   de continuar.
+
+4. Mantener consistencia en nombres de variables, funciones y componentes 
+   en español.
+
+5. Usar comentarios en español en el código para facilitar mantenimiento.
+
+6. Priorizar funcionalidad sobre perfección estética en primera instancia.
+
+7. Los datos mock deben ser coherentes entre sí (ej: labores referenciar 
+   trabajadores y lotes que realmente existen).
+
+8. Implementar validaciones en todos los formularios desde el inicio.
+
+9. Usar TypeScript de forma estricta para prevenir errores.
+
+10. Preparar el código pensando en escalabilidad futura.
+
+11. IMPORTANTE: El módulo de roles (Fase 12) es FUNDAMENTAL y debe 
+    implementarse completo antes de continuar con otras funcionalidades 
+    avanzadas. Todos los componentes posteriores dependen de este sistema.
+
+12. Sistema de 7 roles implementado:
+    - SUPER_ADMIN: Control total del sistema
+    - ADMINISTRADOR: Gestión operativa completa
+    - SUPERVISOR: Supervisión y edición limitada
+    - TECNICO_AGRICOLA: Registro y seguimiento de labores
+    - TRABAJADOR_CAMPO: Captura básica de datos
+    - CONTADOR: Acceso a información financiera
+    - SOLO_LECTURA: Visualización sin edición
+
+13. Usuarios de demostración para testing:
+    - admin@agro.com / admin123 (Administrador)
+    - supervisor@agro.com / super123 (Supervisor)
+    - tecnico@agro.com / tecnico123 (Técnico Agrícola)
+    - trabajador@agro.com / trab123 (Trabajador de Campo)
+    - contador@agro.com / cont123 (Contador)
+
+================================================================================
+FIN DEL PLAN DE TRABAJO
+================================================================================
+
+¡ÉXITO EN LA IMPLEMENTACIÓN! 🚀🌾
+

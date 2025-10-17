@@ -21,6 +21,10 @@ import {
   X,
   FileText,
   Shield
+  X,
+  Map,
+  Leaf,
+  Calendar
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -42,6 +46,9 @@ export default function DashboardLayout() {
     { name: 'Tipos de Labor', href: '/dashboard/tipos-labor', icon: Sprout },
     { name: 'Registro de Labores', href: '/dashboard/labores', icon: Clipboard },
     { name: 'Roles', href: '/dashboard/roles', icon: Shield },
+    { name: 'Lotes', href: '/dashboard/lotes', icon: Map },
+    { name: 'Cultivos', href: '/dashboard/cultivos', icon: Leaf },
+    { name: 'Planificación', href: '/dashboard/planificacion', icon: Calendar },
   ]
 
   return (
