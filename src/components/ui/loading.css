@@ -1,0 +1,261 @@
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+}
+
+/* Loading Container */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Loading Button */
+.loading-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Coffee Loader Base */
+.coffee-loader {
+  position: relative;
+  display: flex;
+  justify-items: center;
+  align-items: center;
+}
+
+.coffee-cup {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  border: 1px solid #2e2e2e;
+  z-index: 1;
+  border-radius: 2px 2px 10px 10px;
+  animation: cupExpansion 1.5s infinite ease-in-out;
+  transform-origin: center;
+}
+
+.coffee-cup::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  width: calc(100% - 2px);
+  height: 2px;
+  background: #fed59fca;
+  border: 1px solid #2e2e2ebe;
+  border-radius: 50%;
+}
+
+.coffee-cup::before {
+  content: "";
+  position: absolute;
+  top: 15px;
+  width: calc(100% - 2px);
+  height: 4px;
+  background: #ffffff00;
+  border: 1px solid #2e2e2e;
+  border-top: none;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.coffee-cup-handle {
+  position: absolute;
+  width: 5px;
+  height: 10px;
+  background-color: #fff;
+  border: 1px solid #2e2e2e;
+  right: -5px;
+  top: 2px;
+  border-radius: 2px 10px 20px 2px;
+}
+
+.coffee-smoke {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  background: rgba(180, 180, 180, 0.8);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  animation: smokeRise 3s infinite ease-out;
+  filter: blur(6px);
+}
+
+.coffee-smoke.one {
+  animation-delay: 0s;
+  background: rgba(200, 200, 200, 0.85);
+}
+
+.coffee-smoke.two {
+  animation-delay: 1s;
+  background: rgba(190, 190, 190, 0.8);
+}
+
+.coffee-smoke.three {
+  animation-delay: 2s;
+  background: rgba(180, 180, 180, 0.75);
+}
+
+/* Loading Text */
+.loading-text {
+  font-size: 14px;
+  color: #fff;
+  opacity: 0.9;
+  font-weight: 500;
+  text-align: center;
+  animation: textPulse 1.5s infinite ease-in-out;
+}
+
+/* Size Variants */
+/* Small - Para botones */
+.loading-sm .coffee-loader {
+  width: 30px;
+  height: 30px;
+}
+
+.loading-sm .coffee-cup {
+  width: 12px;
+  height: 10px;
+}
+
+.loading-sm .coffee-cup::before {
+  top: 8px;
+  height: 2px;
+}
+
+.loading-sm .coffee-cup-handle {
+  width: 3px;
+  height: 6px;
+  right: -3px;
+  top: 1px;
+}
+
+.loading-sm .coffee-smoke {
+  width: 12px;
+  height: 18px;
+}
+
+.loading-sm .loading-text {
+  font-size: 10px;
+}
+
+/* Medium - Default */
+.loading-md .coffee-loader {
+  width: 100px;
+  height: 80px;
+}
+
+.loading-md .coffee-cup {
+  width: 25px;
+  height: 18px;
+}
+
+.loading-md .coffee-smoke {
+  width: 25px;
+  height: 35px;
+}
+
+.loading-md .loading-text {
+  font-size: 14px;
+}
+
+/* Large - Para pantallas completas */
+.loading-lg .coffee-loader {
+  width: 150px;
+  height: 120px;
+}
+
+.loading-lg .coffee-cup {
+  width: 40px;
+  height: 28px;
+}
+
+.loading-lg .coffee-cup::before {
+  top: 24px;
+  height: 6px;
+}
+
+.loading-lg .coffee-cup-handle {
+  width: 8px;
+  height: 16px;
+  right: -8px;
+  top: 4px;
+}
+
+.loading-lg .coffee-smoke {
+  width: 40px;
+  height: 55px;
+}
+
+.loading-lg .loading-text {
+  font-size: 18px;
+}
+
+/* Animations */
+@keyframes cupExpansion {
+  0% {
+    width: 25px;
+    transform: translateX(-50%) scaleX(1);
+  }
+  50% {
+    width: 40px;
+    transform: translateX(-50%) scaleX(1);
+  }
+  100% {
+    width: 25px;
+    transform: translateX(-50%) scaleX(1);
+  }
+}
+
+@keyframes smokeRise {
+  0% {
+    transform: translate(-50%, 0) scale(0.5);
+    opacity: 0.9;
+  }
+  20% {
+    opacity: 0.85;
+  }
+  40% {
+    opacity: 0.8;
+  }
+  60% {
+    opacity: 0.7;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(-50%, -80px) scale(1.5);
+    opacity: 0.2;
+  }
+}
+
+@keyframes textPulse {
+  0%, 100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Responsive adjustments for small size */
+@media (max-width: 640px) {
+  .loading-sm .coffee-cup {
+    width: 10px;
+    height: 8px;
+  }
+}
+
