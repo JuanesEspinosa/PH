@@ -1,121 +1,64 @@
-import { Cultivo, CreateCultivoDto, UpdateCultivoDto, TipoCultivo } from '@/types/cultivos';
+import api from '@/lib/axios';
+import { Cultivo, CreateCultivoDto, UpdateCultivoDto } from '@/types/cultivos';
 
 // ============================================================================
-// DATOS MOCK DE CULTIVOS
-// ============================================================================
-
-let CULTIVOS_MOCK: Cultivo[] = [
-  {
-    id: '1',
-    nombre: 'Café',
-    nombre_cientifico: 'Coffea arabica',
-    tipo: TipoCultivo.OTRO,
-    ciclo_dias: 1825, // ~5 años
-    descripcion: 'Café arábigo de alta calidad para exportación',
-    activo: true,
-    fecha_creacion: new Date('2024-01-15')
-  },
-  {
-    id: '2',
-    nombre: 'Banano',
-    nombre_cientifico: 'Musa paradisiaca',
-    tipo: TipoCultivo.FRUTA,
-    ciclo_dias: 365,
-    descripcion: 'Banano tipo exportación',
-    activo: true,
-    fecha_creacion: new Date('2024-01-20')
-  },
-  {
-    id: '3',
-    nombre: 'Maíz',
-    nombre_cientifico: 'Zea mays',
-    tipo: TipoCultivo.CEREAL,
-    ciclo_dias: 120,
-    descripcion: 'Maíz amarillo para consumo',
-    activo: true,
-    fecha_creacion: new Date('2024-02-01')
-  },
-  {
-    id: '4',
-    nombre: 'Papa',
-    nombre_cientifico: 'Solanum tuberosum',
-    tipo: TipoCultivo.TUBERCULO,
-    ciclo_dias: 150,
-    descripcion: 'Papa criolla',
-    activo: true,
-    fecha_creacion: new Date('2024-02-10')
-  },
-  {
-    id: '5',
-    nombre: 'Tomate',
-    nombre_cientifico: 'Solanum lycopersicum',
-    tipo: TipoCultivo.HORTALIZA,
-    ciclo_dias: 90,
-    descripcion: 'Tomate chonto para mesa',
-    activo: true,
-    fecha_creacion: new Date('2024-03-01')
-  }
-];
-
-// Simular delay de red
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-// ============================================================================
-// SERVICIOS
+// SERVICIOS - API REAL
 // ============================================================================
 
 export const cultivosService = {
   // Obtener todos los cultivos
   getAll: async (): Promise<Cultivo[]> => {
-    await delay(300);
-    return [...CULTIVOS_MOCK];
+    const { data } = await api.get<Cultivo[]>('/cultivos');
+    return data.map(cultivo => ({
+      ...cultivo,
+      id: cultivo.id.toString(),
+      fecha_creacion: new Date(cultivo.fecha_creacion)
+    }));
   },
   
   // Obtener solo cultivos activos
   getActivos: async (): Promise<Cultivo[]> => {
-    await delay(200);
-    return CULTIVOS_MOCK.filter(c => c.activo);
+    const { data } = await api.get<Cultivo[]>('/cultivos/activos');
+    return data.map(cultivo => ({
+      ...cultivo,
+      id: cultivo.id.toString(),
+      fecha_creacion: new Date(cultivo.fecha_creacion)
+    }));
   },
   
   // Obtener por ID
   getById: async (id: string): Promise<Cultivo> => {
-    await delay(200);
-    const cultivo = CULTIVOS_MOCK.find(c => c.id === id);
-    if (!cultivo) throw new Error('Cultivo no encontrado');
-    return cultivo;
+    const { data } = await api.get<Cultivo>(`/cultivos/${id}`);
+    return {
+      ...data,
+      id: data.id.toString(),
+      fecha_creacion: new Date(data.fecha_creacion)
+    };
   },
   
   // Crear
-  create: async (data: CreateCultivoDto): Promise<Cultivo> => {
-    await delay(400);
-    const nuevo: Cultivo = {
+  create: async (createData: CreateCultivoDto): Promise<Cultivo> => {
+    const { data } = await api.post<Cultivo>('/cultivos', createData);
+    return {
       ...data,
-      id: Date.now().toString(),
-      fecha_creacion: new Date()
+      id: data.id.toString(),
+      fecha_creacion: new Date(data.fecha_creacion)
     };
-    CULTIVOS_MOCK.push(nuevo);
-    return nuevo;
   },
   
   // Actualizar
-  update: async (id: string, data: UpdateCultivoDto): Promise<Cultivo> => {
-    await delay(400);
-    const index = CULTIVOS_MOCK.findIndex(c => c.id === id);
-    if (index === -1) throw new Error('Cultivo no encontrado');
-    
-    CULTIVOS_MOCK[index] = {
-      ...CULTIVOS_MOCK[index],
-      ...data
+  update: async (id: string, updateData: UpdateCultivoDto): Promise<Cultivo> => {
+    const { data } = await api.put<Cultivo>(`/cultivos/${id}`, updateData);
+    return {
+      ...data,
+      id: data.id.toString(),
+      fecha_creacion: new Date(data.fecha_creacion)
     };
-    return CULTIVOS_MOCK[index];
   },
   
   // Eliminar (soft delete - marcar como inactivo)
   delete: async (id: string): Promise<void> => {
-    await delay(300);
-    const index = CULTIVOS_MOCK.findIndex(c => c.id === id);
-    if (index === -1) throw new Error('Cultivo no encontrado');
-    CULTIVOS_MOCK[index].activo = false;
+    await api.delete(`/cultivos/${id}`);
   }
 };
 
