@@ -350,6 +350,37 @@ export const MapaReal = ({
   return (
     <div className="space-y-4">
       {/* Controles del mapa */}
+          {/* Leyenda */}
+          {mostrarLeyenda && lotes.length > 0 && (
+        <Card className="p-4">
+          <h4 className="font-semibold text-sm mb-3">Leyenda de Estados</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {Object.entries(COLORES_ESTADO).map(([estado, config]) => {
+              const count = lotes.filter(l => l.estado === estado).length;
+              if (count === 0) return null;
+              
+              return (
+                <div key={estado} className="flex items-center gap-2 text-xs">
+                  <div
+                    className="w-4 h-4 rounded border-2 flex-shrink-0"
+                    style={{
+                      backgroundColor: config.fillColor,
+                      borderColor: config.color
+                    }}
+                  />
+                  <div className="flex gap-1 min-w-0">
+                    <div className="truncate">{config.label}</div>
+                    <div className="text-gray-500">({count})</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          
+        </Card>
+      )}
+
       <div className="flex justify-between items-center">
         <div className="flex gap-2">
           <Button
@@ -373,6 +404,7 @@ export const MapaReal = ({
         </div>
       </div>
       
+      
       {/* Mapa de Google Maps */}
       <Card className="overflow-hidden relative">
         <div 
@@ -391,45 +423,9 @@ export const MapaReal = ({
         )}
       </Card>
       
-      {/* Leyenda */}
-      {mostrarLeyenda && lotes.length > 0 && (
-        <Card className="p-4">
-          <h4 className="font-semibold text-sm mb-3">Leyenda de Estados</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {Object.entries(COLORES_ESTADO).map(([estado, config]) => {
-              const count = lotes.filter(l => l.estado === estado).length;
-              if (count === 0) return null;
-              
-              return (
-                <div key={estado} className="flex items-center gap-2 text-xs">
-                  <div
-                    className="w-4 h-4 rounded border-2 flex-shrink-0"
-                    style={{
-                      backgroundColor: config.fillColor,
-                      borderColor: config.color
-                    }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="truncate">{config.label}</div>
-                    <div className="text-gray-500">({count})</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          
-          <div className="mt-3 pt-3 border-t text-sm">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Área total:</span>
-              <span className="font-semibold">
-                {lotes.reduce((sum, l) => sum + (Number(l.area_hectareas) || 0), 0).toFixed(1)} ha
-              </span>
-            </div>
-          </div>
-        </Card>
-      )}
+  
       
-      {/* Lista de lotes */}
+      {/* Lista de lotes
       <Card className="p-4">
         <h4 className="font-semibold text-sm mb-3">Lotes en el Mapa</h4>
         <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -469,7 +465,7 @@ export const MapaReal = ({
             );
           })}
         </div>
-      </Card>
+      </Card> */}
     </div>
   );
 };
