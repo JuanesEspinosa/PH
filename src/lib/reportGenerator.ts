@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf'
 import * as XLSX from 'xlsx'
 import { saveAs } from 'file-saver'
-import type { ReporteAgricola } from '@/types/agricultural'
+
 import {
   produccionMensual,
   rendimientoPorHectarea,
@@ -37,7 +37,7 @@ const dibujarGraficoBarrasHorizontal = (
     
     // Barra de valor (color)
     const anchoBarra = ((dato.valor / maxValor) * (ancho - 55))
-    doc.setFillColor(...dato.color)
+    doc.setFillColor(dato.color[0], dato.color[1], dato.color[2])
     doc.rect(x + 50, yPos, anchoBarra, altoBarra, 'F')
     
     // Valor en texto
@@ -64,7 +64,7 @@ const dibujarGraficoBarrasVertical = (
     const alturaBarra = (dato.valor / maxValor) * alto
     
     // Barra
-    doc.setFillColor(...dato.color)
+    doc.setFillColor(dato.color[0], dato.color[1], dato.color[2])
     doc.rect(xPos, y + alto - alturaBarra, anchoBarra, alturaBarra, 'F')
     
     // Etiqueta
@@ -113,7 +113,7 @@ const dibujarGraficoLineas = (
     const yPos = y + alto - (valorNormalizado * alto)
     
     // Punto
-    doc.setFillColor(...dato.color)
+    doc.setFillColor(dato.color[0], dato.color[1], dato.color[2])
     doc.circle(xPos, yPos, 2, 'F')
     
     // Línea al siguiente punto
@@ -123,7 +123,7 @@ const dibujarGraficoLineas = (
       const siguienteValorNormalizado = rango > 0 ? ((siguienteDato.valor - minValor) / rango) : 0.5
       const siguienteY = y + alto - (siguienteValorNormalizado * alto)
       
-      doc.setDrawColor(...dato.color)
+      doc.setDrawColor(dato.color[0], dato.color[1], dato.color[2])
       doc.setLineWidth(1.5)
       doc.line(xPos, yPos, siguienteX, siguienteY)
     }
@@ -149,7 +149,7 @@ export const generarReportePDF = (tipoReporte: string) => {
   const colorSecundario = [100, 100, 100]
 
   // Título principal
-  doc.setFillColor(...colorPrimario)
+  doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
   doc.rect(0, 0, 210, 40, 'F')
   
   doc.setTextColor(255, 255, 255)
@@ -170,12 +170,12 @@ export const generarReportePDF = (tipoReporte: string) => {
   if (tipoReporte === 'Productividad') {
     // Estadísticas generales
     doc.setFontSize(14)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Estadísticas Generales', 20, yPos)
     yPos += 10
 
     doc.setFontSize(10)
-    doc.setTextColor(...colorSecundario)
+    doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
     doc.text(`Total Producción: ${estadisticasAgricolasMock.totalProduccion.toLocaleString()} kg`, 20, yPos)
     yPos += 7
     doc.text(`Área Total: ${estadisticasAgricolasMock.totalArea.toLocaleString()} hectáreas`, 20, yPos)
@@ -189,7 +189,7 @@ export const generarReportePDF = (tipoReporte: string) => {
 
     // Gráfico: Distribución de Cultivos (Barras Horizontales)
     doc.setFontSize(14)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Distribución de Cultivos por Área', 20, yPos)
     yPos += 8
 
@@ -207,7 +207,7 @@ export const generarReportePDF = (tipoReporte: string) => {
 
     // Gráfico: Producción Mensual (Barras Verticales)
     doc.setFontSize(14)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Producción Mensual Total (kg)', 20, yPos)
     yPos += 8
 
@@ -222,12 +222,12 @@ export const generarReportePDF = (tipoReporte: string) => {
 
     // Datos textuales adicionales
     doc.setFontSize(12)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Producción por Cultivo (Último Mes)', 20, yPos)
     yPos += 8
 
     doc.setFontSize(10)
-    doc.setTextColor(...colorSecundario)
+    doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
     distribucionCultivos.forEach(cultivo => {
       doc.text(`${cultivo.nombre}: ${cultivo.area} ha - Producción: ${cultivo.produccion.toLocaleString()} kg`, 20, yPos)
       yPos += 6
@@ -236,7 +236,7 @@ export const generarReportePDF = (tipoReporte: string) => {
   } else if (tipoReporte === 'Rendimiento') {
     // Gráfico: Rendimiento por Hectárea (Líneas)
     doc.setFontSize(14)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Rendimiento por Hectárea (Últimos 6 Meses)', 20, yPos)
     yPos += 8
 
@@ -251,12 +251,12 @@ export const generarReportePDF = (tipoReporte: string) => {
 
     // Datos textuales
     doc.setFontSize(12)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Datos Detallados', 20, yPos)
     yPos += 8
 
     doc.setFontSize(10)
-    doc.setTextColor(...colorSecundario)
+    doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
     rendimientoPorHectarea.slice(-4).forEach(item => {
       const cumplimiento = ((item.rendimiento / item.objetivo) * 100).toFixed(1)
       doc.text(`${item.mes}: ${item.rendimiento} kg/ha (Objetivo: ${item.objetivo} kg/ha) - ${cumplimiento}%`, 20, yPos)
@@ -266,7 +266,7 @@ export const generarReportePDF = (tipoReporte: string) => {
 
     // Gráfico: Eficiencia por Campo (Barras Horizontales)
     doc.setFontSize(14)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Eficiencia Operacional por Campo', 20, yPos)
     yPos += 8
 
@@ -282,7 +282,7 @@ export const generarReportePDF = (tipoReporte: string) => {
 
     // Datos textuales de eficiencia
     doc.setFontSize(10)
-    doc.setTextColor(...colorSecundario)
+    doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
     eficienciaPorCampo.forEach(campo => {
       const estado = campo.eficiencia >= campo.meta ? '✓ Cumple meta' : '✗ Requiere mejora'
       doc.text(`${campo.campo}: ${campo.eficiencia}% (Meta: ${campo.meta}%) - ${estado}`, 20, yPos)
@@ -292,7 +292,7 @@ export const generarReportePDF = (tipoReporte: string) => {
   } else if (tipoReporte === 'Costos') {
     // Gráfico: Evolución de Costos Totales (Líneas)
     doc.setFontSize(14)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Evolución de Costos Totales Mensuales (USD)', 20, yPos)
     yPos += 8
 
@@ -307,7 +307,7 @@ export const generarReportePDF = (tipoReporte: string) => {
 
     // Gráfico: Desglose del Último Mes (Barras Verticales)
     doc.setFontSize(14)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Desglose de Costos - Mes Actual', 20, yPos)
     yPos += 8
 
@@ -324,12 +324,12 @@ export const generarReportePDF = (tipoReporte: string) => {
 
     // Datos textuales detallados
     doc.setFontSize(12)
-    doc.setTextColor(...colorPrimario)
+    doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
     doc.text('Detalle de Últimos 3 Meses', 20, yPos)
     yPos += 8
 
     doc.setFontSize(10)
-    doc.setTextColor(...colorSecundario)
+    doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
     costosOperacionales.slice(-3).forEach(item => {
       const total = item.personal + item.insumos + item.transporte + item.otros
       doc.text(`${item.mes}: Total $${total.toLocaleString()}`, 20, yPos)
@@ -344,7 +344,7 @@ export const generarReportePDF = (tipoReporte: string) => {
   // Pie de página
   const pageCount = doc.getNumberOfPages()
   doc.setFontSize(8)
-  doc.setTextColor(...colorSecundario)
+  doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
     doc.text(`Página ${i} de ${pageCount}`, 105, 285, { align: 'center' })
@@ -431,7 +431,7 @@ export const generarReporteComparativo = () => {
   const colorSecundario = [100, 100, 100]
 
   // Header
-  doc.setFillColor(...colorPrimario)
+  doc.setFillColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
   doc.rect(0, 0, 210, 35, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(18)
@@ -445,12 +445,12 @@ export const generarReporteComparativo = () => {
 
   // Resumen ejecutivo
   doc.setFontSize(14)
-  doc.setTextColor(...colorPrimario)
+  doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
   doc.text('📊 Resumen Ejecutivo', 20, yPos)
   yPos += 10
 
   doc.setFontSize(10)
-  doc.setTextColor(...colorSecundario)
+  doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
   doc.text(`• Producción total: ${estadisticasAgricolasMock.totalProduccion.toLocaleString()} kg`, 25, yPos)
   yPos += 6
   doc.text(`• Variación mensual: +${estadisticasAgricolasMock.variacionMensual}%`, 25, yPos)
@@ -462,7 +462,7 @@ export const generarReporteComparativo = () => {
 
   // Gráfico: Comparativa de Producción por Cultivo
   doc.setFontSize(14)
-  doc.setTextColor(...colorPrimario)
+  doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
   doc.text('🌾 Producción por Cultivo', 20, yPos)
   yPos += 8
 
@@ -484,11 +484,11 @@ export const generarReporteComparativo = () => {
   )
 
   doc.setFontSize(12)
-  doc.setTextColor(...colorPrimario)
+  doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
   doc.text('⭐ Mejor Desempeño', 20, yPos)
   yPos += 8
   doc.setFontSize(10)
-  doc.setTextColor(...colorSecundario)
+  doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
   doc.text(`Cultivo destacado: ${cultivoMasProductivo.nombre} con ${cultivoMasProductivo.produccion.toLocaleString()} kg`, 25, yPos)
   yPos += 6
   doc.text(`Representa el ${cultivoMasProductivo.porcentaje}% del área total cultivada`, 25, yPos)
@@ -496,7 +496,7 @@ export const generarReporteComparativo = () => {
 
   // Gráfico: Tendencia de Rendimiento
   doc.setFontSize(14)
-  doc.setTextColor(...colorPrimario)
+  doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
   doc.text('📈 Tendencia de Rendimiento (kg/ha)', 20, yPos)
   yPos += 8
 
@@ -511,12 +511,12 @@ export const generarReporteComparativo = () => {
 
   // Indicadores clave
   doc.setFontSize(12)
-  doc.setTextColor(...colorPrimario)
+  doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
   doc.text('📊 Indicadores Clave', 20, yPos)
   yPos += 8
 
   doc.setFontSize(10)
-  doc.setTextColor(...colorSecundario)
+  doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
   const rendimientoActual = rendimientoPorHectarea[rendimientoPorHectarea.length - 1]
   const mejora = rendimientoActual.rendimiento > rendimientoActual.objetivo ? '✓' : '✗'
   doc.text(`${mejora} Rendimiento actual: ${rendimientoActual.rendimiento} kg/ha (Objetivo: ${rendimientoActual.objetivo} kg/ha)`, 25, yPos)
@@ -528,11 +528,11 @@ export const generarReporteComparativo = () => {
 
   // Recomendaciones estratégicas
   doc.setFontSize(12)
-  doc.setTextColor(...colorPrimario)
+  doc.setTextColor(colorPrimario[0], colorPrimario[1], colorPrimario[2])
   doc.text('💡 Recomendaciones Estratégicas', 20, yPos)
   yPos += 8
   doc.setFontSize(9)
-  doc.setTextColor(...colorSecundario)
+  doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
   doc.text('1. Incrementar frecuencia de riego en Campo Este C para mejorar rendimiento del maíz', 25, yPos, { maxWidth: 160 })
   yPos += 7
   doc.text('2. Activar Campo Oeste D para aumentar producción total y diversificación', 25, yPos, { maxWidth: 160 })
@@ -545,7 +545,7 @@ export const generarReporteComparativo = () => {
 
   // Pie de página
   doc.setFontSize(8)
-  doc.setTextColor(...colorSecundario)
+  doc.setTextColor(colorSecundario[0], colorSecundario[1], colorSecundario[2])
   doc.text('Página 1 de 1', 105, 285, { align: 'center' })
   doc.text('Sistema de Gestión Agrícola - Confidencial', 105, 290, { align: 'center' })
 

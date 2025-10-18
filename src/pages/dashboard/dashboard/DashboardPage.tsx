@@ -9,12 +9,7 @@ import {
   MapPin
 } from 'lucide-react'
 import {
-  LineChart,
-  Line,
   BarChart,
-  Bar,
-  AreaChart,
-  Area,
   PieChart,
   Pie,
   Cell,
@@ -23,7 +18,8 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Bar
 } from 'recharts'
 import { useDashboardQuery } from './hooks/useDashboardQuery'
 
@@ -31,18 +27,10 @@ export default function DashboardPage() {
   const { user } = useAuthStore()
   const {
     estadisticas,
-    produccionMensual,
-    rendimientoHectarea,
-    distribucionCultivos,
-    eficienciaCampos,
-    laboresDiarias,
-    calidadProduccion,
-    actividadesPlanificadas,
     trabajadoresPorCargo,
     tiposLaborFrecuentes,
     estadoLotes,
     rendimientoPorTrabajador,
-    costosPorActividad,
     isLoading,
     isError
   } = useDashboardQuery()

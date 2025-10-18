@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Loading from './loading'
 import { Button } from './button'
 
