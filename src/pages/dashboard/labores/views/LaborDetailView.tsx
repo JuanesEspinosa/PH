@@ -29,14 +29,22 @@ export default function LaborDetailView() {
   const { mutate: deleteLabor, isPending: isDeleting } = useDeleteLaborMutation()
   const [deleteDialog, setDeleteDialog] = useState(false)
 
+  // Helper function to safely convert string to number and format
+  const safeToFixed = (value: any, decimals: number = 1): string => {
+    if (value === null || value === undefined) return '0'
+    const num = typeof value === 'string' ? parseFloat(value) : value
+    return isNaN(num) ? '0' : num.toFixed(decimals)
+  }
+
   const handleDelete = () => {
     if (!labor) return
-    deleteLabor(labor.id, {
+    deleteLabor(labor.id.toString(), {
       onSuccess: () => navigate('/dashboard/labores'),
     })
   }
 
   const formatFecha = (fecha: string) => {
+    if (!fecha) return 'N/A'
     return new Date(fecha).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'long',
@@ -147,7 +155,7 @@ export default function LaborDetailView() {
 
               <div className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                  {labor.tipoLaborNombre}
+                  {labor.tipo_labor_nombre}
                 </span>
                 <span
                   className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getEstadoColor(
@@ -180,14 +188,14 @@ export default function LaborDetailView() {
                 <User className="h-4 w-4" />
                 Trabajador
               </p>
-              <p className="font-medium">{labor.trabajadorNombre}</p>
+              <p className="font-medium">{labor.trabajador_nombre}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground flex items-center gap-1">
                 <Clock className="h-4 w-4" />
                 Horario
               </p>
-              <p className="font-medium">{labor.horaInicio} - {labor.horaFin} ({labor.duracionMinutos} min)</p>
+              <p className="font-medium">{labor.hora_inicio} - {labor.hora_fin} ({labor.duracion_minutos} min)</p>
             </div>
           </CardContent>
         </Card>
@@ -202,22 +210,22 @@ export default function LaborDetailView() {
           <CardContent className="space-y-3">
             <div>
               <p className="text-sm text-muted-foreground">Cantidad Recolectada</p>
-              <p className="text-2xl font-bold text-green-600">{labor.cantidadRecolectada} {labor.unidadMedida}</p>
+              <p className="text-2xl font-bold text-green-600">{safeToFixed(labor.cantidad_recolectada, 1)} {labor.unidad_medida}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Peso Total</p>
-              <p className="font-medium">{labor.pesoTotal} kg</p>
+              <p className="font-medium">{safeToFixed(labor.peso_total, 1)} kg</p>
             </div>
-            {labor.rendimientoPorHora > 0 && (
+            {labor.rendimiento_por_hora && parseFloat(labor.rendimiento_por_hora.toString()) > 0 && (
               <div>
                 <p className="text-sm text-muted-foreground">Rendimiento por Hora</p>
-                <p className="font-medium text-blue-600">{labor.rendimientoPorHora} {labor.unidadMedida}/h</p>
+                <p className="font-medium text-blue-600">{safeToFixed(labor.rendimiento_por_hora, 1)} {labor.unidad_medida}/h</p>
               </div>
             )}
-            {labor.costoEstimado && (
+            {labor.costo_estimado && (
               <div>
                 <p className="text-sm text-muted-foreground">Costo Estimado</p>
-                <p className="font-medium text-purple-600">${labor.costoEstimado}</p>
+                <p className="font-medium text-purple-600">${safeToFixed(labor.costo_estimado, 2)}</p>
               </div>
             )}
           </CardContent>
@@ -237,11 +245,11 @@ export default function LaborDetailView() {
             <div>
               <p className="text-sm text-muted-foreground">Coordenadas</p>
               <p className="font-medium">
-                Lat: {labor.ubicacionGPS.latitud}, Lon: {labor.ubicacionGPS.longitud}
+                Lat: {labor.ubicacion_gps.latitud}, Lon: {labor.ubicacion_gps.longitud}
               </p>
             </div>
             <a
-              href={`https://www.google.com/maps?q=${labor.ubicacionGPS.latitud},${labor.ubicacionGPS.longitud}`}
+              href={`https://www.google.com/maps?q=${labor.ubicacion_gps.latitud},${labor.ubicacion_gps.longitud}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-blue-600 hover:underline"
@@ -253,7 +261,7 @@ export default function LaborDetailView() {
         </CardContent>
       </Card>
 
-      {labor.condicionesClimaticas && (
+      {labor.condiciones_climaticas && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -263,22 +271,22 @@ export default function LaborDetailView() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-3">
-              {labor.condicionesClimaticas.temperatura && (
+              {labor.condiciones_climaticas.temperatura && (
                 <div className="flex items-start gap-3">
                   <Thermometer className="h-5 w-5 text-orange-500 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Temperatura</p>
-                    <p className="text-base font-semibold">{labor.condicionesClimaticas.temperatura}°C</p>
+                    <p className="text-base font-semibold">{labor.condiciones_climaticas.temperatura}°C</p>
                   </div>
                 </div>
               )}
 
-              {labor.condicionesClimaticas.humedad && (
+              {labor.condiciones_climaticas.humedad && (
                 <div className="flex items-start gap-3">
                   <Droplets className="h-5 w-5 text-blue-500 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Humedad</p>
-                    <p className="text-base font-semibold">{labor.condicionesClimaticas.humedad}%</p>
+                    <p className="text-base font-semibold">{labor.condiciones_climaticas.humedad}%</p>
                   </div>
                 </div>
               )}
@@ -288,7 +296,7 @@ export default function LaborDetailView() {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Lluvia</p>
                   <p className="text-base font-semibold">
-                    {labor.condicionesClimaticas.lluvia ? 'Sí' : 'No'}
+                    {labor.condiciones_climaticas.lluvia ? 'Sí' : 'No'}
                   </p>
                 </div>
               </div>
@@ -297,7 +305,7 @@ export default function LaborDetailView() {
         </Card>
       )}
 
-      {labor.herramientasInsumos && labor.herramientasInsumos.length > 0 && (
+      {labor.herramientas_insumos && labor.herramientas_insumos.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -307,7 +315,7 @@ export default function LaborDetailView() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {labor.herramientasInsumos.map((herramienta, index) => (
+              {labor.herramientas_insumos.map((herramienta, index) => (
                 <span
                   key={index}
                   className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-800"

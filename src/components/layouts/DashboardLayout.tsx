@@ -20,10 +20,7 @@ import {
   Menu,
   FileText,
   Shield,
-<<<<<<< HEAD
   X,
-=======
->>>>>>> 14aa1fd1d4e7700268efa0a08a8955c0071f6d05
   Map,
   Leaf,
   Calendar

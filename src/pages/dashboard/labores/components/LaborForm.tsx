@@ -3,8 +3,22 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { MapPin, Clock, Loader2 } from 'lucide-react'
-import { Labor, CULTIVOS_DISPONIBLES, LOTES_DISPONIBLES, HERRAMIENTAS_DISPONIBLES } from '../services/laboresService'
+import { Progress } from '@/components/ui/progress'
+import { 
+  Clock, 
+  Loader2, 
+  CheckCircle, 
+  Circle, 
+  ArrowRight, 
+  ArrowLeft,
+  Calendar,
+  User,
+  Wrench,
+  MapPin,
+  Navigation,
+  Target
+} from 'lucide-react'
+import { Labor, CULTIVOS_DISPONIBLES, LOTES_DISPONIBLES } from '../services/laboresService'
 import { useTrabajadoresQuery } from '../../trabajadores/hooks/useTrabajadoresQuery'
 import { useTiposLaborQuery } from '../../tipos-labor/hooks/useTiposLaborQuery'
 
@@ -23,20 +37,15 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
     fecha: '',
     cultivo: '',
     lote: '',
-    trabajadorId: '',
-    tipoLaborId: '',
-    cantidadRecolectada: '',
-    unidadMedida: 'kg' as 'kg' | 'litros' | 'unidades' | 'toneladas' | 'quintales',
-    pesoTotal: '',
-    horaInicio: '',
-    horaFin: '',
+    trabajador_id: '',
+    tipo_labor_id: '',
+    cantidad_recolectada: '',
+    unidad_medida: 'kg' as 'kg' | 'litros' | 'unidades' | 'toneladas' | 'quintales',
+    peso_total: '',
+    hora_inicio: '',
+    hora_fin: '',
     latitud: '',
     longitud: '',
-    temperatura: '',
-    humedad: '',
-    lluvia: false,
-    herramientasInsumos: [] as string[],
-    observaciones: '',
     estado: 'completada' as 'en_proceso' | 'completada' | 'pausada' | 'cancelada',
   })
 
@@ -46,24 +55,24 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
 
   useEffect(() => {
     if (labor) {
+      // Convertir fecha ISO a YYYY-MM-DD para el input type="date"
+      const fechaFormateada = labor.fecha.includes('T') 
+        ? labor.fecha.split('T')[0] 
+        : labor.fecha;
+      
       setFormData({
-        fecha: labor.fecha,
+        fecha: fechaFormateada,
         cultivo: labor.cultivo,
         lote: labor.lote,
-        trabajadorId: labor.trabajadorId,
-        tipoLaborId: labor.tipoLaborId,
-        cantidadRecolectada: labor.cantidadRecolectada.toString(),
-        unidadMedida: labor.unidadMedida,
-        pesoTotal: labor.pesoTotal.toString(),
-        horaInicio: labor.horaInicio,
-        horaFin: labor.horaFin,
-        latitud: labor.ubicacionGPS.latitud.toString(),
-        longitud: labor.ubicacionGPS.longitud.toString(),
-        temperatura: labor.condicionesClimaticas?.temperatura?.toString() || '',
-        humedad: labor.condicionesClimaticas?.humedad?.toString() || '',
-        lluvia: labor.condicionesClimaticas?.lluvia || false,
-        herramientasInsumos: labor.herramientasInsumos || [],
-        observaciones: labor.observaciones || '',
+        trabajador_id: labor.trabajador_id.toString(),
+        tipo_labor_id: labor.tipo_labor_id.toString(),
+        cantidad_recolectada: labor.cantidad_recolectada.toString(),
+        unidad_medida: labor.unidad_medida,
+        peso_total: labor.peso_total.toString(),
+        hora_inicio: labor.hora_inicio.substring(0, 5), // Convertir HH:mm:ss a HH:mm para el input
+        hora_fin: labor.hora_fin.substring(0, 5), // Convertir HH:mm:ss a HH:mm para el input
+        latitud: labor.ubicacion_gps.latitud.toString(),
+        longitud: labor.ubicacion_gps.longitud.toString(),
         estado: labor.estado,
       })
     }
@@ -83,14 +92,6 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
     }
   }
 
-  const handleHerramientaToggle = (herramienta: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      herramientasInsumos: prev.herramientasInsumos.includes(herramienta)
-        ? prev.herramientasInsumos.filter((h) => h !== herramienta)
-        : [...prev.herramientasInsumos, herramienta],
-    }))
-  }
 
   const capturarUbicacion = () => {
     setCaptandoUbicacion(true)
@@ -115,6 +116,7 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
     }
   }
 
+
   const validate = (currentPaso: number): boolean => {
     const newErrors: Record<string, string> = {}
 
@@ -124,22 +126,22 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
       
       if (!formData.cultivo) newErrors.cultivo = 'El cultivo es requerido'
       if (!formData.lote) newErrors.lote = 'El lote es requerido'
-      if (!formData.trabajadorId) newErrors.trabajadorId = 'El trabajador es requerido'
-      if (!formData.tipoLaborId) newErrors.tipoLaborId = 'El tipo de labor es requerido'
+      if (!formData.trabajador_id) newErrors.trabajador_id = 'El trabajador es requerido'
+      if (!formData.tipo_labor_id) newErrors.tipo_labor_id = 'El tipo de labor es requerido'
     }
 
     if (currentPaso === 2) {
-      if (!formData.cantidadRecolectada) newErrors.cantidadRecolectada = 'La cantidad es requerida'
-      else if (parseFloat(formData.cantidadRecolectada) < 0) newErrors.cantidadRecolectada = 'La cantidad no puede ser negativa'
+      if (!formData.cantidad_recolectada) newErrors.cantidad_recolectada = 'La cantidad es requerida'
+      else if (parseFloat(formData.cantidad_recolectada) < 0) newErrors.cantidad_recolectada = 'La cantidad no puede ser negativa'
       
-      if (!formData.pesoTotal) newErrors.pesoTotal = 'El peso total es requerido'
-      else if (parseFloat(formData.pesoTotal) < 0) newErrors.pesoTotal = 'El peso no puede ser negativo'
+      if (!formData.peso_total) newErrors.peso_total = 'El peso total es requerido'
+      else if (parseFloat(formData.peso_total) < 0) newErrors.peso_total = 'El peso no puede ser negativo'
       
-      if (!formData.horaInicio) newErrors.horaInicio = 'La hora de inicio es requerida'
-      if (!formData.horaFin) newErrors.horaFin = 'La hora de fin es requerida'
+      if (!formData.hora_inicio) newErrors.hora_inicio = 'La hora de inicio es requerida'
+      if (!formData.hora_fin) newErrors.hora_fin = 'La hora de fin es requerida'
       
-      if (formData.horaInicio && formData.horaFin && formData.horaInicio >= formData.horaFin) {
-        newErrors.horaFin = 'La hora de fin debe ser posterior a la de inicio'
+      if (formData.hora_inicio && formData.hora_fin && formData.hora_inicio >= formData.hora_fin) {
+        newErrors.hora_fin = 'La hora de fin debe ser posterior a la de inicio'
       }
     }
 
@@ -162,68 +164,111 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
     setPaso(paso - 1)
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    
+    // Solo procesar si estamos en el último paso
+    if (paso !== 3) return
 
     if (!validate(paso)) return
 
     const data = {
-      fecha: formData.fecha,
+      fecha: formData.fecha, // Ya está en formato YYYY-MM-DD del input type="date"
       cultivo: formData.cultivo,
       lote: formData.lote,
-      trabajadorId: formData.trabajadorId,
-      tipoLaborId: formData.tipoLaborId,
-      cantidadRecolectada: parseFloat(formData.cantidadRecolectada),
-      unidadMedida: formData.unidadMedida,
-      pesoTotal: parseFloat(formData.pesoTotal),
-      horaInicio: formData.horaInicio,
-      horaFin: formData.horaFin,
-      ubicacionGPS: {
+      trabajador_id: parseInt(formData.trabajador_id),
+      tipo_labor_id: parseInt(formData.tipo_labor_id),
+      cantidad_recolectada: parseFloat(formData.cantidad_recolectada),
+      unidad_medida: formData.unidad_medida,
+      peso_total: parseFloat(formData.peso_total),
+      hora_inicio: formData.hora_inicio.substring(0, 5), // Convertir HH:mm:ss a HH:mm
+      hora_fin: formData.hora_fin.substring(0, 5), // Convertir HH:mm:ss a HH:mm
+      ubicacion_gps: {
         latitud: parseFloat(formData.latitud),
         longitud: parseFloat(formData.longitud),
       },
-      condicionesClimaticas: formData.temperatura || formData.humedad ? {
-        temperatura: formData.temperatura ? parseFloat(formData.temperatura) : undefined,
-        humedad: formData.humedad ? parseFloat(formData.humedad) : undefined,
-        lluvia: formData.lluvia,
-      } : undefined,
-      herramientasInsumos: formData.herramientasInsumos.length > 0 ? formData.herramientasInsumos : undefined,
-      observaciones: formData.observaciones || undefined,
       ...(labor && { estado: formData.estado }),
     }
 
     await onSubmit(data)
   }
 
+  const pasos = [
+    { numero: 1, titulo: 'Información Básica', icono: Calendar, descripcion: 'Datos fundamentales' },
+    { numero: 2, titulo: 'Métricas y Tiempo', icono: Clock, descripcion: 'Cantidades y horarios' },
+    { numero: 3, titulo: 'Ubicación GPS', icono: MapPin, descripcion: 'Geolocalización' }
+  ]
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="flex justify-center mb-6">
-        <div className="flex items-center space-x-2">
-          {[1, 2, 3, 4].map((num) => (
-            <div key={num} className="flex items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                  paso >= num ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
-                }`}
-              >
-                {num}
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Header con progreso mejorado */}
+      <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 border border-green-200">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">
+              {pasos[paso - 1]?.titulo}
+            </h2>
+            <p className="text-gray-600 mt-1">
+              {pasos[paso - 1]?.descripcion}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-gray-500">Paso {paso} de 3</div>
+            <div className="text-2xl font-bold text-primary">{Math.round((paso / 3) * 100)}%</div>
+          </div>
+        </div>
+        
+        <Progress value={(paso / 3) * 100} className="h-2" />
+        
+        <div className="flex justify-between mt-4">
+          {pasos.map((pasoItem) => {
+            const Icon = pasoItem.icono
+            const isActive = paso >= pasoItem.numero
+            const isCurrent = paso === pasoItem.numero
+            
+            return (
+              <div key={pasoItem.numero} className="flex flex-col items-center space-y-2">
+                <div className={`
+                  w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-200
+                  ${isActive 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : 'bg-gray-200 text-gray-500'
+                  }
+                  ${isCurrent ? 'ring-4 ring-primary/20 scale-110' : ''}
+                `}>
+                  {isActive && paso > pasoItem.numero ? (
+                    <CheckCircle className="h-6 w-6" />
+                  ) : (
+                    <Icon className="h-6 w-6" />
+                  )}
+                </div>
+                <div className="text-center">
+                  <div className={`text-xs font-medium ${isActive ? 'text-primary' : 'text-gray-500'}`}>
+                    {pasoItem.titulo}
+                  </div>
+                </div>
               </div>
-              {num < 4 && <div className={`w-12 h-1 ${paso > num ? 'bg-primary' : 'bg-gray-200'}`} />}
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
       {paso === 1 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Información Básica</CardTitle>
-            <CardDescription>Datos fundamentales de la labor</CardDescription>
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Calendar className="h-6 w-6 text-blue-600" />
+              Información Básica
+            </CardTitle>
+            <CardDescription>Datos fundamentales de la labor agrícola</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="fecha">Fecha <span className="text-red-500">*</span></Label>
+                <Label htmlFor="fecha" className="text-sm font-semibold flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Fecha de Labor <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="fecha"
                   name="fecha"
@@ -231,56 +276,86 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
                   value={formData.fecha}
                   onChange={handleChange}
                   disabled={loading}
-                  className={errors.fecha ? 'border-red-500' : ''}
+                  className={`h-12 ${errors.fecha ? 'border-red-500 focus:ring-red-500' : 'focus:ring-blue-500'}`}
                 />
-                {errors.fecha && <p className="text-sm text-red-500">{errors.fecha}</p>}
+                {errors.fecha && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.fecha}
+                </p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cultivo">Cultivo <span className="text-red-500">*</span></Label>
+                <Label htmlFor="cultivo" className="text-sm font-semibold flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Cultivo <span className="text-red-500">*</span>
+                </Label>
                 <select
                   id="cultivo"
                   name="cultivo"
                   value={formData.cultivo}
                   onChange={handleChange}
                   disabled={loading}
-                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ${errors.cultivo ? 'border-red-500' : ''}`}
+                  className={`flex h-12 w-full rounded-md border px-4 py-3 text-sm transition-colors ${
+                    errors.cultivo 
+                      ? 'border-red-500 focus:ring-red-500' 
+                      : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
                 >
                   <option value="">Seleccionar cultivo</option>
                   {CULTIVOS_DISPONIBLES.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
-                {errors.cultivo && <p className="text-sm text-red-500">{errors.cultivo}</p>}
+                {errors.cultivo && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.cultivo}
+                </p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="lote">Lote/Parcela <span className="text-red-500">*</span></Label>
+                <Label htmlFor="lote" className="text-sm font-semibold flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Lote/Parcela <span className="text-red-500">*</span>
+                </Label>
                 <select
                   id="lote"
                   name="lote"
                   value={formData.lote}
                   onChange={handleChange}
                   disabled={loading}
-                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ${errors.lote ? 'border-red-500' : ''}`}
+                  className={`flex h-12 w-full rounded-md border px-4 py-3 text-sm transition-colors ${
+                    errors.lote 
+                      ? 'border-red-500 focus:ring-red-500' 
+                      : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
                 >
                   <option value="">Seleccionar lote</option>
                   {LOTES_DISPONIBLES.map((l) => (
                     <option key={l} value={l}>{l}</option>
                   ))}
                 </select>
-                {errors.lote && <p className="text-sm text-red-500">{errors.lote}</p>}
+                {errors.lote && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.lote}
+                </p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="trabajadorId">Trabajador <span className="text-red-500">*</span></Label>
+                <Label htmlFor="trabajador_id" className="text-sm font-semibold flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Trabajador <span className="text-red-500">*</span>
+                </Label>
                 <select
-                  id="trabajadorId"
-                  name="trabajadorId"
-                  value={formData.trabajadorId}
+                  id="trabajador_id"
+                  name="trabajador_id"
+                  value={formData.trabajador_id}
                   onChange={handleChange}
                   disabled={loading}
-                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ${errors.trabajadorId ? 'border-red-500' : ''}`}
+                  className={`flex h-12 w-full rounded-md border px-4 py-3 text-sm transition-colors ${
+                    errors.trabajador_id 
+                      ? 'border-red-500 focus:ring-red-500' 
+                      : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
                 >
                   <option value="">Seleccionar trabajador</option>
                   {trabajadores.filter(t => t.estado === 'activo').map((t) => (
@@ -289,18 +364,28 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
                     </option>
                   ))}
                 </select>
-                {errors.trabajadorId && <p className="text-sm text-red-500">{errors.trabajadorId}</p>}
+                {errors.trabajador_id && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.trabajador_id}
+                </p>}
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="tipoLaborId">Tipo de Labor <span className="text-red-500">*</span></Label>
+                <Label htmlFor="tipo_labor_id" className="text-sm font-semibold flex items-center gap-2">
+                  <Wrench className="h-4 w-4" />
+                  Tipo de Labor <span className="text-red-500">*</span>
+                </Label>
                 <select
-                  id="tipoLaborId"
-                  name="tipoLaborId"
-                  value={formData.tipoLaborId}
+                  id="tipo_labor_id"
+                  name="tipo_labor_id"
+                  value={formData.tipo_labor_id}
                   onChange={handleChange}
                   disabled={loading}
-                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ${errors.tipoLaborId ? 'border-red-500' : ''}`}
+                  className={`flex h-12 w-full rounded-md border px-4 py-3 text-sm transition-colors ${
+                    errors.tipo_labor_id 
+                      ? 'border-red-500 focus:ring-red-500' 
+                      : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'
+                  }`}
                 >
                   <option value="">Seleccionar tipo de labor</option>
                   {tiposLabor.map((t) => (
@@ -309,7 +394,10 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
                     </option>
                   ))}
                 </select>
-                {errors.tipoLaborId && <p className="text-sm text-red-500">{errors.tipoLaborId}</p>}
+                {errors.tipo_labor_id && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.tipo_labor_id}
+                </p>}
               </div>
             </div>
           </CardContent>
@@ -317,37 +405,50 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
       )}
 
       {paso === 2 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Métricas y Tiempo</CardTitle>
-            <CardDescription>Cantidades y horarios de trabajo</CardDescription>
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Clock className="h-6 w-6 text-green-600" />
+              Métricas y Tiempo
+            </CardTitle>
+            <CardDescription>Cantidades recolectadas y horarios de trabajo</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="cantidadRecolectada">Cantidad Recolectada <span className="text-red-500">*</span></Label>
+                <Label htmlFor="cantidad_recolectada" className="text-sm font-semibold flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Cantidad Recolectada <span className="text-red-500">*</span>
+                </Label>
                 <Input
-                  id="cantidadRecolectada"
-                  name="cantidadRecolectada"
+                  id="cantidad_recolectada"
+                  name="cantidad_recolectada"
                   type="number"
                   step="0.01"
-                  value={formData.cantidadRecolectada}
+                  value={formData.cantidad_recolectada}
                   onChange={handleChange}
                   disabled={loading}
-                  className={errors.cantidadRecolectada ? 'border-red-500' : ''}
+                  placeholder="0.00"
+                  className={`h-12 ${errors.cantidad_recolectada ? 'border-red-500 focus:ring-red-500' : 'focus:ring-green-500'}`}
                 />
-                {errors.cantidadRecolectada && <p className="text-sm text-red-500">{errors.cantidadRecolectada}</p>}
+                {errors.cantidad_recolectada && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.cantidad_recolectada}
+                </p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="unidadMedida">Unidad de Medida <span className="text-red-500">*</span></Label>
+                <Label htmlFor="unidad_medida" className="text-sm font-semibold flex items-center gap-2">
+                  <Wrench className="h-4 w-4" />
+                  Unidad de Medida <span className="text-red-500">*</span>
+                </Label>
                 <select
-                  id="unidadMedida"
-                  name="unidadMedida"
-                  value={formData.unidadMedida}
+                  id="unidad_medida"
+                  name="unidad_medida"
+                  value={formData.unidad_medida}
                   onChange={handleChange}
                   disabled={loading}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  className="flex h-12 w-full rounded-md border border-gray-300 px-4 py-3 text-sm transition-colors focus:ring-green-500 focus:border-green-500"
                 >
                   <option value="kg">Kilogramos (kg)</option>
                   <option value="litros">Litros</option>
@@ -358,52 +459,65 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="pesoTotal">Peso Total (kg) <span className="text-red-500">*</span></Label>
+                <Label htmlFor="peso_total" className="text-sm font-semibold flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Peso Total (kg) <span className="text-red-500">*</span>
+                </Label>
                 <Input
-                  id="pesoTotal"
-                  name="pesoTotal"
+                  id="peso_total"
+                  name="peso_total"
                   type="number"
                   step="0.01"
-                  value={formData.pesoTotal}
+                  value={formData.peso_total}
                   onChange={handleChange}
                   disabled={loading}
-                  className={errors.pesoTotal ? 'border-red-500' : ''}
+                  placeholder="0.00"
+                  className={`h-12 ${errors.peso_total ? 'border-red-500 focus:ring-red-500' : 'focus:ring-green-500'}`}
                 />
-                {errors.pesoTotal && <p className="text-sm text-red-500">{errors.pesoTotal}</p>}
+                {errors.peso_total && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.peso_total}
+                </p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="horaInicio">
-                  <Clock className="inline h-4 w-4 mr-1" />
+                <Label htmlFor="hora_inicio" className="text-sm font-semibold flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
                   Hora Inicio <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="horaInicio"
-                  name="horaInicio"
+                  id="hora_inicio"
+                  name="hora_inicio"
                   type="time"
-                  value={formData.horaInicio}
+                  value={formData.hora_inicio}
                   onChange={handleChange}
                   disabled={loading}
-                  className={errors.horaInicio ? 'border-red-500' : ''}
+                  className={`h-12 ${errors.hora_inicio ? 'border-red-500 focus:ring-red-500' : 'focus:ring-green-500'}`}
                 />
-                {errors.horaInicio && <p className="text-sm text-red-500">{errors.horaInicio}</p>}
+                {errors.hora_inicio && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.hora_inicio}
+                </p>}
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="horaFin">
-                  <Clock className="inline h-4 w-4 mr-1" />
+                <Label htmlFor="hora_fin" className="text-sm font-semibold flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
                   Hora Fin <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                  id="horaFin"
-                  name="horaFin"
+                  id="hora_fin"
+                  name="hora_fin"
                   type="time"
-                  value={formData.horaFin}
+                  value={formData.hora_fin}
                   onChange={handleChange}
                   disabled={loading}
-                  className={errors.horaFin ? 'border-red-500' : ''}
+                  className={`h-12 ${errors.hora_fin ? 'border-red-500 focus:ring-red-500' : 'focus:ring-green-500'}`}
                 />
-                {errors.horaFin && <p className="text-sm text-red-500">{errors.horaFin}</p>}
+                {errors.hora_fin && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.hora_fin}
+                </p>}
               </div>
             </div>
           </CardContent>
@@ -411,30 +525,37 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
       )}
 
       {paso === 3 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Ubicación GPS</CardTitle>
-            <CardDescription>Geolocalización del trabajo</CardDescription>
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <MapPin className="h-6 w-6 text-purple-600" />
+              Ubicación GPS
+            </CardTitle>
+            <CardDescription>Geolocalización precisa del trabajo realizado</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-end mb-4">
+          <CardContent className="p-6 space-y-6">
+            <div className="flex justify-end mb-6">
               <Button
                 type="button"
                 variant="outline"
                 onClick={capturarUbicacion}
                 disabled={captandoUbicacion || loading}
+                className="flex items-center gap-2 px-6 py-3 border-purple-300 text-purple-700 hover:bg-purple-50"
               >
                 {captandoUbicacion ? (
-                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Capturando...</>
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Capturando...</>
                 ) : (
-                  <><MapPin className="h-4 w-4 mr-2" /> Capturar Ubicación Actual</>
+                  <><MapPin className="h-4 w-4" /> Capturar Ubicación Actual</>
                 )}
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="latitud">Latitud <span className="text-red-500">*</span></Label>
+                <Label htmlFor="latitud" className="text-sm font-semibold flex items-center gap-2">
+                  <Navigation className="h-4 w-4" />
+                  Latitud <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="latitud"
                   name="latitud"
@@ -444,13 +565,19 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
                   onChange={handleChange}
                   disabled={loading}
                   placeholder="-12.046374"
-                  className={errors.latitud ? 'border-red-500' : ''}
+                  className={`h-12 ${errors.latitud ? 'border-red-500 focus:ring-red-500' : 'focus:ring-purple-500'}`}
                 />
-                {errors.latitud && <p className="text-sm text-red-500">{errors.latitud}</p>}
+                {errors.latitud && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.latitud}
+                </p>}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="longitud">Longitud <span className="text-red-500">*</span></Label>
+                <Label htmlFor="longitud" className="text-sm font-semibold flex items-center gap-2">
+                  <Navigation className="h-4 w-4" />
+                  Longitud <span className="text-red-500">*</span>
+                </Label>
                 <Input
                   id="longitud"
                   name="longitud"
@@ -460,24 +587,31 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
                   onChange={handleChange}
                   disabled={loading}
                   placeholder="-77.042793"
-                  className={errors.longitud ? 'border-red-500' : ''}
+                  className={`h-12 ${errors.longitud ? 'border-red-500 focus:ring-red-500' : 'focus:ring-purple-500'}`}
                 />
-                {errors.longitud && <p className="text-sm text-red-500">{errors.longitud}</p>}
+                {errors.longitud && <p className="text-sm text-red-500 flex items-center gap-1">
+                  <Circle className="h-3 w-3 fill-current" />
+                  {errors.longitud}
+                </p>}
               </div>
             </div>
 
             {formData.latitud && formData.longitud && (
-              <div className="mt-4 p-4 bg-gray-50 rounded-md">
-                <p className="text-sm text-gray-600">
-                  <MapPin className="inline h-4 w-4 mr-1" />
-                  Ubicación: {formData.latitud}, {formData.longitud}
+              <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="h-5 w-5 text-purple-600" />
+                  <p className="text-sm font-semibold text-gray-700">Ubicación Capturada</p>
+                </div>
+                <p className="text-sm text-gray-600 mb-3">
+                  Coordenadas: {formData.latitud}, {formData.longitud}
                 </p>
                 <a
                   href={`https://www.google.com/maps?q=${formData.latitud},${formData.longitud}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 hover:underline"
+                  className="inline-flex items-center gap-2 text-sm text-purple-600 hover:text-purple-700 hover:underline font-medium"
                 >
+                  <MapPin className="h-4 w-4" />
                   Ver en Google Maps
                 </a>
               </div>
@@ -486,153 +620,66 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
         </Card>
       )}
 
-      {paso === 4 && (
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Condiciones Climáticas</CardTitle>
-              <CardDescription>Información ambiental (opcional)</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="temperatura">Temperatura (°C)</Label>
-                  <Input
-                    id="temperatura"
-                    name="temperatura"
-                    type="number"
-                    step="0.1"
-                    value={formData.temperatura}
-                    onChange={handleChange}
-                    disabled={loading}
-                    placeholder="25"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="humedad">Humedad (%)</Label>
-                  <Input
-                    id="humedad"
-                    name="humedad"
-                    type="number"
-                    step="1"
-                    value={formData.humedad}
-                    onChange={handleChange}
-                    disabled={loading}
-                    placeholder="65"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="lluvia">Lluvia</Label>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <input
-                      id="lluvia"
-                      name="lluvia"
-                      type="checkbox"
-                      checked={formData.lluvia}
-                      onChange={handleChange}
-                      disabled={loading}
-                      className="w-4 h-4"
-                    />
-                    <Label htmlFor="lluvia" className="cursor-pointer">¿Hubo lluvia?</Label>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Herramientas e Insumos</CardTitle>
-              <CardDescription>Selecciona los utilizados</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {HERRAMIENTAS_DISPONIBLES.map((herramienta) => (
-                  <div key={herramienta} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id={`herramienta-${herramienta}`}
-                      checked={formData.herramientasInsumos.includes(herramienta)}
-                      onChange={() => handleHerramientaToggle(herramienta)}
-                      disabled={loading}
-                      className="w-4 h-4"
-                    />
-                    <Label htmlFor={`herramienta-${herramienta}`} className="cursor-pointer text-sm">
-                      {herramienta}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Observaciones</CardTitle>
-              <CardDescription>Notas adicionales sobre la labor</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <textarea
-                id="observaciones"
-                name="observaciones"
-                value={formData.observaciones}
-                onChange={handleChange}
+      {/* Botones de navegación mejorados */}
+      <div className="bg-gradient-to-r from-gray-50 to-slate-50 rounded-lg p-6 border border-gray-200">
+        <div className="flex justify-between items-center">
+          <div>
+            {paso > 1 && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleAnterior} 
                 disabled={loading}
-                rows={4}
-                placeholder="Ingresa cualquier observación relevante sobre la labor realizada..."
-                className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              />
-            </CardContent>
-          </Card>
-
-          {labor && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Estado de la Labor</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <select
-                  id="estado"
-                  name="estado"
-                  value={formData.estado}
-                  onChange={handleChange}
-                  disabled={loading}
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                >
-                  <option value="en_proceso">En Proceso</option>
-                  <option value="completada">Completada</option>
-                  <option value="pausada">Pausada</option>
-                  <option value="cancelada">Cancelada</option>
-                </select>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-      )}
-
-      <div className="flex justify-between gap-3 pt-6 border-t">
-        <div>
-          {paso > 1 && (
-            <Button type="button" variant="outline" onClick={handleAnterior} disabled={loading}>
-              Anterior
+                className="flex items-center gap-2 px-6 py-3 border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Anterior
+              </Button>
+            )}
+          </div>
+          
+          <div className="flex gap-3">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onCancel} 
+              disabled={loading}
+              className="px-6 py-3 border-gray-300 text-gray-700 hover:bg-gray-50"
+            >
+              Cancelar
             </Button>
-          )}
-        </div>
-        <div className="flex gap-3">
-          <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
-            Cancelar
-          </Button>
-          {paso < 4 ? (
-            <Button type="button" onClick={handleSiguiente} disabled={loading}>
-              Siguiente
-            </Button>
-          ) : (
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Guardando...' : labor ? 'Actualizar Labor' : 'Registrar Labor'}
-            </Button>
-          )}
+            
+            {paso < 3 ? (
+              <Button 
+                type="button" 
+                onClick={handleSiguiente} 
+                disabled={loading}
+                className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white"
+              >
+                Siguiente
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <Button 
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="flex items-center gap-2 px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4" />
+                    {labor ? 'Actualizar Labor' : 'Registrar Labor'}
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </form>

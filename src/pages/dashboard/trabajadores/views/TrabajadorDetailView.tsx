@@ -26,12 +26,13 @@ export default function TrabajadorDetailView() {
 
   const handleDelete = () => {
     if (!trabajador) return
-    deleteTrabajador(trabajador.id, {
+    deleteTrabajador(trabajador.id.toString(), {
       onSuccess: () => navigate('/dashboard/trabajadores'),
     })
   }
 
   const formatFecha = (fecha: string) => {
+    if (!fecha) return 'N/A'
     return new Date(fecha).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'long',
@@ -192,7 +193,7 @@ export default function TrabajadorDetailView() {
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Documento</p>
                 <p className="text-base">
-                  {trabajador.documento} ({trabajador.tipoDocumento})
+                  {trabajador.documento} ({trabajador.tipo_documento})
                 </p>
               </div>
             </div>
@@ -201,7 +202,7 @@ export default function TrabajadorDetailView() {
               <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Fecha de Ingreso</p>
-                <p className="text-base">{formatFecha(trabajador.fechaIngreso)}</p>
+                <p className="text-base">{formatFecha(trabajador.fecha_ingreso)}</p>
               </div>
             </div>
           </div>
@@ -263,16 +264,16 @@ export default function TrabajadorDetailView() {
               <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Fecha de Creación</p>
-                <p className="text-base">{formatFecha(trabajador.fechaCreacion)}</p>
+                <p className="text-base">{formatFecha(trabajador.fecha_creacion)}</p>
               </div>
             </div>
 
-            {trabajador.ultimaModificacion && (
+            {trabajador.ultima_modificacion && (
               <div className="flex items-start gap-3">
                 <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Última Modificación</p>
-                  <p className="text-base">{formatFechaHora(trabajador.ultimaModificacion)}</p>
+                  <p className="text-base">{formatFechaHora(trabajador.ultima_modificacion)}</p>
                 </div>
               </div>
             )}

@@ -48,10 +48,11 @@ export function useCreateTipoLaborMutation() {
       
       navigate('/dashboard/tipos-labor')
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      const errorMessage = error.message || 'No se pudo crear el tipo de labor.'
       toast({
         title: 'Error',
-        description: error.message || 'No se pudo crear el tipo de labor.',
+        description: errorMessage,
         variant: 'destructive',
       })
     },
@@ -77,10 +78,11 @@ export function useUpdateTipoLaborMutation() {
       
       navigate(`/dashboard/tipos-labor/${variables.id}`)
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      const errorMessage = error.message || 'No se pudo actualizar el tipo de labor.'
       toast({
         title: 'Error',
-        description: error.message || 'No se pudo actualizar el tipo de labor.',
+        description: errorMessage,
         variant: 'destructive',
       })
     },
@@ -102,10 +104,11 @@ export function useDeleteTipoLaborMutation() {
         description: 'El tipo de labor ha sido eliminado exitosamente.',
       })
     },
-    onError: () => {
+    onError: (error: any) => {
+      const errorMessage = error.message || 'No se pudo eliminar el tipo de labor.'
       toast({
         title: 'Error',
-        description: 'No se pudo eliminar el tipo de labor.',
+        description: errorMessage,
         variant: 'destructive',
       })
     },

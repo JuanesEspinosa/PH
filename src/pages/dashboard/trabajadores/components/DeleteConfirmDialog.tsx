@@ -29,9 +29,9 @@ export default function DeleteConfirmDialog({
         <DialogHeader>
           <DialogTitle>¿Estás seguro?</DialogTitle>
           <DialogDescription>
-            Esta acción no se puede deshacer. Esto eliminará permanentemente al trabajador{' '}
-            <span className="font-semibold text-foreground">{trabajadorName}</span> y todos sus
-            datos asociados.
+            Esta acción marcará al trabajador{' '}
+            <span className="font-semibold text-foreground">{trabajadorName}</span> como inactivo.
+            Sus datos se mantendrán en el sistema para el historial, pero no aparecerá en las listas activas.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
@@ -39,7 +39,7 @@ export default function DeleteConfirmDialog({
             Cancelar
           </Button>
           <Button variant="destructive" onClick={onConfirm} disabled={loading}>
-            {loading ? 'Eliminando...' : 'Eliminar'}
+            {loading ? 'Marcando como inactivo...' : 'Marcar como Inactivo'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -15,12 +15,13 @@ export default function TipoLaborDetailView() {
 
   const handleDelete = () => {
     if (!tipoLabor) return
-    deleteTipoLabor(tipoLabor.id, {
+    deleteTipoLabor(tipoLabor.id.toString(), {
       onSuccess: () => navigate('/dashboard/tipos-labor'),
     })
   }
 
   const formatFecha = (fecha: string) => {
+    if (!fecha) return 'N/A'
     return new Date(fecha).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'long',
@@ -192,16 +193,16 @@ export default function TipoLaborDetailView() {
               <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Fecha de Creación</p>
-                <p className="text-base">{formatFecha(tipoLabor.fechaCreacion)}</p>
+                <p className="text-base">{formatFecha(tipoLabor.fecha_creacion)}</p>
               </div>
             </div>
 
-            {tipoLabor.ultimaModificacion && (
+            {tipoLabor.ultima_modificacion && (
               <div className="flex items-start gap-3">
                 <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Última Modificación</p>
-                  <p className="text-base">{formatFechaHora(tipoLabor.ultimaModificacion)}</p>
+                  <p className="text-base">{formatFechaHora(tipoLabor.ultima_modificacion)}</p>
                 </div>
               </div>
             )}
