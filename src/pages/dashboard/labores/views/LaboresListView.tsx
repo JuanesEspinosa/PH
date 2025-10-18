@@ -15,6 +15,13 @@ export default function LaboresListView() {
   const { mutate: deleteLabor, isPending: isDeleting } = useDeleteLaborMutation()
   const { searchQuery, setSearch, clearSearch } = useLaboresSearch()
   
+  // Helper function to safely convert string to number and format
+  const safeToFixed = (value: any, decimals: number = 0): string => {
+    if (value === null || value === undefined) return '0'
+    const num = typeof value === 'string' ? parseFloat(value) : value
+    return isNaN(num) ? '0' : num.toFixed(decimals)
+  }
+  
   const [searchInput, setSearchInput] = useState(searchQuery)
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; labor: Labor | null }>({
     open: false,
@@ -32,7 +39,7 @@ export default function LaboresListView() {
   }
 
   const handleDeleteClick = (id: string) => {
-    const labor = labores.find((l) => l.id === id)
+    const labor = labores.find((l) => l.id.toString() === id)
     if (labor) {
       setDeleteDialog({ open: true, labor })
     }
@@ -40,7 +47,7 @@ export default function LaboresListView() {
 
   const handleDeleteConfirm = () => {
     if (!deleteDialog.labor) return
-    deleteLabor(deleteDialog.labor.id, {
+    deleteLabor(deleteDialog.labor.id.toString(), {
       onSuccess: () => setDeleteDialog({ open: false, labor: null })
     })
   }
@@ -68,7 +75,7 @@ export default function LaboresListView() {
             <CardDescription>Total Labores</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{estadisticas?.totalLabores || 0}</div>
+            <div className="text-3xl font-bold">{estadisticas?.total_labores || 0}</div>
           </CardContent>
         </Card>
 
@@ -89,7 +96,7 @@ export default function LaboresListView() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-blue-600">
-              {estadisticas?.totalRecolectado.toFixed(0) || 0} kg
+              {safeToFixed(estadisticas?.total_recolectado, 0)} kg
             </div>
           </CardContent>
         </Card>
@@ -100,7 +107,7 @@ export default function LaboresListView() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-purple-600">
-              ${estadisticas?.costoTotal.toFixed(2) || 0}
+              ${safeToFixed(estadisticas?.costo_total, 2)}
             </div>
           </CardContent>
         </Card>
@@ -121,16 +128,17 @@ export default function LaboresListView() {
           <div className="grid gap-4 md:grid-cols-3">
             <div>
               <p className="text-sm text-muted-foreground">Promedio Rendimiento</p>
-              <p className="text-2xl font-bold">{estadisticas?.promedioRendimiento.toFixed(1) || 0} kg/h</p>
+              <p className="text-2xl font-bold">{safeToFixed(estadisticas?.promedio_rendimiento, 1)} kg/h</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">En Proceso</p>
-              <p className="text-2xl font-bold text-blue-600">{estadisticas?.enProceso || 0}</p>
+              <p className="text-2xl font-bold text-blue-600">{estadisticas?.en_proceso || 0}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Eficiencia</p>
               <p className="text-2xl font-bold text-green-600">
-                {estadisticas?.totalLabores ? ((estadisticas.completadas / estadisticas.totalLabores) * 100).toFixed(0) : 0}%
+                {estadisticas?.total_labores && estadisticas?.completadas ? 
+                  safeToFixed((estadisticas.completadas / estadisticas.total_labores) * 100, 0) : 0}%
               </p>
             </div>
           </div>

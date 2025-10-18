@@ -29,15 +29,22 @@ export default function TrabajadorForm({ trabajador, onSubmit, onCancel, loading
 
   useEffect(() => {
     if (trabajador) {
+      // Convertir fecha ISO a formato YYYY-MM-DD para el input date
+      const formatDateForInput = (dateString: string) => {
+        if (!dateString) return ''
+        const date = new Date(dateString)
+        return date.toISOString().split('T')[0]
+      }
+
       setFormData({
         nombres: trabajador.nombres,
         apellidos: trabajador.apellidos,
         documento: trabajador.documento,
-        tipoDocumento: trabajador.tipoDocumento,
+        tipoDocumento: trabajador.tipo_documento,
         telefono: trabajador.telefono,
         email: trabajador.email,
         cargo: trabajador.cargo,
-        fechaIngreso: trabajador.fechaIngreso,
+        fechaIngreso: formatDateForInput(trabajador.fecha_ingreso),
         direccion: trabajador.direccion,
         estado: trabajador.estado,
       })

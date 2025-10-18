@@ -11,6 +11,7 @@ interface TrabajadoresTableProps {
 
 export default function TrabajadoresTable({ trabajadores, onDelete, loading }: TrabajadoresTableProps) {
   const formatFecha = (fecha: string) => {
+    if (!fecha) return 'N/A'
     return new Date(fecha).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'short',
@@ -105,7 +106,7 @@ export default function TrabajadoresTable({ trabajadores, onDelete, loading }: T
                   <FileText className="h-4 w-4 text-muted-foreground" />
                   <div>
                     <p className="text-sm font-medium">{trabajador.documento}</p>
-                    <p className="text-xs text-muted-foreground">{trabajador.tipoDocumento}</p>
+                    <p className="text-xs text-muted-foreground">{trabajador.tipo_documento}</p>
                   </div>
                 </div>
               </td>
@@ -132,7 +133,7 @@ export default function TrabajadoresTable({ trabajadores, onDelete, loading }: T
               {/* Fecha Ingreso */}
               <td className="p-4">
                 <span className="text-sm text-muted-foreground">
-                  {formatFecha(trabajador.fechaIngreso)}
+                  {formatFecha(trabajador.fecha_ingreso)}
                 </span>
               </td>
 
@@ -164,7 +165,7 @@ export default function TrabajadoresTable({ trabajadores, onDelete, loading }: T
                     variant="ghost"
                     size="sm"
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => onDelete(trabajador.id)}
+                    onClick={() => onDelete(trabajador.id.toString())}
                     title="Eliminar"
                   >
                     <Trash2 className="h-4 w-4" />

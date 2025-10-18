@@ -11,11 +11,19 @@ interface LaboresTableProps {
 
 export default function LaboresTable({ labores, onDelete, loading }: LaboresTableProps) {
   const formatFecha = (fecha: string) => {
+    if (!fecha) return 'N/A'
     return new Date(fecha).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
     })
+  }
+
+  // Helper function to safely convert string to number and format
+  const safeToFixed = (value: any, decimals: number = 1): string => {
+    if (value === null || value === undefined) return '0'
+    const num = typeof value === 'string' ? parseFloat(value) : value
+    return isNaN(num) ? '0' : num.toFixed(decimals)
   }
 
   const getEstadoColor = (estado: string) => {
@@ -87,7 +95,7 @@ export default function LaboresTable({ labores, onDelete, loading }: LaboresTabl
                   <span className="font-medium">{formatFecha(labor.fecha)}</span>
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
                     <Clock className="h-3 w-3" />
-                    {labor.horaInicio} - {labor.horaFin}
+                    {labor.hora_inicio} - {labor.hora_fin}
                   </span>
                 </div>
               </td>
@@ -103,26 +111,26 @@ export default function LaboresTable({ labores, onDelete, loading }: LaboresTabl
               </td>
 
               <td className="p-4">
-                <span className="text-sm">{labor.trabajadorNombre}</span>
+                <span className="text-sm">{labor.trabajador_nombre}</span>
               </td>
 
               <td className="p-4">
-                <span className="text-sm">{labor.tipoLaborNombre}</span>
+                <span className="text-sm">{labor.tipo_labor_nombre}</span>
               </td>
 
               <td className="p-4">
                 <div className="flex flex-col">
-                  <span className="font-medium">{labor.cantidadRecolectada} {labor.unidadMedida}</span>
-                  <span className="text-xs text-muted-foreground">Peso: {labor.pesoTotal} kg</span>
+                  <span className="font-medium">{safeToFixed(labor.cantidad_recolectada, 1)} {labor.unidad_medida}</span>
+                  <span className="text-xs text-muted-foreground">Peso: {safeToFixed(labor.peso_total, 1)} kg</span>
                 </div>
               </td>
 
               <td className="p-4">
                 <div className="flex flex-col">
-                  <span className="text-sm">{labor.duracionMinutos} min</span>
-                  {labor.rendimientoPorHora > 0 && (
+                  <span className="text-sm">{labor.duracion_minutos} min</span>
+                  {labor.rendimiento_por_hora && parseFloat(labor.rendimiento_por_hora.toString()) > 0 && (
                     <span className="text-xs text-muted-foreground">
-                      {labor.rendimientoPorHora} {labor.unidadMedida}/h
+                      {safeToFixed(labor.rendimiento_por_hora, 1)} {labor.unidad_medida}/h
                     </span>
                   )}
                 </div>
@@ -154,7 +162,7 @@ export default function LaboresTable({ labores, onDelete, loading }: LaboresTabl
                     variant="ghost"
                     size="sm"
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => onDelete(labor.id)}
+                    onClick={() => onDelete(labor.id.toString())}
                     title="Eliminar"
                   >
                     <Trash2 className="h-4 w-4" />
