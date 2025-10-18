@@ -18,7 +18,7 @@ export default function Header() {
               <Sprout className="h-6 w-6 text-white" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-              AgroTech
+              TerraSync
             </span>
           </div>
           <nav className="hidden md:flex items-center gap-8">

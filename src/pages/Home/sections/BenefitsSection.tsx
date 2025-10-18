@@ -22,7 +22,7 @@ export default function BenefitsSection() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              ¿Por qué elegir <span className="text-green-600">AgroTech</span>?
+              ¿Por qué elegir <span className="text-green-600">TerraSync</span>?
             </h2>
             <p className="text-xl text-gray-600 mb-8">
               Moderniza tus procesos agrícolas con tecnología de punta diseñada específicamente para el campo.
