@@ -19,7 +19,7 @@ import DeleteConfirmDialog from '../components/DeleteConfirmDialog'
 export default function UsuarioDetailView() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  const { data: usuario, isLoading } = useUsuarioQuery(id!)
+  const { data: usuario, isLoading } = useUsuarioQuery(Number(id!))
   const { mutate: deleteUsuario, isPending: isDeleting } = useDeleteUsuarioMutation()
   const [deleteDialog, setDeleteDialog] = useState(false)
 
@@ -141,14 +141,8 @@ export default function UsuarioDetailView() {
                 >
                   {usuario.rol === 'admin' ? 'Administrador' : 'Usuario'}
                 </span>
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                    usuario.estado === 'activo'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {usuario.estado === 'activo' ? 'Activo' : 'Inactivo'}
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                  Activo
                 </span>
               </div>
             </div>
@@ -171,26 +165,6 @@ export default function UsuarioDetailView() {
                 <p className="text-base">{usuario.email}</p>
               </div>
             </div>
-
-            {usuario.telefono && (
-              <div className="flex items-start gap-3">
-                <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
-                  <p className="text-base">{usuario.telefono}</p>
-                </div>
-              </div>
-            )}
-
-            {usuario.departamento && (
-              <div className="flex items-start gap-3">
-                <Building2 className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Departamento</p>
-                  <p className="text-base">{usuario.departamento}</p>
-                </div>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -207,15 +181,15 @@ export default function UsuarioDetailView() {
               <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Fecha de Registro</p>
-                <p className="text-base">{formatFecha(usuario.fechaCreacion)}</p>
+                <p className="text-base">{formatFecha(usuario.created_at)}</p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
               <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Último Acceso</p>
-                <p className="text-base">{formatFechaHora(usuario.ultimoAcceso)}</p>
+                <p className="text-sm font-medium text-muted-foreground">Última Actualización</p>
+                <p className="text-base">{formatFechaHora(usuario.updated_at)}</p>
               </div>
             </div>
           </div>
