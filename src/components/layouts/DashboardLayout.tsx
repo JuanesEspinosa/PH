@@ -23,7 +23,12 @@ import {
   X,
   Map,
   Leaf,
-  Calendar
+  Calendar,
+  Bell,
+  CheckCircle,
+  AlertCircle,
+  Info,
+  Clock
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -32,6 +37,58 @@ export default function DashboardLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
+
+  // Datos de ejemplo de notificaciones
+  const notifications = [
+    {
+      id: 1,
+      type: 'success',
+      title: 'Labor completada',
+      message: 'La cosecha de maíz en Lote A-1 ha sido registrada exitosamente',
+      time: 'Hace 5 minutos',
+      unread: true
+    },
+    {
+      id: 2,
+      type: 'warning',
+      title: 'Alerta de clima',
+      message: 'Se pronostica lluvia para mañana. Considera ajustar el riego',
+      time: 'Hace 1 hora',
+      unread: true
+    },
+    {
+      id: 3,
+      type: 'info',
+      title: 'Nuevo trabajador',
+      message: 'Carlos López ha sido agregado al equipo de cosecha',
+      time: 'Hace 2 horas',
+      unread: false
+    },
+    {
+      id: 4,
+      type: 'success',
+      title: 'Reporte generado',
+      message: 'El reporte mensual de productividad está listo para descargar',
+      time: 'Ayer',
+      unread: false
+    }
+  ]
+
+  const unreadCount = notifications.filter(n => n.unread).length
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="h-4 w-4 text-green-500" />
+      case 'warning':
+        return <AlertCircle className="h-4 w-4 text-yellow-500" />
+      case 'info':
+        return <Info className="h-4 w-4 text-blue-500" />
+      default:
+        return <Clock className="h-4 w-4 text-gray-500" />
+    }
+  }
 
   const handleLogout = () => {
     logout()
@@ -73,10 +130,78 @@ export default function DashboardLayout() {
               >
                 {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </Button>
-              <h1 className="text-2xl font-bold text-primary">BackOffice</h1>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Sprout className="h-8 w-8 text-green-500 drop-shadow-sm" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full blur-sm opacity-30"></div>
+                </div>
+                <h1 className="text-3xl font-bold relative">
+                  <span className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 bg-clip-text text-transparent drop-shadow-lg relative z-10">
+                    TerraSync
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent blur-sm opacity-60 z-0">
+                    TerraSync
+                  </div>
+                </h1>
+              </div>
             </div>
 
             <div className="flex items-center gap-4">
+              {/* Campana de notificaciones */}
+              <DropdownMenu open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-xs text-white flex items-center justify-center font-bold">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-80 p-0" align="end">
+                  <div className="p-4 border-b">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Notificaciones</h3>
+                      {unreadCount > 0 && (
+                        <span className="text-sm text-gray-500">{unreadCount} sin leer</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-gray-500">
+                        <Bell className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                        <p>No hay notificaciones</p>
+                      </div>
+                    ) : (
+                      notifications.map((notification) => (
+                        <div
+                          key={notification.id}
+                          className={`p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
+                            notification.unread ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            {getNotificationIcon(notification.type)}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className={`text-sm font-medium ${notification.unread ? 'text-gray-900' : 'text-gray-700'}`}>
+                                  {notification.title}
+                                </p>
+                                <span className="text-xs text-gray-500">{notification.time}</span>
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-10 w-10 rounded-full">
