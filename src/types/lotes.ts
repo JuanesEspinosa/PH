@@ -8,30 +8,16 @@ export interface Coordenada {
   lng: number;
 }
 
-// Estados posibles de un lote
+// Estados posibles de un lote (sincronizado con backend)
 export enum EstadoLote {
-  OPERATIVO = 'OPERATIVO',
-  EN_SIEMBRA = 'EN_SIEMBRA',
   EN_CRECIMIENTO = 'EN_CRECIMIENTO',
   EN_COSECHA = 'EN_COSECHA',
-  EN_FUMIGACION = 'EN_FUMIGACION',
   EN_MANTENIMIENTO = 'EN_MANTENIMIENTO',
-  EN_DESCANSO = 'EN_DESCANSO',
   INACTIVO = 'INACTIVO'
 }
 
 // Configuración de colores para cada estado
 export const COLORES_ESTADO: Record<EstadoLote, { color: string; fillColor: string; label: string }> = {
-  [EstadoLote.OPERATIVO]: {
-    color: '#10b981',
-    fillColor: '#10b98180',
-    label: 'Operativo'
-  },
-  [EstadoLote.EN_SIEMBRA]: {
-    color: '#8b5cf6',
-    fillColor: '#8b5cf680',
-    label: 'En Siembra'
-  },
   [EstadoLote.EN_CRECIMIENTO]: {
     color: '#22c55e',
     fillColor: '#22c55e80',
@@ -42,20 +28,10 @@ export const COLORES_ESTADO: Record<EstadoLote, { color: string; fillColor: stri
     fillColor: '#f59e0b80',
     label: 'En Cosecha'
   },
-  [EstadoLote.EN_FUMIGACION]: {
-    color: '#ef4444',
-    fillColor: '#ef444480',
-    label: 'En Fumigación'
-  },
   [EstadoLote.EN_MANTENIMIENTO]: {
     color: '#f97316',
     fillColor: '#f9731680',
     label: 'En Mantenimiento'
-  },
-  [EstadoLote.EN_DESCANSO]: {
-    color: '#6b7280',
-    fillColor: '#6b728080',
-    label: 'En Descanso'
   },
   [EstadoLote.INACTIVO]: {
     color: '#9ca3af',
@@ -64,30 +40,27 @@ export const COLORES_ESTADO: Record<EstadoLote, { color: string; fillColor: stri
   }
 };
 
-// Tipo de suelo
+// Tipo de suelo (sincronizado con backend)
 export enum TipoSuelo {
   ARCILLOSO = 'ARCILLOSO',
   ARENOSO = 'ARENOSO',
   LIMOSO = 'LIMOSO',
   FRANCO = 'FRANCO',
-  HUMIFERO = 'HUMÍFERO',
-  PEDREGOSO = 'PEDREGOSO'
+  HUMIFERO = 'HUMIFERO'
 }
 
-// Topografía del lote
+// Topografía del lote (sincronizado con backend)
 export enum Topografia {
   PLANO = 'PLANO',
   ONDULADO = 'ONDULADO',
-  INCLINADO = 'INCLINADO',
   MONTAÑOSO = 'MONTAÑOSO'
 }
 
-// Sistema de riego
+// Sistema de riego (sincronizado con backend)
 export enum SistemaRiego {
   GOTEO = 'GOTEO',
-  ASPERSION = 'ASPERSIÓN',
+  ASPERSION = 'ASPERSION',
   GRAVEDAD = 'GRAVEDAD',
-  MICROASPERSION = 'MICROASPERSIÓN',
   NINGUNO = 'NINGUNO'
 }
 

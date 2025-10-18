@@ -169,13 +169,13 @@ export const MapaAlternativo = ({
               </div>
               <div className="flex justify-between gap-4">
                 <span className="text-gray-600">Área total:</span>
-                <span className="font-semibold">{lotes.reduce((sum, l) => sum + l.area_hectareas, 0).toFixed(1)} ha</span>
+                <span className="font-semibold">{lotes.reduce((sum, l) => sum + (Number(l.area_hectareas) || 0), 0).toFixed(1)} ha</span>
               </div>
               {lotes.length > 0 && (
                 <div className="flex justify-between gap-4">
                   <span className="text-gray-600">Área promedio:</span>
                   <span className="font-semibold">
-                    {(lotes.reduce((sum, l) => sum + l.area_hectareas, 0) / lotes.length).toFixed(1)} ha
+                    {(lotes.reduce((sum, l) => sum + (Number(l.area_hectareas) || 0), 0) / lotes.length).toFixed(1)} ha
                   </span>
                 </div>
               )}

@@ -1,4 +1,75 @@
-import { LoteModel, Lote, CreateLoteDto, UpdateLoteDto } from '../models/lote.model'
+import { LoteModel, Lote, CreateLoteDto, UpdateLoteDto, Coordenada } from '../models/lote.model'
+
+// ============================================================================
+// UTILIDADES GEOGRÁFICAS
+// ============================================================================
+
+/**
+ * Calcular área de un polígono en hectáreas usando coordenadas geográficas
+ * Usa la fórmula de área geodésica
+ */
+function calcularAreaHectareas(coordenadas: Coordenada[]): number {
+  if (coordenadas.length < 3) return 0
+
+  const RADIO_TIERRA = 6371000 // metros
+  
+  // Convertir a radianes
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+
+  let area = 0
+  const n = coordenadas.length
+
+  for (let i = 0; i < n; i++) {
+    const p1 = coordenadas[i]
+    const p2 = coordenadas[(i + 1) % n]
+    
+    const lat1 = toRad(p1.lat)
+    const lat2 = toRad(p2.lat)
+    const lng1 = toRad(p1.lng)
+    const lng2 = toRad(p2.lng)
+    
+    area += (lng2 - lng1) * (2 + Math.sin(lat1) + Math.sin(lat2))
+  }
+
+  area = Math.abs(area * RADIO_TIERRA * RADIO_TIERRA / 2)
+  
+  // Convertir de m² a hectáreas (1 hectárea = 10,000 m²)
+  return area / 10000
+}
+
+/**
+ * Calcular perímetro en metros usando la fórmula de Haversine
+ */
+function calcularPerimetroMetros(coordenadas: Coordenada[]): number {
+  if (coordenadas.length < 2) return 0
+
+  const RADIO_TIERRA = 6371000 // metros
+  const toRad = (deg: number) => (deg * Math.PI) / 180
+
+  let perimetro = 0
+  const n = coordenadas.length
+
+  for (let i = 0; i < n; i++) {
+    const p1 = coordenadas[i]
+    const p2 = coordenadas[(i + 1) % n]
+    
+    const lat1 = toRad(p1.lat)
+    const lat2 = toRad(p2.lat)
+    const lng1 = toRad(p1.lng)
+    const lng2 = toRad(p2.lng)
+    
+    const dlat = lat2 - lat1
+    const dlng = lng2 - lng1
+    
+    const a = Math.sin(dlat / 2) ** 2 + 
+              Math.cos(lat1) * Math.cos(lat2) * Math.sin(dlng / 2) ** 2
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    
+    perimetro += RADIO_TIERRA * c
+  }
+
+  return perimetro
+}
 
 // ============================================================================
 // SERVICIO DE LOTES
@@ -38,12 +109,22 @@ export class LotesService {
       throw new Error('El nombre del lote es requerido')
     }
 
-    if (!data.area_hectareas || data.area_hectareas <= 0) {
-      throw new Error('El área debe ser mayor a 0')
-    }
-
     if (!data.coordenadas || data.coordenadas.length < 3) {
       throw new Error('Se requieren al menos 3 coordenadas para definir el lote')
+    }
+
+    // Calcular automáticamente área y perímetro si no se proporcionan
+    if (!data.area_hectareas || data.area_hectareas === 0) {
+      data.area_hectareas = calcularAreaHectareas(data.coordenadas)
+    }
+
+    if (!data.perimetro_metros || data.perimetro_metros === 0) {
+      data.perimetro_metros = calcularPerimetroMetros(data.coordenadas)
+    }
+
+    // Validar que el área calculada sea válida
+    if (data.area_hectareas <= 0) {
+      throw new Error('No se pudo calcular un área válida. Verifica las coordenadas.')
     }
 
     // Verificar que el código no exista
@@ -92,12 +173,20 @@ export class LotesService {
       throw new Error('El nombre del lote no puede estar vacío')
     }
 
-    if (data.area_hectareas !== undefined && data.area_hectareas <= 0) {
-      throw new Error('El área debe ser mayor a 0')
-    }
-
     if (data.coordenadas !== undefined && data.coordenadas.length < 3) {
       throw new Error('Se requieren al menos 3 coordenadas para definir el lote')
+    }
+
+    // Si se actualizan las coordenadas, recalcular área y perímetro
+    if (data.coordenadas && data.coordenadas.length >= 3) {
+      data.area_hectareas = calcularAreaHectareas(data.coordenadas)
+      data.perimetro_metros = calcularPerimetroMetros(data.coordenadas)
+
+      if (data.area_hectareas <= 0) {
+        throw new Error('No se pudo calcular un área válida. Verifica las coordenadas.')
+      }
+    } else if (data.area_hectareas !== undefined && data.area_hectareas <= 0) {
+      throw new Error('El área debe ser mayor a 0')
     }
 
     // Actualizar

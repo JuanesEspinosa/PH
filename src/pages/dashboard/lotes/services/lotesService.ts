@@ -23,6 +23,15 @@ export const lotesService = {
       ...lote,
       id: lote.id.toString(),
       cultivo_id: lote.cultivo_id?.toString(),
+      area_hectareas: Number(lote.area_hectareas) || 0,
+      perimetro_metros: Number(lote.perimetro_metros) || 0,
+      altitud_msnm: lote.altitud_msnm ? Number(lote.altitud_msnm) : undefined,
+      ph_suelo: lote.ph_suelo ? Number(lote.ph_suelo) : undefined,
+      // Normalizar coordenadas para asegurar que sean números
+      coordenadas: (lote.coordenadas || []).map(coord => ({
+        lat: Number(coord.lat),
+        lng: Number(coord.lng)
+      })),
       fecha_creacion: new Date(lote.fecha_creacion),
       fecha_ultima_modificacion: lote.fecha_ultima_modificacion ? new Date(lote.fecha_ultima_modificacion) : undefined,
       fecha_ultima_actividad: lote.fecha_ultima_actividad ? new Date(lote.fecha_ultima_actividad) : undefined
@@ -36,6 +45,15 @@ export const lotesService = {
       ...data,
       id: data.id.toString(),
       cultivo_id: data.cultivo_id?.toString(),
+      area_hectareas: Number(data.area_hectareas) || 0,
+      perimetro_metros: Number(data.perimetro_metros) || 0,
+      altitud_msnm: data.altitud_msnm ? Number(data.altitud_msnm) : undefined,
+      ph_suelo: data.ph_suelo ? Number(data.ph_suelo) : undefined,
+      // Normalizar coordenadas para asegurar que sean números
+      coordenadas: (data.coordenadas || []).map(coord => ({
+        lat: Number(coord.lat),
+        lng: Number(coord.lng)
+      })),
       fecha_creacion: new Date(data.fecha_creacion),
       fecha_ultima_modificacion: data.fecha_ultima_modificacion ? new Date(data.fecha_ultima_modificacion) : undefined,
       fecha_ultima_actividad: data.fecha_ultima_actividad ? new Date(data.fecha_ultima_actividad) : undefined

@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SelectorCoordenadasAlternativo as SelectorCoordenadas } from './SelectorCoordenadasAlternativo';
+import { calcularArea, calcularPerimetro } from '../services/lotesService';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 
@@ -39,7 +40,7 @@ export const LoteForm = ({ initialData, onSubmit, onCancel, isLoading }: LoteFor
       area_hectareas: initialData?.area_hectareas || 0,
       perimetro_metros: initialData?.perimetro_metros || 0,
       altitud_msnm: initialData?.altitud_msnm || 0,
-      estado: initialData?.estado || EstadoLote.OPERATIVO,
+      estado: initialData?.estado || EstadoLote.EN_CRECIMIENTO,
       tipo_suelo: initialData?.tipo_suelo,
       ph_suelo: initialData?.ph_suelo,
       topografia: initialData?.topografia,
@@ -52,9 +53,15 @@ export const LoteForm = ({ initialData, onSubmit, onCancel, isLoading }: LoteFor
   });
   
   const handleFormSubmit = (data: CreateLoteDto) => {
+    // Calcular automáticamente área y perímetro basado en coordenadas
+    const area = coordenadas.length >= 3 ? calcularArea(coordenadas) : 0;
+    const perimetro = coordenadas.length >= 2 ? calcularPerimetro(coordenadas) : 0;
+    
     onSubmit({
       ...data,
-      coordenadas
+      coordenadas,
+      area_hectareas: area,
+      perimetro_metros: perimetro
     });
   };
   
@@ -131,13 +138,9 @@ export const LoteForm = ({ initialData, onSubmit, onCancel, isLoading }: LoteFor
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={EstadoLote.OPERATIVO}>Operativo</SelectItem>
-                    <SelectItem value={EstadoLote.EN_SIEMBRA}>En Siembra</SelectItem>
                     <SelectItem value={EstadoLote.EN_CRECIMIENTO}>En Crecimiento</SelectItem>
                     <SelectItem value={EstadoLote.EN_COSECHA}>En Cosecha</SelectItem>
-                    <SelectItem value={EstadoLote.EN_FUMIGACION}>En Fumigación</SelectItem>
                     <SelectItem value={EstadoLote.EN_MANTENIMIENTO}>En Mantenimiento</SelectItem>
-                    <SelectItem value={EstadoLote.EN_DESCANSO}>En Descanso</SelectItem>
                     <SelectItem value={EstadoLote.INACTIVO}>Inactivo</SelectItem>
                   </SelectContent>
                 </Select>

@@ -50,11 +50,20 @@ export const MapaReal = ({
     
     lotes.forEach(lote => {
       lote.coordenadas.forEach(coord => {
-        totalLat += coord.lat;
-        totalLng += coord.lng;
-        totalPuntos++;
+        const lat = Number(coord.lat);
+        const lng = Number(coord.lng);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          totalLat += lat;
+          totalLng += lng;
+          totalPuntos++;
+        }
       });
     });
+    
+    // Si no hay puntos válidos, usar un centro por defecto
+    if (totalPuntos === 0) {
+      return { lat: 4.7110, lng: -74.0721 }; // Bogotá por defecto
+    }
     
     return { lat: totalLat / totalPuntos, lng: totalLng / totalPuntos };
   }, [lotes]);
@@ -129,10 +138,19 @@ export const MapaReal = ({
       const colors = COLORES_ESTADO[lote.estado];
       const esSeleccionado = loteSeleccionado === lote.id;
       
-      const paths = lote.coordenadas.map(coord => ({
-        lat: coord.lat,
-        lng: coord.lng
-      }));
+      // Validar y convertir coordenadas a números
+      const paths = lote.coordenadas
+        .filter(coord => coord && coord.lat && coord.lng)
+        .map(coord => ({
+          lat: Number(coord.lat),
+          lng: Number(coord.lng)
+        }));
+      
+      // Validar que haya coordenadas válidas
+      if (paths.length < 3) {
+        console.warn(`Lote ${lote.nombre} no tiene suficientes coordenadas válidas`);
+        return;
+      }
       
       console.log(`Creando polígono para lote ${lote.nombre}:`, paths);
       
@@ -188,9 +206,15 @@ export const MapaReal = ({
     if (lotes.length > 0 && googleMapRef.current) {
       const bounds = new google.maps.LatLngBounds();
       lotes.forEach(lote => {
-        lote.coordenadas.forEach(coord => {
-          bounds.extend({ lat: coord.lat, lng: coord.lng });
-        });
+        lote.coordenadas
+          .filter(coord => coord && coord.lat && coord.lng)
+          .forEach(coord => {
+            const lat = Number(coord.lat);
+            const lng = Number(coord.lng);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              bounds.extend({ lat, lng });
+            }
+          });
       });
       googleMapRef.current.fitBounds(bounds);
     }
@@ -398,7 +422,7 @@ export const MapaReal = ({
             <div className="flex justify-between">
               <span className="text-gray-600">Área total:</span>
               <span className="font-semibold">
-                {lotes.reduce((sum, l) => sum + l.area_hectareas, 0).toFixed(1)} ha
+                {lotes.reduce((sum, l) => sum + (Number(l.area_hectareas) || 0), 0).toFixed(1)} ha
               </span>
             </div>
           </div>

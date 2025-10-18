@@ -43,7 +43,7 @@ export class PlanificacionService {
   /**
    * Crear una nueva actividad
    */
-  async createActividad(data: CreateActividadDto, userId: number): Promise<ActividadPlanificada> {
+  async createActividad(data: CreateActividadDto, userId: number | null): Promise<ActividadPlanificada> {
     // Validaciones
     if (!data.nombre || data.nombre.trim().length === 0) {
       throw new Error('El nombre de la actividad es requerido')
