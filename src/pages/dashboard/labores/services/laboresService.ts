@@ -1,59 +1,59 @@
 export interface Labor {
-  id: string
+  id: number
   fecha: string
   cultivo: string
   lote: string
-  trabajadorId: string
-  trabajadorNombre: string
-  tipoLaborId: string
-  tipoLaborNombre: string
-  cantidadRecolectada: number
-  unidadMedida: 'kg' | 'litros' | 'unidades' | 'toneladas' | 'quintales'
-  pesoTotal: number
-  horaInicio: string
-  horaFin: string
-  ubicacionGPS: {
+  trabajador_id: number
+  trabajador_nombre: string
+  tipo_labor_id: number
+  tipo_labor_nombre: string
+  cantidad_recolectada: number
+  unidad_medida: 'kg' | 'litros' | 'unidades' | 'toneladas' | 'quintales'
+  peso_total: number
+  hora_inicio: string
+  hora_fin: string
+  ubicacion_gps: {
     latitud: number
     longitud: number
   }
-  condicionesClimaticas?: {
+  condiciones_climaticas?: {
     temperatura?: number
     humedad?: number
     lluvia?: boolean
   }
-  herramientasInsumos?: string[]
+  herramientas_insumos?: string[]
   observaciones?: string
   fotos?: string[]
-  duracionMinutos?: number
-  rendimientoPorHora?: number
-  costoEstimado?: number
+  duracion_minutos?: number
+  rendimiento_por_hora?: number
+  costo_estimado?: number
   estado: 'en_proceso' | 'completada' | 'pausada' | 'cancelada'
-  fechaCreacion: string
-  ultimaModificacion?: string
-  supervisorId?: string
+  fecha_creacion: string
+  ultima_modificacion?: string
+  supervisor_id?: number
 }
 
 export interface CreateLaborDto {
   fecha: string
   cultivo: string
   lote: string
-  trabajadorId: string
-  tipoLaborId: string
-  cantidadRecolectada: number
-  unidadMedida: 'kg' | 'litros' | 'unidades' | 'toneladas' | 'quintales'
-  pesoTotal: number
-  horaInicio: string
-  horaFin: string
-  ubicacionGPS: {
+  trabajador_id: number
+  tipo_labor_id: number
+  cantidad_recolectada: number
+  unidad_medida: 'kg' | 'litros' | 'unidades' | 'toneladas' | 'quintales'
+  peso_total: number
+  hora_inicio: string
+  hora_fin: string
+  ubicacion_gps: {
     latitud: number
     longitud: number
   }
-  condicionesClimaticas?: {
+  condiciones_climaticas?: {
     temperatura?: number
     humedad?: number
     lluvia?: boolean
   }
-  herramientasInsumos?: string[]
+  herramientas_insumos?: string[]
   observaciones?: string
   fotos?: string[]
 }
@@ -62,294 +62,143 @@ export interface UpdateLaborDto {
   fecha?: string
   cultivo?: string
   lote?: string
-  trabajadorId?: string
-  tipoLaborId?: string
-  cantidadRecolectada?: number
-  unidadMedida?: 'kg' | 'litros' | 'unidades' | 'toneladas' | 'quintales'
-  pesoTotal?: number
-  horaInicio?: string
-  horaFin?: string
-  ubicacionGPS?: {
+  trabajador_id?: number
+  tipo_labor_id?: number
+  cantidad_recolectada?: number
+  unidad_medida?: 'kg' | 'litros' | 'unidades' | 'toneladas' | 'quintales'
+  peso_total?: number
+  hora_inicio?: string
+  hora_fin?: string
+  ubicacion_gps?: {
     latitud: number
     longitud: number
   }
-  condicionesClimaticas?: {
+  condiciones_climaticas?: {
     temperatura?: number
     humedad?: number
     lluvia?: boolean
   }
-  herramientasInsumos?: string[]
+  herramientas_insumos?: string[]
   observaciones?: string
   estado?: 'en_proceso' | 'completada' | 'pausada' | 'cancelada'
 }
 
-const MOCK_LABORES: Labor[] = [
-  {
-    id: '1',
-    fecha: '2024-10-15',
-    cultivo: 'Maíz',
-    lote: 'Lote A-1',
-    trabajadorId: '1',
-    trabajadorNombre: 'Juan Carlos Pérez González',
-    tipoLaborId: '2',
-    tipoLaborNombre: 'Siembra Directa',
-    cantidadRecolectada: 150,
-    unidadMedida: 'kg',
-    pesoTotal: 150,
-    horaInicio: '08:00',
-    horaFin: '14:00',
-    ubicacionGPS: {
-      latitud: -12.0464,
-      longitud: -77.0428,
-    },
-    condicionesClimaticas: {
-      temperatura: 24,
-      humedad: 65,
-      lluvia: false,
-    },
-    herramientasInsumos: ['Sembradora mecánica', 'Semillas certificadas', 'Fertilizante NPK'],
-    observaciones: 'Siembra realizada en condiciones óptimas. Suelo bien preparado.',
-    duracionMinutos: 360,
-    rendimientoPorHora: 25,
-    costoEstimado: 180,
-    estado: 'completada',
-    fechaCreacion: '2024-10-15',
-    ultimaModificacion: '2024-10-15T14:30:00',
-  },
-  {
-    id: '2',
-    fecha: '2024-10-16',
-    cultivo: 'Café',
-    lote: 'Lote B-3',
-    trabajadorId: '2',
-    trabajadorNombre: 'María Isabel García Martínez',
-    tipoLaborId: '6',
-    tipoLaborNombre: 'Cosecha Mecanizada',
-    cantidadRecolectada: 320,
-    unidadMedida: 'kg',
-    pesoTotal: 320,
-    horaInicio: '06:00',
-    horaFin: '15:00',
-    ubicacionGPS: {
-      latitud: -12.0501,
-      longitud: -77.0389,
-    },
-    condicionesClimaticas: {
-      temperatura: 22,
-      humedad: 70,
-      lluvia: false,
-    },
-    herramientasInsumos: ['Cosechadora selectiva', 'Sacos de yute', 'Balanza digital'],
-    observaciones: 'Café cereza en punto óptimo de maduración. Alta calidad del grano.',
-    duracionMinutos: 540,
-    rendimientoPorHora: 35.5,
-    costoEstimado: 270,
-    estado: 'completada',
-    fechaCreacion: '2024-10-16',
-    ultimaModificacion: '2024-10-16T15:20:00',
-  },
-  {
-    id: '3',
-    fecha: '2024-10-17',
-    cultivo: 'Arroz',
-    lote: 'Lote C-2',
-    trabajadorId: '3',
-    trabajadorNombre: 'Carlos Alberto López Rodríguez',
-    tipoLaborId: '3',
-    tipoLaborNombre: 'Riego por Goteo',
-    cantidadRecolectada: 0,
-    unidadMedida: 'litros',
-    pesoTotal: 0,
-    horaInicio: '07:00',
-    horaFin: '10:00',
-    ubicacionGPS: {
-      latitud: -12.0489,
-      longitud: -77.0412,
-    },
-    condicionesClimaticas: {
-      temperatura: 26,
-      humedad: 55,
-      lluvia: false,
-    },
-    herramientasInsumos: ['Sistema de riego por goteo', 'Bomba de agua', 'Fertilizante líquido'],
-    observaciones: 'Riego programado completado. Sistema funcionando correctamente.',
-    duracionMinutos: 180,
-    rendimientoPorHora: 0,
-    costoEstimado: 90,
-    estado: 'completada',
-    fechaCreacion: '2024-10-17',
-  },
-  {
-    id: '4',
-    fecha: '2024-10-17',
-    cultivo: 'Tomate',
-    lote: 'Lote D-1',
-    trabajadorId: '4',
-    trabajadorNombre: 'Ana Sofía Martínez Fernández',
-    tipoLaborId: '5',
-    tipoLaborNombre: 'Control Integrado de Plagas',
-    cantidadRecolectada: 0,
-    unidadMedida: 'litros',
-    pesoTotal: 0,
-    horaInicio: '09:00',
-    horaFin: '12:00',
-    ubicacionGPS: {
-      latitud: -12.0478,
-      longitud: -77.0445,
-    },
-    condicionesClimaticas: {
-      temperatura: 25,
-      humedad: 60,
-      lluvia: false,
-    },
-    herramientasInsumos: ['Fumigadora', 'Insecticida biológico', 'Equipo de protección'],
-    observaciones: 'Aplicación preventiva contra mosca blanca. Se observó presencia leve.',
-    duracionMinutos: 180,
-    rendimientoPorHora: 0,
-    costoEstimado: 120,
-    estado: 'completada',
-    fechaCreacion: '2024-10-17',
-  },
-]
-
-let mockDatabase = [...MOCK_LABORES]
-
-const calcularMetricas = (labor: Partial<Labor>): Partial<Labor> => {
-  if (labor.horaInicio && labor.horaFin) {
-    const inicio = new Date(`2000-01-01T${labor.horaInicio}`)
-    const fin = new Date(`2000-01-01T${labor.horaFin}`)
-    const duracionMinutos = (fin.getTime() - inicio.getTime()) / 60000
-    const duracionHoras = duracionMinutos / 60
-    const rendimientoPorHora = duracionHoras > 0 ? labor.cantidadRecolectada! / duracionHoras : 0
-    const costoEstimado = duracionMinutos * 0.5
-
-    return {
-      ...labor,
-      duracionMinutos: Math.round(duracionMinutos),
-      rendimientoPorHora: Math.round(rendimientoPorHora * 10) / 10,
-      costoEstimado: Math.round(costoEstimado * 100) / 100,
-    }
-  }
-  return labor
-}
+import api from '@/lib/axios'
 
 export const laboresService = {
+  // Obtener todas las labores
   async getAll(): Promise<Labor[]> {
-    await new Promise((resolve) => setTimeout(resolve, 400))
-    return [...mockDatabase]
+    try {
+      const response = await api.get<Labor[]>('/labores')
+      return response.data
+    } catch (error) {
+      console.error('Error al obtener labores:', error)
+      throw new Error('No se pudieron cargar las labores')
+    }
   },
 
+  // Obtener una labor por ID
   async getById(id: string): Promise<Labor> {
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    
-    const labor = mockDatabase.find((l) => l.id === id)
-    if (!labor) {
+    try {
+      const response = await api.get<Labor>(`/labores/${id}`)
+      return response.data
+    } catch (error) {
+      console.error('Error al obtener labor:', error)
       throw new Error('Labor no encontrada')
     }
-    
-    return { ...labor }
   },
 
+  // Crear una nueva labor
   async create(data: CreateLaborDto): Promise<Labor> {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    
-    const trabajador = await import('../../trabajadores/services/trabajadoresService').then(m => 
-      m.trabajadoresService.getById(data.trabajadorId)
-    ).catch(() => ({ nombres: '', apellidos: '' }))
-    
-    const tipoLabor = await import('../../tipos-labor/services/tiposLaborService').then(m => 
-      m.tiposLaborService.getById(data.tipoLaborId)
-    ).catch(() => ({ nombre: '' }))
-    
-    const laborBase = {
-      id: Date.now().toString(),
-      ...data,
-      trabajadorNombre: `${trabajador.nombres} ${trabajador.apellidos}`,
-      tipoLaborNombre: tipoLabor.nombre,
-      estado: 'completada' as const,
-      fechaCreacion: new Date().toISOString().split('T')[0],
-      ultimaModificacion: new Date().toISOString(),
+    try {
+      const response = await api.post<Labor>('/labores', data)
+      return response.data
+    } catch (error: any) {
+      console.error('Error al crear labor:', error)
+      
+      // Manejar errores específicos del backend
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message)
+      }
+      
+      throw new Error('No se pudo crear la labor')
     }
-    
-    const nuevaLabor = calcularMetricas(laborBase) as Labor
-    
-    mockDatabase.push(nuevaLabor)
-    return { ...nuevaLabor }
   },
 
+  // Actualizar una labor
   async update(id: string, data: UpdateLaborDto): Promise<Labor> {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    
-    const index = mockDatabase.findIndex((l) => l.id === id)
-    if (index === -1) {
-      throw new Error('Labor no encontrada')
+    try {
+      const response = await api.put<Labor>(`/labores/${id}`, data)
+      return response.data
+    } catch (error: any) {
+      console.error('Error al actualizar labor:', error)
+      
+      // Manejar errores específicos del backend
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message)
+      }
+      
+      throw new Error('No se pudo actualizar la labor')
     }
-    
-    const laborActualizada = {
-      ...mockDatabase[index],
-      ...data,
-      ultimaModificacion: new Date().toISOString(),
-    }
-    
-    mockDatabase[index] = calcularMetricas(laborActualizada) as Labor
-    
-    return { ...mockDatabase[index] }
   },
 
+  // Eliminar una labor
   async delete(id: string): Promise<void> {
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    
-    const index = mockDatabase.findIndex((l) => l.id === id)
-    if (index === -1) {
-      throw new Error('Labor no encontrada')
+    try {
+      await api.delete(`/labores/${id}`)
+    } catch (error: any) {
+      console.error('Error al eliminar labor:', error)
+      
+      // Manejar errores específicos del backend
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message)
+      }
+      
+      throw new Error('No se pudo eliminar la labor')
     }
-    
-    mockDatabase = mockDatabase.filter((l) => l.id !== id)
   },
 
+  // Buscar labores
   async search(query: string): Promise<Labor[]> {
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    
-    const lowerQuery = query.toLowerCase()
-    const filtered = mockDatabase.filter(
-      (l) =>
-        l.cultivo.toLowerCase().includes(lowerQuery) ||
-        l.lote.toLowerCase().includes(lowerQuery) ||
-        l.trabajadorNombre.toLowerCase().includes(lowerQuery) ||
-        l.tipoLaborNombre.toLowerCase().includes(lowerQuery) ||
-        l.observaciones?.toLowerCase().includes(lowerQuery)
-    )
-    
-    return filtered
+    try {
+      const response = await api.get<Labor[]>(`/labores/search?q=${encodeURIComponent(query)}`)
+      return response.data
+    } catch (error) {
+      console.error('Error al buscar labores:', error)
+      throw new Error('No se pudo realizar la búsqueda')
+    }
   },
 
+  // Obtener labores por rango de fechas
   async getByDateRange(fechaInicio: string, fechaFin: string): Promise<Labor[]> {
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    
-    const filtered = mockDatabase.filter(
-      (l) => l.fecha >= fechaInicio && l.fecha <= fechaFin
-    )
-    
-    return filtered
+    try {
+      const response = await api.get<Labor[]>(`/labores/fecha-rango?inicio=${fechaInicio}&fin=${fechaFin}`)
+      return response.data
+    } catch (error) {
+      console.error('Error al obtener labores por fecha:', error)
+      throw new Error('No se pudieron cargar las labores del rango de fechas')
+    }
   },
 
+  // Obtener labores por trabajador
   async getByTrabajador(trabajadorId: string): Promise<Labor[]> {
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    return mockDatabase.filter((l) => l.trabajadorId === trabajadorId)
+    try {
+      const response = await api.get<Labor[]>(`/labores/trabajador/${trabajadorId}`)
+      return response.data
+    } catch (error) {
+      console.error('Error al obtener labores por trabajador:', error)
+      throw new Error('No se pudieron cargar las labores del trabajador')
+    }
   },
 
+  // Obtener estadísticas
   async getEstadisticas() {
-    await new Promise((resolve) => setTimeout(resolve, 300))
-    
-    return {
-      totalLabores: mockDatabase.length,
-      completadas: mockDatabase.filter((l) => l.estado === 'completada').length,
-      enProceso: mockDatabase.filter((l) => l.estado === 'en_proceso').length,
-      totalRecolectado: mockDatabase.reduce((sum, l) => sum + l.cantidadRecolectada, 0),
-      promedioRendimiento: mockDatabase.length > 0
-        ? mockDatabase.reduce((sum, l) => sum + (l.rendimientoPorHora || 0), 0) / mockDatabase.length
-        : 0,
-      costoTotal: mockDatabase.reduce((sum, l) => sum + (l.costoEstimado || 0), 0),
+    try {
+      const response = await api.get('/labores/estadisticas')
+      return response.data
+    } catch (error) {
+      console.error('Error al obtener estadísticas:', error)
+      throw new Error('No se pudieron cargar las estadísticas')
     }
   },
 }

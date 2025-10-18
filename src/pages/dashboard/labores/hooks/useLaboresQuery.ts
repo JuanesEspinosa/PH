@@ -56,10 +56,11 @@ export function useCreateLaborMutation() {
       
       navigate('/dashboard/labores')
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      const errorMessage = error.message || 'No se pudo registrar la labor.'
       toast({
         title: 'Error',
-        description: error.message || 'No se pudo registrar la labor.',
+        description: errorMessage,
         variant: 'destructive',
       })
     },
@@ -86,10 +87,11 @@ export function useUpdateLaborMutation() {
       
       navigate(`/dashboard/labores/${variables.id}`)
     },
-    onError: (error: Error) => {
+    onError: (error: any) => {
+      const errorMessage = error.message || 'No se pudo actualizar la labor.'
       toast({
         title: 'Error',
-        description: error.message || 'No se pudo actualizar la labor.',
+        description: errorMessage,
         variant: 'destructive',
       })
     },
@@ -112,10 +114,11 @@ export function useDeleteLaborMutation() {
         description: 'La labor ha sido eliminada exitosamente.',
       })
     },
-    onError: () => {
+    onError: (error: any) => {
+      const errorMessage = error.message || 'No se pudo eliminar la labor.'
       toast({
         title: 'Error',
-        description: 'No se pudo eliminar la labor.',
+        description: errorMessage,
         variant: 'destructive',
       })
     },

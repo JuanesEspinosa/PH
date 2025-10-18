@@ -119,7 +119,7 @@ export default function TiposLaborTable({ tiposLabor, onDelete, loading }: Tipos
                     variant="ghost"
                     size="sm"
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => onDelete(tipo.id)}
+                    onClick={() => onDelete(tipo.id.toString())}
                     title="Eliminar"
                   >
                     <Trash2 className="h-4 w-4" />

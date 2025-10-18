@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { UserPlus, Search, RefreshCw, X } from 'lucide-react'
+import { UserPlus, Search, RefreshCw, X, Filter } from 'lucide-react'
 import { useTrabajadoresQuery, useDeleteTrabajadorMutation, useTrabajadoresSearch } from '../hooks/useTrabajadoresQuery'
 import TrabajadoresTable from '../components/TrabajadoresTable'
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Trabajador } from '../services/trabajadoresService'
 
 export default function TrabajadoresListView() {
@@ -15,6 +15,7 @@ export default function TrabajadoresListView() {
   const { searchQuery, setSearch, clearSearch } = useTrabajadoresSearch()
   
   const [searchInput, setSearchInput] = useState(searchQuery)
+  const [estadoFilter, setEstadoFilter] = useState<string>('todos')
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; trabajador: Trabajador | null }>({
     open: false,
     trabajador: null,
@@ -44,6 +45,12 @@ export default function TrabajadoresListView() {
     })
   }
 
+  // Filtrar trabajadores por estado
+  const trabajadoresFiltrados = useMemo(() => {
+    if (estadoFilter === 'todos') return trabajadores
+    return trabajadores.filter(trabajador => trabajador.estado === estadoFilter)
+  }, [trabajadores, estadoFilter])
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -69,7 +76,7 @@ export default function TrabajadoresListView() {
             <CardDescription>Total Trabajadores</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{trabajadores.length}</div>
+            <div className="text-3xl font-bold">{trabajadoresFiltrados.length}</div>
           </CardContent>
         </Card>
 
@@ -107,7 +114,7 @@ export default function TrabajadoresListView() {
         </Card>
       </div>
 
-      {/* Búsqueda y Acciones */}
+      {/* Búsqueda y Filtros */}
       <Card>
         <CardContent className="pt-6">
           <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
@@ -129,6 +136,23 @@ export default function TrabajadoresListView() {
                 </button>
               )}
             </div>
+            
+            {/* Filtro por estado */}
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <select
+                value={estadoFilter}
+                onChange={(e) => setEstadoFilter(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="todos">Todos los estados</option>
+                <option value="activo">Activos</option>
+                <option value="inactivo">Inactivos</option>
+                <option value="vacaciones">Vacaciones</option>
+                <option value="licencia">Licencia</option>
+              </select>
+            </div>
+            
             <Button type="submit" variant="secondary">
               Buscar
             </Button>
@@ -137,10 +161,19 @@ export default function TrabajadoresListView() {
               Actualizar
             </Button>
           </form>
-          {searchQuery && (
-            <p className="text-sm text-muted-foreground mt-2">
-              Buscando: <strong>{searchQuery}</strong>
-            </p>
+          {(searchQuery || estadoFilter !== 'todos') && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {searchQuery && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                  Buscando: <strong className="ml-1">{searchQuery}</strong>
+                </span>
+              )}
+              {estadoFilter !== 'todos' && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                  Estado: <strong className="ml-1 capitalize">{estadoFilter}</strong>
+                </span>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -150,12 +183,13 @@ export default function TrabajadoresListView() {
         <CardHeader>
           <CardTitle>Lista de Trabajadores</CardTitle>
           <CardDescription>
-            {trabajadores.length} trabajador{trabajadores.length !== 1 ? 'es' : ''} encontrado
-            {trabajadores.length !== 1 ? 's' : ''}
+            {trabajadoresFiltrados.length} trabajador{trabajadoresFiltrados.length !== 1 ? 'es' : ''} encontrado
+            {trabajadoresFiltrados.length !== 1 ? 's' : ''}
+            {estadoFilter !== 'todos' && ` (filtrado por estado: ${estadoFilter})`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <TrabajadoresTable trabajadores={trabajadores} onDelete={handleDeleteClick} loading={isLoading} />
+          <TrabajadoresTable trabajadores={trabajadoresFiltrados} onDelete={handleDeleteClick} loading={isLoading} />
         </CardContent>
       </Card>
 

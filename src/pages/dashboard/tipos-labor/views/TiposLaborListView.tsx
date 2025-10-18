@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, Search, RefreshCw, X } from 'lucide-react'
+import { Plus, Search, RefreshCw, X, Filter } from 'lucide-react'
 import { useTiposLaborQuery, useDeleteTipoLaborMutation, useTiposLaborSearch } from '../hooks/useTiposLaborQuery'
 import TiposLaborTable from '../components/TiposLaborTable'
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { TipoLabor } from '../services/tiposLaborService'
 
 export default function TiposLaborListView() {
@@ -15,6 +15,7 @@ export default function TiposLaborListView() {
   const { searchQuery, setSearch, clearSearch } = useTiposLaborSearch()
   
   const [searchInput, setSearchInput] = useState(searchQuery)
+  const [categoriaFilter, setCategoriaFilter] = useState<string>('todas')
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; tipoLabor: TipoLabor | null }>({
     open: false,
     tipoLabor: null,
@@ -31,7 +32,7 @@ export default function TiposLaborListView() {
   }
 
   const handleDeleteClick = (id: string) => {
-    const tipoLabor = tiposLabor.find((t) => t.id === id)
+    const tipoLabor = tiposLabor.find((t) => t.id.toString() === id)
     if (tipoLabor) {
       setDeleteDialog({ open: true, tipoLabor })
     }
@@ -39,10 +40,16 @@ export default function TiposLaborListView() {
 
   const handleDeleteConfirm = () => {
     if (!deleteDialog.tipoLabor) return
-    deleteTipoLabor(deleteDialog.tipoLabor.id, {
+    deleteTipoLabor(deleteDialog.tipoLabor.id.toString(), {
       onSuccess: () => setDeleteDialog({ open: false, tipoLabor: null })
     })
   }
+
+  // Filtrar tipos de labor por categoría
+  const tiposLaborFiltrados = useMemo(() => {
+    if (categoriaFilter === 'todas') return tiposLabor
+    return tiposLabor.filter(tipo => tipo.categoria === categoriaFilter)
+  }, [tiposLabor, categoriaFilter])
 
   return (
     <div className="space-y-6">
@@ -67,7 +74,7 @@ export default function TiposLaborListView() {
             <CardDescription>Total Tipos</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{tiposLabor.length}</div>
+            <div className="text-3xl font-bold">{tiposLaborFiltrados.length}</div>
           </CardContent>
         </Card>
 
@@ -77,7 +84,7 @@ export default function TiposLaborListView() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600">
-              {tiposLabor.filter((t) => t.categoria === 'siembra').length}
+              {tiposLaborFiltrados.filter((t) => t.categoria === 'siembra').length}
             </div>
           </CardContent>
         </Card>
@@ -88,7 +95,7 @@ export default function TiposLaborListView() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-yellow-600">
-              {tiposLabor.filter((t) => t.categoria === 'cosecha').length}
+              {tiposLaborFiltrados.filter((t) => t.categoria === 'cosecha').length}
             </div>
           </CardContent>
         </Card>
@@ -99,7 +106,7 @@ export default function TiposLaborListView() {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-blue-600">
-              {tiposLabor.filter((t) => t.categoria === 'riego').length}
+              {tiposLaborFiltrados.filter((t) => t.categoria === 'riego').length}
             </div>
           </CardContent>
         </Card>
@@ -126,6 +133,26 @@ export default function TiposLaborListView() {
                 </button>
               )}
             </div>
+            
+            {/* Filtro por categoría */}
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <select
+                value={categoriaFilter}
+                onChange={(e) => setCategoriaFilter(e.target.value)}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="todas">Todas las categorías</option>
+                <option value="siembra">Siembra</option>
+                <option value="cosecha">Cosecha</option>
+                <option value="riego">Riego</option>
+                <option value="fertilizacion">Fertilización</option>
+                <option value="control_plagas">Control de Plagas</option>
+                <option value="mantenimiento">Mantenimiento</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+            
             <Button type="submit" variant="secondary">
               Buscar
             </Button>
@@ -134,10 +161,19 @@ export default function TiposLaborListView() {
               Actualizar
             </Button>
           </form>
-          {searchQuery && (
-            <p className="text-sm text-muted-foreground mt-2">
-              Buscando: <strong>{searchQuery}</strong>
-            </p>
+          {(searchQuery || categoriaFilter !== 'todas') && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {searchQuery && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                  Buscando: <strong className="ml-1">{searchQuery}</strong>
+                </span>
+              )}
+              {categoriaFilter !== 'todas' && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+                  Categoría: <strong className="ml-1 capitalize">{categoriaFilter}</strong>
+                </span>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
@@ -146,12 +182,13 @@ export default function TiposLaborListView() {
         <CardHeader>
           <CardTitle>Lista de Tipos de Labor</CardTitle>
           <CardDescription>
-            {tiposLabor.length} tipo{tiposLabor.length !== 1 ? 's' : ''} de labor encontrado
-            {tiposLabor.length !== 1 ? 's' : ''}
+            {tiposLaborFiltrados.length} tipo{tiposLaborFiltrados.length !== 1 ? 's' : ''} de labor encontrado
+            {tiposLaborFiltrados.length !== 1 ? 's' : ''}
+            {categoriaFilter !== 'todas' && ` (filtrado por categoría: ${categoriaFilter})`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <TiposLaborTable tiposLabor={tiposLabor} onDelete={handleDeleteClick} loading={isLoading} />
+          <TiposLaborTable tiposLabor={tiposLaborFiltrados} onDelete={handleDeleteClick} loading={isLoading} />
         </CardContent>
       </Card>
 

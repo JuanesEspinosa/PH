@@ -59,10 +59,11 @@ export function useCreateTrabajadorMutation() {
       
       navigate('/dashboard/trabajadores')
     },
-    onError: () => {
+    onError: (error: any) => {
+      const errorMessage = error.message || 'No se pudo crear el trabajador.'
       toast({
         title: 'Error',
-        description: 'No se pudo crear el trabajador.',
+        description: errorMessage,
         variant: 'destructive',
       })
     },
@@ -92,10 +93,11 @@ export function useUpdateTrabajadorMutation() {
       
       navigate(`/dashboard/trabajadores/${variables.id}`)
     },
-    onError: () => {
+    onError: (error: any) => {
+      const errorMessage = error.message || 'No se pudo actualizar el trabajador.'
       toast({
         title: 'Error',
-        description: 'No se pudo actualizar el trabajador.',
+        description: errorMessage,
         variant: 'destructive',
       })
     },
@@ -119,14 +121,15 @@ export function useDeleteTrabajadorMutation() {
       queryClient.removeQueries({ queryKey: queryKeys.trabajadores.detail(id) })
       
       toast({
-        title: 'Trabajador eliminado',
-        description: 'El trabajador ha sido eliminado exitosamente.',
+        title: 'Trabajador marcado como inactivo',
+        description: 'El trabajador ha sido marcado como inactivo exitosamente.',
       })
     },
-    onError: () => {
+    onError: (error: any) => {
+      const errorMessage = error.message || 'No se pudo marcar como inactivo el trabajador.'
       toast({
         title: 'Error',
-        description: 'No se pudo eliminar el trabajador.',
+        description: errorMessage,
         variant: 'destructive',
       })
     },
