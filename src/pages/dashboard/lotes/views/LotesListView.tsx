@@ -55,7 +55,7 @@ export const LotesListView = () => {
       
       {/* Estadísticas */}
       {estadisticas && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-4">
             <div className="text-sm text-gray-600">Total de Lotes</div>
             <div className="text-2xl font-bold">{estadisticas.total_lotes}</div>
@@ -66,15 +66,7 @@ export const LotesListView = () => {
             <div className="text-2xl font-bold">{Number(estadisticas.total_hectareas).toFixed(1)} ha</div>
           </Card>
           
-          <Card className="p-4">
-            <div className="text-sm text-gray-600">Lotes Activos</div>
-            <div className="text-2xl font-bold">{estadisticas.lotes_activos}</div>
-          </Card>
-          
-          <Card className="p-4">
-            <div className="text-sm text-gray-600">Con Riego</div>
-            <div className="text-2xl font-bold">{estadisticas.lotes_con_riego}</div>
-          </Card>
+        
         </div>
       )}
       
@@ -105,13 +97,9 @@ export const LotesListView = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todos los estados</SelectItem>
-                <SelectItem value={EstadoLote.OPERATIVO}>Operativo</SelectItem>
-                <SelectItem value={EstadoLote.EN_SIEMBRA}>En Siembra</SelectItem>
                 <SelectItem value={EstadoLote.EN_CRECIMIENTO}>En Crecimiento</SelectItem>
                 <SelectItem value={EstadoLote.EN_COSECHA}>En Cosecha</SelectItem>
-                <SelectItem value={EstadoLote.EN_FUMIGACION}>En Fumigación</SelectItem>
                 <SelectItem value={EstadoLote.EN_MANTENIMIENTO}>En Mantenimiento</SelectItem>
-                <SelectItem value={EstadoLote.EN_DESCANSO}>En Descanso</SelectItem>
                 <SelectItem value={EstadoLote.INACTIVO}>Inactivo</SelectItem>
               </SelectContent>
             </Select>

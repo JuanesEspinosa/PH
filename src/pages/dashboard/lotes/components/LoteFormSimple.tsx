@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { CreateLoteDto, EstadoLote } from '@/types/lotes';
+import { CreateLoteDto, EstadoLote, Lote } from '@/types/lotes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card } from '@/components/ui/card';
 import SelectorMapaInteractivo from './SelectorMapaInteractivo';
 import { useCultivosActivos } from '../../cultivos/hooks/useCultivosQuery';
+import { calcularArea, calcularPerimetro } from '../services/lotesService';
 import { Leaf, AlertCircle } from 'lucide-react';
 
 // ============================================================================
@@ -19,20 +20,22 @@ interface LoteFormSimpleProps {
   onSubmit: (data: CreateLoteDto) => void;
   onCancel: () => void;
   isLoading?: boolean;
+  lotesExistentes?: Lote[];
 }
 
 export const LoteFormSimple = ({
   initialData,
   onSubmit,
   onCancel,
-  isLoading = false
+  isLoading = false,
+  lotesExistentes = []
 }: LoteFormSimpleProps) => {
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<CreateLoteDto>({
     defaultValues: {
       nombre: initialData?.nombre || '',
       codigo: initialData?.codigo || `LOT-${Date.now()}`,
       area_hectareas: initialData?.area_hectareas || 0,
-      estado: initialData?.estado || EstadoLote.OPERATIVO,
+      estado: initialData?.estado || EstadoLote.EN_CRECIMIENTO,
       coordenadas: initialData?.coordenadas || [],
       cultivo_id: initialData?.cultivo_id || '',
       descripcion: initialData?.descripcion || '',
@@ -48,7 +51,17 @@ export const LoteFormSimple = ({
       alert('Debes marcar al menos 3 puntos en el mapa para delimitar el lote');
       return;
     }
-    onSubmit(data);
+    
+    // Calcular automáticamente área y perímetro basado en coordenadas
+    const area = calcularArea(data.coordenadas);
+    const perimetro = calcularPerimetro(data.coordenadas);
+    
+    // Enviar con los valores calculados
+    onSubmit({
+      ...data,
+      area_hectareas: area,
+      perimetro_metros: perimetro
+    });
   };
   
   return (
@@ -91,13 +104,9 @@ export const LoteFormSimple = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={EstadoLote.OPERATIVO}>🟢 Operativo</SelectItem>
-                <SelectItem value={EstadoLote.EN_SIEMBRA}>🟣 En Siembra</SelectItem>
                 <SelectItem value={EstadoLote.EN_CRECIMIENTO}>🟢 En Crecimiento</SelectItem>
                 <SelectItem value={EstadoLote.EN_COSECHA}>🟡 En Cosecha</SelectItem>
-                <SelectItem value={EstadoLote.EN_FUMIGACION}>🔴 En Fumigación</SelectItem>
                 <SelectItem value={EstadoLote.EN_MANTENIMIENTO}>🟠 En Mantenimiento</SelectItem>
-                <SelectItem value={EstadoLote.EN_DESCANSO}>⚪ En Descanso</SelectItem>
                 <SelectItem value={EstadoLote.INACTIVO}>⚫ Inactivo</SelectItem>
               </SelectContent>
             </Select>
@@ -148,6 +157,7 @@ export const LoteFormSimple = ({
           value={coordenadas}
           onChange={(coords) => setValue('coordenadas', coords)}
           height="450px"
+          lotesExistentes={lotesExistentes}
         />
         
         {coordenadas.length > 0 && coordenadas.length < 3 && (

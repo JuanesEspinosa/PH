@@ -255,7 +255,7 @@ export class PlanificacionModel {
   /**
    * Crear una actividad
    */
-  static async create(data: CreateActividadDto, userId: number): Promise<number> {
+  static async create(data: CreateActividadDto, userId: number | null): Promise<number> {
     const connection = await pool.getConnection()
     
     try {
