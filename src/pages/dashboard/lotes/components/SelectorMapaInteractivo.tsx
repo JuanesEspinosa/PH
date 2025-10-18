@@ -12,17 +12,21 @@ import { getGoogleMapsScriptUrl } from '@/config/googleMaps';
 // ============================================================================
 
 interface SelectorMapaInteractivoProps {
-  value: Coordenada[];
-  onChange: (coordenadas: Coordenada[]) => void;
+  value?: Coordenada[];
+  onChange?: (coordenadas: Coordenada[]) => void;
+  onCoordenadasChange?: (coordenadas: { latitud: number; longitud: number }) => void;
   height?: string;
   lotesExistentes?: Lote[];
+  loteSeleccionado?: Lote;
 }
 
 export const SelectorMapaInteractivo = ({
-  value,
+  value = [],
   onChange,
+  onCoordenadasChange,
   height = '500px',
-  lotesExistentes = []
+  lotesExistentes = [],
+  loteSeleccionado
 }: SelectorMapaInteractivoProps) => {
   const [modoSeleccion, setModoSeleccion] = useState(false);
   const [mapaListo, setMapaListo] = useState(false);
@@ -52,10 +56,24 @@ export const SelectorMapaInteractivo = ({
       
       console.log('✅ Google Maps cargado correctamente');
       
+      // Determinar el centro del mapa
+      let center = { lat: 4.6097, lng: -74.0817 }; // Bogotá por defecto
+      let zoom = 15;
+      
+      if (loteSeleccionado && loteSeleccionado.coordenadas && loteSeleccionado.coordenadas.length > 0) {
+        // Calcular el centro del lote seleccionado
+        const bounds = new google.maps.LatLngBounds();
+        loteSeleccionado.coordenadas.forEach(coord => {
+          bounds.extend({ lat: coord.lat, lng: coord.lng });
+        });
+        center = bounds.getCenter().toJSON();
+        zoom = 18; // Zoom más cercano para el lote específico
+      }
+      
       // Crear el mapa
       googleMapRef.current = new google.maps.Map(mapRef.current, {
-        center: { lat: 4.6097, lng: -74.0817 }, // Bogotá
-        zoom: 15,
+        center,
+        zoom,
         mapTypeId: 'satellite',
         mapTypeControl: true,
         streetViewControl: false,
@@ -88,6 +106,15 @@ export const SelectorMapaInteractivo = ({
           handlePolygonComplete(polygon);
         }
       );
+      
+      // Listener para clics en el mapa (para selección de coordenadas)
+      google.maps.event.addListener(googleMapRef.current, 'click', (event: google.maps.MapMouseEvent) => {
+        if (event.latLng && onCoordenadasChange) {
+          const lat = event.latLng.lat();
+          const lng = event.latLng.lng();
+          onCoordenadasChange({ latitud: lat, longitud: lng });
+        }
+      });
       
       google.maps.event.addListenerOnce(googleMapRef.current, 'idle', () => {
         setMapaListo(true);
@@ -211,7 +238,7 @@ export const SelectorMapaInteractivo = ({
       coords.push(coords[0]);
     }
     
-    onChange(coords);
+    onChange?.(coords);
     
     // Desactivar modo de dibujo
     setModoSeleccion(false);
@@ -267,7 +294,7 @@ export const SelectorMapaInteractivo = ({
   
   // Limpiar todo
   const handleClear = () => {
-    onChange([]);
+    onChange?.([]);
     setModoSeleccion(false);
     if (drawingManagerRef.current) {
       drawingManagerRef.current.setDrawingMode(null);
@@ -276,7 +303,7 @@ export const SelectorMapaInteractivo = ({
   
   // Redibujar
   const handleRedibujar = () => {
-    onChange([]);
+    onChange?.([]);
     iniciarDibujo();
   };
   

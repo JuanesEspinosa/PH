@@ -7,6 +7,7 @@ import {
   CreateLaborDto,
   UpdateLaborDto,
 } from '../services/laboresService'
+import { planificacionService } from '../../planificacion/services/planificacionService'
 
 export function useLaboresQuery() {
   const [searchParams] = useSearchParams()
@@ -44,7 +45,34 @@ export function useCreateLaborMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: CreateLaborDto) => laboresService.create(data),
+    mutationFn: async (data: CreateLaborDto) => {
+      // Crear la labor
+      const labor = await laboresService.create(data)
+      
+      // Si hay una actividad planificada asociada, actualizar su progreso
+      if (data.actividad_planificada_id) {
+        try {
+          // Calcular el progreso basado en la cantidad recolectada vs metas
+          // Por ahora, incrementamos el progreso en un 10% por labor registrada
+          const actividad = await planificacionService.obtenerActividadPorId(data.actividad_planificada_id)
+          const nuevoProgreso = Math.min(actividad.progreso_porcentaje + 10, 100)
+          
+          await planificacionService.actualizarProgreso(data.actividad_planificada_id, {
+            progreso_porcentaje: nuevoProgreso,
+            fecha_inicio_real: nuevoProgreso > 0 && !actividad.fecha_inicio_real ? new Date() : actividad.fecha_inicio_real,
+            fecha_fin_real: nuevoProgreso === 100 ? new Date() : actividad.fecha_fin_real
+          })
+          
+          // Invalidar queries de planificación
+          queryClient.invalidateQueries({ queryKey: queryKeys.planificacion.lists() })
+          queryClient.invalidateQueries({ queryKey: queryKeys.planificacion.detail(data.actividad_planificada_id) })
+        } catch (error) {
+          console.warn('No se pudo actualizar el progreso de la actividad:', error)
+        }
+      }
+      
+      return labor
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.labores.lists() })
       queryClient.invalidateQueries({ queryKey: ['estadisticasLabores'] })
@@ -73,8 +101,42 @@ export function useUpdateLaborMutation() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateLaborDto }) =>
-      laboresService.update(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: UpdateLaborDto }) => {
+      // Actualizar la labor
+      const labor = await laboresService.update(id, data)
+      
+      // Si hay una actividad planificada asociada, actualizar su progreso
+      if (data.actividad_planificada_id) {
+        try {
+          // Obtener la actividad actual
+          const actividad = await planificacionService.obtenerActividadPorId(data.actividad_planificada_id.toString())
+          
+          // Calcular el nuevo progreso basado en los cambios
+          // Si se cambió la cantidad recolectada, ajustar el progreso
+          let nuevoProgreso = actividad.progreso_porcentaje
+          
+          if (data.cantidad_recolectada !== undefined) {
+            // Incrementar progreso en 5% por actualización de cantidad
+            nuevoProgreso = Math.min(actividad.progreso_porcentaje + 5, 100)
+          }
+          
+          // Actualizar el progreso de la actividad
+          await planificacionService.actualizarProgreso(data.actividad_planificada_id.toString(), {
+            progreso_porcentaje: nuevoProgreso,
+            fecha_inicio_real: nuevoProgreso > 0 && !actividad.fecha_inicio_real ? new Date() : actividad.fecha_inicio_real,
+            fecha_fin_real: nuevoProgreso === 100 ? new Date() : actividad.fecha_fin_real
+          })
+          
+          // Invalidar queries de planificación
+          queryClient.invalidateQueries({ queryKey: queryKeys.planificacion.lists() })
+          queryClient.invalidateQueries({ queryKey: queryKeys.planificacion.detail(data.actividad_planificada_id.toString()) })
+        } catch (error) {
+          console.warn('No se pudo actualizar el progreso de la actividad:', error)
+        }
+      }
+      
+      return labor
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.labores.lists() })
       queryClient.invalidateQueries({ queryKey: queryKeys.labores.detail(variables.id) })

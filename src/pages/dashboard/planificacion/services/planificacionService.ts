@@ -74,12 +74,9 @@ export const planificacionService = {
       responsable_id: actividadData.responsable_id ? parseInt(actividadData.responsable_id as any) : undefined,
     };
 
-    // Solo enviar trabajadores si están definidos y no son del mock
-    // Por ahora, no enviar trabajadores hasta tener usuarios reales en la BD
+    // Enviar trabajadores asignados
     if (actividadData.trabajadores_asignados && actividadData.trabajadores_asignados.length > 0) {
-      // Comentado temporalmente hasta tener usuarios reales
-      // dataToSend.trabajadores_asignados = actividadData.trabajadores_asignados.map(id => parseInt(id as any));
-      console.warn('Trabajadores ignorados: necesitas crear usuarios en la BD primero');
+      dataToSend.trabajadores_asignados = actividadData.trabajadores_asignados.map(id => parseInt(id as any));
     }
 
     const { data } = await api.post<ActividadPlanificada>('/planificacion', dataToSend);
@@ -107,11 +104,9 @@ export const planificacionService = {
       responsable_id: actividadData.responsable_id ? parseInt(actividadData.responsable_id as any) : undefined,
     };
 
-    // Solo enviar trabajadores si están definidos y no son del mock
+    // Enviar trabajadores asignados
     if (actividadData.trabajadores_asignados && actividadData.trabajadores_asignados.length > 0) {
-      // Comentado temporalmente hasta tener usuarios reales
-      // dataToSend.trabajadores_asignados = actividadData.trabajadores_asignados.map(id => parseInt(id as any));
-      console.warn('Trabajadores ignorados: necesitas crear usuarios en la BD primero');
+      dataToSend.trabajadores_asignados = actividadData.trabajadores_asignados.map(id => parseInt(id as any));
     }
 
     const { data } = await api.put<ActividadPlanificada>(`/planificacion/${id}`, dataToSend);
@@ -174,6 +169,23 @@ export const planificacionService = {
         [EstadoActividad.ATRASADA]: data.atrasadas || 0,
         [EstadoActividad.CANCELADA]: data.canceladas || 0
       }
+    };
+  },
+
+  // Actualizar progreso de una actividad
+  actualizarProgreso: async (id: string, data: any): Promise<ActividadPlanificada> => {
+    const { data: actividad } = await api.put<ActividadPlanificada>(`/planificacion/${id}/progreso`, data);
+    return {
+      ...actividad,
+      id: actividad.id.toString(),
+      lote_id: actividad.lote_id?.toString(),
+      cultivo_id: actividad.cultivo_id?.toString(),
+      responsable_id: actividad.responsable_id?.toString(),
+      fecha_inicio_planificada: new Date(actividad.fecha_inicio_planificada),
+      fecha_fin_planificada: new Date(actividad.fecha_fin_planificada),
+      fecha_inicio_real: actividad.fecha_inicio_real ? new Date(actividad.fecha_inicio_real) : undefined,
+      fecha_fin_real: actividad.fecha_fin_real ? new Date(actividad.fecha_fin_real) : undefined,
+      fecha_creacion: new Date(actividad.fecha_creacion)
     };
   },
 

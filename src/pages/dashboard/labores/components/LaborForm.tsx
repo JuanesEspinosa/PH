@@ -18,18 +18,23 @@ import {
   Navigation,
   Target
 } from 'lucide-react'
-import { Labor, CULTIVOS_DISPONIBLES, LOTES_DISPONIBLES } from '../services/laboresService'
+import { Labor, CULTIVOS_DISPONIBLES } from '../services/laboresService'
 import { useTrabajadoresQuery } from '../../trabajadores/hooks/useTrabajadoresQuery'
 import { useTiposLaborQuery } from '../../tipos-labor/hooks/useTiposLaborQuery'
+import { Lote } from '@/types/lotes'
+import { ActividadPlanificada } from '@/types/planificacion'
+import SelectorMapaInteractivo from '../../lotes/components/SelectorMapaInteractivo'
 
 interface LaborFormProps {
   labor?: Labor
   onSubmit: (data: any) => void
   onCancel: () => void
   loading?: boolean
+  lotes?: Lote[]
+  actividades?: ActividadPlanificada[]
 }
 
-export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborFormProps) {
+export default function LaborForm({ labor, onSubmit, onCancel, loading, lotes = [], actividades = [] }: LaborFormProps) {
   const { data: trabajadores = [] } = useTrabajadoresQuery()
   const { data: tiposLabor = [] } = useTiposLaborQuery()
   
@@ -47,11 +52,19 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
     latitud: '',
     longitud: '',
     estado: 'completada' as 'en_proceso' | 'completada' | 'pausada' | 'cancelada',
+    actividad_planificada_id: '',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [captandoUbicacion, setCaptandoUbicacion] = useState(false)
   const [paso, setPaso] = useState(1)
+
+  // Filtrar actividades por lote seleccionado
+  const actividadesFiltradas = actividades.filter(actividad => {
+    if (!formData.lote) return true
+    const loteSeleccionado = lotes.find(l => l.nombre === formData.lote)
+    return loteSeleccionado && actividad.lote_id === loteSeleccionado.id
+  })
 
   useEffect(() => {
     if (labor) {
@@ -74,6 +87,7 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
         latitud: labor.ubicacion_gps.latitud.toString(),
         longitud: labor.ubicacion_gps.longitud.toString(),
         estado: labor.estado,
+        actividad_planificada_id: labor.actividad_planificada_id?.toString() || '',
       })
     }
   }, [labor])
@@ -187,6 +201,7 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
         latitud: parseFloat(formData.latitud),
         longitud: parseFloat(formData.longitud),
       },
+      ...(formData.actividad_planificada_id && { actividad_planificada_id: parseInt(formData.actividad_planificada_id) }),
       ...(labor && { estado: formData.estado }),
     }
 
@@ -330,8 +345,10 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
                   }`}
                 >
                   <option value="">Seleccionar lote</option>
-                  {LOTES_DISPONIBLES.map((l) => (
-                    <option key={l} value={l}>{l}</option>
+                  {lotes.map((lote) => (
+                    <option key={lote.id} value={lote.nombre}>
+                      {lote.nombre} - {lote.area_hectareas} ha
+                    </option>
                   ))}
                 </select>
                 {errors.lote && <p className="text-sm text-red-500 flex items-center gap-1">
@@ -339,6 +356,37 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
                   {errors.lote}
                 </p>}
               </div>
+
+              {/* Selector de Actividad Planificada */}
+              {formData.lote && (
+                <div className="space-y-2">
+                  <Label htmlFor="actividad_planificada_id" className="text-sm font-semibold flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    Actividad Planificada (Opcional)
+                  </Label>
+                  <select
+                    id="actividad_planificada_id"
+                    name="actividad_planificada_id"
+                    value={formData.actividad_planificada_id}
+                    onChange={handleChange}
+                    disabled={loading}
+                    className="flex h-12 w-full rounded-md border px-4 py-3 text-sm transition-colors border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">Sin actividad planificada</option>
+                    {actividadesFiltradas.map((actividad) => (
+                      <option key={actividad.id} value={actividad.id}>
+                        {actividad.nombre} - {actividad.tipo} ({actividad.estado})
+                      </option>
+                    ))}
+                  </select>
+                  {actividadesFiltradas.length === 0 && formData.lote && (
+                    <p className="text-sm text-amber-600 flex items-center gap-1">
+                      <Circle className="h-3 w-3 fill-current" />
+                      No hay actividades planificadas para este lote
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="trabajador_id" className="text-sm font-semibold flex items-center gap-2">
@@ -534,7 +582,16 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
             <CardDescription>Geolocalización precisa del trabajo realizado</CardDescription>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
-            <div className="flex justify-end mb-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800">Selección de Ubicación</h3>
+                <p className="text-sm text-gray-600">
+                  {formData.lote 
+                    ? `Selecciona la ubicación exacta en el lote: ${formData.lote}`
+                    : 'Primero selecciona un lote para ver el mapa'
+                  }
+                </p>
+              </div>
               <Button
                 type="button"
                 variant="outline"
@@ -549,6 +606,28 @@ export default function LaborForm({ labor, onSubmit, onCancel, loading }: LaborF
                 )}
               </Button>
             </div>
+
+            {/* Mapa del lote específico */}
+            {formData.lote && (
+              <div className="mb-6">
+                <div className="h-96 rounded-lg border border-gray-200 overflow-hidden">
+                  <SelectorMapaInteractivo
+                    onCoordenadasChange={(coordenadas) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        latitud: coordenadas.latitud.toString(),
+                        longitud: coordenadas.longitud.toString()
+                      }))
+                    }}
+                    lotesExistentes={lotes.filter(l => l.nombre === formData.lote)}
+                    loteSeleccionado={lotes.find(l => l.nombre === formData.lote)}
+                  />
+                </div>
+                <p className="text-sm text-gray-600 mt-2">
+                  💡 Haz clic en el mapa para seleccionar la ubicación exacta donde se realizó la labor
+                </p>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">

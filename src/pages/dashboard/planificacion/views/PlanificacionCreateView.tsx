@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useCreateActividad } from '../hooks/usePlanificacionQuery';
 import { useLotes } from '../../lotes/hooks/useLotesQuery';
 import { useCultivosActivos } from '../../cultivos/hooks/useCultivosQuery';
+import { useTrabajadoresQuery } from '../../trabajadores/hooks/useTrabajadoresQuery';
 import { CreateActividadDto, TipoActividad, NivelPrioridad, PeriodoTiempo } from '@/types/planificacion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,14 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Calendar, Target, Users, Plus, X } from 'lucide-react';
 import { useState } from 'react';
 
-// Mock de trabajadores (en producción vendría de una API)
-const TRABAJADORES_MOCK = [
-  { id: '1', nombre: 'Juan Pérez', foto: '/avatars/avatar1.jpg', especialidad: 'Siembra' },
-  { id: '2', nombre: 'María García', foto: '/avatars/avatar2.jpg', especialidad: 'Cosecha' },
-  { id: '3', nombre: 'Carlos López', foto: '/avatars/avatar3.jpg', especialidad: 'Fumigación' },
-  { id: '4', nombre: 'Ana Martínez', foto: '/avatars/avatar4.jpg', especialidad: 'Mantenimiento' },
-  { id: '5', nombre: 'Pedro Rodríguez', foto: '/avatars/avatar5.jpg', especialidad: 'General' },
-];
+// Ya no necesitamos el mock, usaremos trabajadores reales
 
 interface Meta {
   id: string;
@@ -34,6 +28,7 @@ export const PlanificacionCreateView = () => {
   const createActividad = useCreateActividad();
   const { data: lotes = [] } = useLotes();
   const { data: cultivos = [] } = useCultivosActivos();
+  const { data: trabajadores = [], isLoading: cargandoTrabajadores } = useTrabajadoresQuery();
   
   const [trabajadoresSeleccionados, setTrabajadoresSeleccionados] = useState<string[]>([]);
   const [metas, setMetas] = useState<Meta[]>([]);
@@ -377,40 +372,61 @@ export const PlanificacionCreateView = () => {
             Equipo de Trabajo
           </h3>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {TRABAJADORES_MOCK.map((trabajador) => (
-              <div
-                key={trabajador.id}
-                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-                  trabajadoresSeleccionados.includes(trabajador.id)
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-blue-300'
-                }`}
-                onClick={() => toggleTrabajador(trabajador.id)}
+          {cargandoTrabajadores ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Cargando trabajadores...</p>
+            </div>
+          ) : trabajadores.length === 0 ? (
+            <div className="text-center py-8">
+              <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-600 mb-2">No hay trabajadores registrados</p>
+              <p className="text-sm text-gray-500 mb-4">Necesitas crear trabajadores antes de planificar actividades</p>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => navigate('/dashboard/trabajadores/nuevo')}
               >
-                <div className="flex items-center gap-3">
-                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    trabajadoresSeleccionados.includes(trabajador.id)
-                      ? 'bg-blue-600 border-blue-600'
-                      : 'border-gray-300'
-                  }`}>
-                    {trabajadoresSeleccionados.includes(trabajador.id) && (
-                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </div>
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-xl font-bold">
-                    {trabajador.nombre.charAt(0)}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">{trabajador.nombre}</p>
-                    <p className="text-xs text-gray-600">{trabajador.especialidad}</p>
+                Crear Trabajador
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {trabajadores.filter(t => t.estado === 'activo').map((trabajador) => (
+                <div
+                  key={trabajador.id}
+                  className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    trabajadoresSeleccionados.includes(trabajador.id.toString())
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:border-blue-300'
+                  }`}
+                  onClick={() => toggleTrabajador(trabajador.id.toString())}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                      trabajadoresSeleccionados.includes(trabajador.id.toString())
+                        ? 'bg-blue-600 border-blue-600'
+                        : 'border-gray-300'
+                    }`}>
+                      {trabajadoresSeleccionados.includes(trabajador.id.toString()) && (
+                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white flex items-center justify-center text-xl font-bold">
+                      {trabajador.nombres.charAt(0)}{trabajador.apellidos.charAt(0)}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{trabajador.nombres} {trabajador.apellidos}</p>
+                      <p className="text-xs text-gray-600">{trabajador.cargo}</p>
+                      <p className="text-xs text-gray-500">{trabajador.estado}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
           
           {trabajadoresSeleccionados.length > 0 && (
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
