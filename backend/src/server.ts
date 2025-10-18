@@ -5,6 +5,9 @@ import authRoutes from './routes/auth.routes';
 import cultivosRoutes from './routes/cultivos.routes';
 import lotesRoutes from './routes/lotes.routes';
 import planificacionRoutes from './routes/planificacion.routes';
+import trabajadoresRoutes from './routes/trabajadores.routes';
+import tiposLaborRoutes from './routes/tiposLabor.routes';
+import laboresRoutes from './routes/labores.routes';
 import { errorHandler } from './middlewares/errorHandler';
 
 // Cargar variables de entorno
@@ -30,6 +33,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/cultivos', cultivosRoutes);
 app.use('/api/lotes', lotesRoutes);
 app.use('/api/planificacion', planificacionRoutes);
+app.use('/api/trabajadores', trabajadoresRoutes);
+app.use('/api/tipos-labor', tiposLaborRoutes);
+app.use('/api/labores', laboresRoutes);
 
 // Manejador de errores
 app.use(errorHandler);

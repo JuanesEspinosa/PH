@@ -225,6 +225,117 @@ async function setupDatabase() {
     `);
     console.log('✅ Tabla alertas creada/verificada');
 
+    // Crear tabla de trabajadores
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS trabajadores (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombres VARCHAR(255) NOT NULL,
+        apellidos VARCHAR(255) NOT NULL,
+        documento VARCHAR(50) UNIQUE NOT NULL,
+        tipo_documento ENUM('DNI', 'Pasaporte', 'Cédula', 'Otro') NOT NULL,
+        telefono VARCHAR(20) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        cargo VARCHAR(255) NOT NULL,
+        fecha_ingreso DATE NOT NULL,
+        estado ENUM('activo', 'inactivo', 'vacaciones', 'licencia') DEFAULT 'activo',
+        direccion TEXT NOT NULL,
+        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ultima_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_email (email),
+        INDEX idx_documento (documento),
+        INDEX idx_estado (estado)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log('✅ Tabla trabajadores creada/verificada');
+
+    // Insertar datos de ejemplo de trabajadores
+    await connection.query(`
+      INSERT IGNORE INTO trabajadores (id, nombres, apellidos, documento, tipo_documento, telefono, email, cargo, fecha_ingreso, direccion) VALUES
+      (1, 'Juan Carlos', 'Pérez González', '12345678A', 'DNI', '+34 600 123 456', 'juan.perez@empresa.com', 'Desarrollador Senior', '2022-01-15', 'Calle Mayor 123, 28013 Madrid, España'),
+      (2, 'María Isabel', 'García Martínez', '87654321B', 'DNI', '+34 600 234 567', 'maria.garcia@empresa.com', 'Diseñadora UX/UI', '2024-10-17', 'Avenida de la Constitución 45, 41001 Sevilla, España'),
+      (3, 'Carlos Alberto', 'López Rodríguez', '11223344C', 'DNI', '+34 600 345 678', 'carlos.lopez@empresa.com', 'Supervisor de Campo', '2023-03-10', 'Plaza España 78, 50001 Zaragoza, España'),
+      (4, 'Ana Patricia', 'Martín Sánchez', '55667788D', 'DNI', '+34 600 456 789', 'ana.martin@empresa.com', 'Especialista en Cultivos', '2023-06-20', 'Calle Real 156, 29001 Málaga, España')
+    `);
+    console.log('✅ Datos de ejemplo de trabajadores insertados');
+
+    // Crear tabla de tipos de labor
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS tipos_labor (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(255) UNIQUE NOT NULL,
+        descripcion TEXT,
+        categoria ENUM('siembra', 'cosecha', 'riego', 'fertilizacion', 'control_plagas', 'mantenimiento', 'otro') NOT NULL,
+        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ultima_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_categoria (categoria),
+        INDEX idx_nombre (nombre)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log('✅ Tabla tipos_labor creada/verificada');
+
+    // Insertar datos de ejemplo de tipos de labor
+    await connection.query(`
+      INSERT IGNORE INTO tipos_labor (id, nombre, descripcion, categoria) VALUES
+      (1, 'Preparación de Terreno', 'Arado, nivelación y preparación del suelo para siembra', 'siembra'),
+      (2, 'Siembra Directa', 'Plantación de semillas directamente en el suelo', 'siembra'),
+      (3, 'Riego por Goteo', 'Sistema de irrigación localizada de alta eficiencia', 'riego'),
+      (4, 'Fertilización Orgánica', 'Aplicación de abonos naturales y compost', 'fertilizacion'),
+      (5, 'Control de Plagas', 'Aplicación de pesticidas y manejo integrado', 'control_plagas'),
+      (6, 'Cosecha Mecanizada', 'Recolección de cultivos usando maquinaria especializada', 'cosecha'),
+      (7, 'Poda de Mantenimiento', 'Corte y formación de plantas para optimizar crecimiento', 'mantenimiento'),
+      (8, 'Monitoreo de Cultivos', 'Inspección y evaluación del estado de los cultivos', 'mantenimiento')
+    `);
+    console.log('✅ Datos de ejemplo de tipos de labor insertados');
+
+    // Crear tabla de labores agrícolas
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS labores (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        fecha DATE NOT NULL,
+        cultivo VARCHAR(255) NOT NULL,
+        lote VARCHAR(255) NOT NULL,
+        trabajador_id INT NOT NULL,
+        tipo_labor_id INT NOT NULL,
+        cantidad_recolectada DECIMAL(10,2) NOT NULL,
+        unidad_medida ENUM('kg', 'litros', 'unidades', 'toneladas', 'quintales') NOT NULL,
+        peso_total DECIMAL(10,2) NOT NULL,
+        hora_inicio TIME NOT NULL,
+        hora_fin TIME NOT NULL,
+        ubicacion_gps JSON NOT NULL,
+        condiciones_climaticas JSON,
+        herramientas_insumos JSON,
+        observaciones TEXT,
+        fotos JSON,
+        duracion_minutos INT,
+        rendimiento_por_hora DECIMAL(8,2),
+        costo_estimado DECIMAL(10,2),
+        estado ENUM('en_proceso', 'completada', 'pausada', 'cancelada') DEFAULT 'completada',
+        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        ultima_modificacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        supervisor_id INT,
+        FOREIGN KEY (trabajador_id) REFERENCES trabajadores(id) ON DELETE CASCADE,
+        FOREIGN KEY (tipo_labor_id) REFERENCES tipos_labor(id) ON DELETE CASCADE,
+        FOREIGN KEY (supervisor_id) REFERENCES usuarios(id) ON DELETE SET NULL,
+        INDEX idx_fecha (fecha),
+        INDEX idx_trabajador (trabajador_id),
+        INDEX idx_tipo_labor (tipo_labor_id),
+        INDEX idx_estado (estado),
+        INDEX idx_cultivo (cultivo),
+        INDEX idx_lote (lote)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log('✅ Tabla labores creada/verificada');
+
+    // Insertar datos de ejemplo de labores
+    await connection.query(`
+      INSERT IGNORE INTO labores (id, fecha, cultivo, lote, trabajador_id, tipo_labor_id, cantidad_recolectada, unidad_medida, peso_total, hora_inicio, hora_fin, ubicacion_gps, condiciones_climaticas, herramientas_insumos, observaciones, duracion_minutos, rendimiento_por_hora, costo_estimado) VALUES
+      (1, '2024-10-15', 'Maíz', 'Lote A-1', 1, 2, 150.00, 'kg', 150.00, '08:00:00', '14:00:00', '{"latitud": -12.0464, "longitud": -77.0428}', '{"temperatura": 24, "humedad": 65, "lluvia": false}', '["Sembradora mecánica", "Semillas certificadas", "Fertilizante NPK"]', 'Siembra realizada en condiciones óptimas. Suelo bien preparado.', 360, 25.00, 180.00),
+      (2, '2024-10-16', 'Café', 'Lote B-2', 2, 6, 320.00, 'kg', 320.00, '06:00:00', '15:00:00', '{"latitud": -12.0501, "longitud": -77.0389}', '{"temperatura": 22, "humedad": 70, "lluvia": false}', '["Cosechadora selectiva", "Sacos de yute", "Balanza digital"]', 'Café cereza en punto óptimo de maduración.', 540, 35.50, 270.00),
+      (3, '2024-10-17', 'Tomate', 'Lote C-3', 3, 3, 0.00, 'litros', 0.00, '07:00:00', '11:00:00', '{"latitud": -12.0488, "longitud": -77.0405}', '{"temperatura": 26, "humedad": 60, "lluvia": false}', '["Sistema de riego por goteo", "Fertilizante líquido"]', 'Riego programado para optimizar crecimiento.', 240, 0.00, 120.00),
+      (4, '2024-10-18', 'Papa', 'Lote D-4', 4, 4, 0.00, 'kg', 0.00, '09:00:00', '13:00:00', '{"latitud": -12.0523, "longitud": -77.0367}', '{"temperatura": 23, "humedad": 68, "lluvia": true}', '["Fertilizante orgánico", "Aplicador manual"]', 'Fertilización realizada con lluvia ligera.', 240, 0.00, 90.00)
+    `);
+    console.log('✅ Datos de ejemplo de labores insertados');
+
     console.log('🎉 Base de datos configurada exitosamente');
     
   } catch (error) {
