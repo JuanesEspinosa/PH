@@ -19,7 +19,7 @@
 // Puedes usar variables de entorno o directamente aquí
 export const GOOGLE_MAPS_CONFIG = {
   // Opción 1: Usar variable de entorno (Recomendado)
-  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8',
+  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyCSqesDKMLfeiPIj1AP-67w5aeE_Mfn79s',
   
   // Opción 2: Hardcodear (NO recomendado para producción)
   // apiKey: 'TU_API_KEY_AQUI',

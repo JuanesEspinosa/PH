@@ -26,6 +26,7 @@ export const SelectorMapaInteractivo = ({
 }: SelectorMapaInteractivoProps) => {
   const [modoSeleccion, setModoSeleccion] = useState(false);
   const [mapaListo, setMapaListo] = useState(false);
+  const [errorMapa, setErrorMapa] = useState<string | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const polygonRef = useRef<google.maps.Polygon | null>(null);
@@ -43,9 +44,13 @@ export const SelectorMapaInteractivo = ({
       
       // Verificar que Google Maps y Drawing estén disponibles
       if (typeof google === 'undefined' || !google.maps || !google.maps.drawing) {
-        console.error('Google Maps Drawing library no está cargada');
+        console.error('❌ Google Maps Drawing library no está cargada');
+        console.error('Verifica que la API Key sea válida y que Maps JavaScript API esté habilitada');
+        setErrorMapa('Google Maps no se pudo cargar. Verifica tu API Key.');
         return;
       }
+      
+      console.log('✅ Google Maps cargado correctamente');
       
       // Crear el mapa
       googleMapRef.current = new google.maps.Map(mapRef.current, {
@@ -106,8 +111,14 @@ export const SelectorMapaInteractivo = ({
       script.async = true;
       script.defer = true;
       script.onload = () => {
+        console.log('📡 Script de Google Maps cargado');
         // Esperar un momento para que las librerías se inicialicen
         setTimeout(initMap, 100);
+      };
+      script.onerror = (error) => {
+        console.error('❌ Error cargando Google Maps:', error);
+        console.error('Verifica tu API Key y conexión a internet');
+        setErrorMapa('Error cargando Google Maps. Verifica tu API Key y conexión.');
       };
       document.head.appendChild(script);
     }
@@ -296,11 +307,37 @@ export const SelectorMapaInteractivo = ({
           style={{ height, width: '100%' }}
           className={modoSeleccion ? 'cursor-crosshair' : ''}
         />
-        {!mapaListo && (
+        {!mapaListo && !errorMapa && (
           <div className="absolute inset-0 bg-white/90 flex items-center justify-center z-10">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
               <p className="text-gray-600 font-medium">Cargando mapa...</p>
+            </div>
+          </div>
+        )}
+        
+        {errorMapa && (
+          <div className="absolute inset-0 bg-white/95 flex items-center justify-center z-10">
+            <div className="text-center p-6 max-w-md">
+              <div className="text-red-500 text-6xl mb-4">🗺️</div>
+              <h3 className="text-lg font-semibold text-red-600 mb-2">Error del Mapa</h3>
+              <p className="text-gray-600 mb-4">{errorMapa}</p>
+              <div className="text-sm text-gray-500 space-y-2">
+                <p><strong>Posibles soluciones:</strong></p>
+                <ul className="text-left space-y-1">
+                  <li>• Verifica tu API Key de Google Maps</li>
+                  <li>• Asegúrate de que Maps JavaScript API esté habilitada</li>
+                  <li>• Revisa las restricciones de la API Key</li>
+                  <li>• Verifica tu conexión a internet</li>
+                </ul>
+              </div>
+              <Button 
+                onClick={() => window.location.reload()} 
+                className="mt-4"
+                variant="outline"
+              >
+                Reintentar
+              </Button>
             </div>
           </div>
         )}
