@@ -3,9 +3,16 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import { Usuario } from '../types';
 
 export class UserModel {
+  static async findAll(): Promise<Usuario[]> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      'SELECT id, nombre, email, rol, avatar, created_at, updated_at FROM usuarios ORDER BY created_at DESC'
+    );
+    return rows as Usuario[];
+  }
+
   static async findById(id: number): Promise<Usuario | null> {
     const [rows] = await pool.query<RowDataPacket[]>(
-      'SELECT * FROM usuarios WHERE id = ?',
+      'SELECT id, nombre, email, rol, avatar, created_at, updated_at FROM usuarios WHERE id = ?',
       [id]
     );
     return rows.length > 0 ? (rows[0] as Usuario) : null;
@@ -23,7 +30,7 @@ export class UserModel {
     nombre: string;
     email: string;
     password: string;
-    rol?: 'admin' | 'usuario';
+    rol?: string;
     avatar?: string;
   }): Promise<Usuario> {
     const [result] = await pool.query<ResultSetHeader>(
@@ -60,6 +67,70 @@ export class UserModel {
       'UPDATE usuarios SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
       [newPassword, userId]
     );
+  }
+
+  static async update(id: number, data: {
+    nombre?: string;
+    email?: string;
+    rol?: string;
+    avatar?: string;
+  }): Promise<Usuario> {
+    const updateFields: string[] = [];
+    const values: any[] = [];
+
+    if (data.nombre !== undefined) {
+      updateFields.push('nombre = ?');
+      values.push(data.nombre);
+    }
+    if (data.email !== undefined) {
+      updateFields.push('email = ?');
+      values.push(data.email);
+    }
+    if (data.rol !== undefined) {
+      updateFields.push('rol = ?');
+      values.push(data.rol);
+    }
+    if (data.avatar !== undefined) {
+      updateFields.push('avatar = ?');
+      values.push(data.avatar);
+    }
+
+    if (updateFields.length === 0) {
+      throw new Error('No hay campos para actualizar');
+    }
+
+    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    values.push(id);
+
+    await pool.query(
+      `UPDATE usuarios SET ${updateFields.join(', ')} WHERE id = ?`,
+      values
+    );
+
+    const updatedUser = await this.findById(id);
+    if (!updatedUser) {
+      throw new Error('Usuario no encontrado después de la actualización');
+    }
+
+    return updatedUser;
+  }
+
+  static async delete(id: number): Promise<void> {
+    const [result] = await pool.query<ResultSetHeader>(
+      'DELETE FROM usuarios WHERE id = ?',
+      [id]
+    );
+    
+    if (result.affectedRows === 0) {
+      throw new Error('Usuario no encontrado');
+    }
+  }
+
+  static async count(): Promise<number> {
+    const [rows] = await pool.query<RowDataPacket[]>(
+      'SELECT COUNT(*) as count FROM usuarios'
+    );
+    return rows[0].count;
   }
 
   static async addTokenToBlacklist(

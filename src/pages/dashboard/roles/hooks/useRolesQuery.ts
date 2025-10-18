@@ -6,6 +6,8 @@ export const useRolesQuery = () => {
   return useQuery({
     queryKey: ['roles'],
     queryFn: rolesService.getRoles,
+    retry: 1, // Solo reintentar 1 vez en caso de error
+    staleTime: 30000, // Considerar datos válidos por 30 segundos
   })
 }
 
@@ -14,6 +16,7 @@ export const useRolQuery = (id: number) => {
     queryKey: ['roles', id],
     queryFn: () => rolesService.getRol(id),
     enabled: !!id,
+    retry: 1,
   })
 }
 

@@ -5,7 +5,7 @@ import pool from '../config/database';
 export interface JwtPayload {
   id: number;
   email: string;
-  rol: 'admin' | 'usuario';
+  rol: string;
 }
 
 // Extender Request de Express
@@ -15,7 +15,7 @@ declare module 'express-serve-static-core' {
   }
 }
 
-export const authMiddleware = async (
+export const authenticateToken = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -74,10 +74,14 @@ export const authMiddleware = async (
 };
 
 export const isAdmin = (req: Request, res: Response, next: NextFunction): void => {
-  if (req.user?.rol !== 'admin') {
+  const adminRoles = ['admin', 'Administrador', 'administrador'];
+  if (!req.user?.rol || !adminRoles.includes(req.user.rol)) {
     res.status(403).json({ message: 'Acceso denegado. Se requiere rol de administrador' });
     return;
   }
   next();
 };
+
+// Alias para mantener compatibilidad
+export const authMiddleware = authenticateToken;
 

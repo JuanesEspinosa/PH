@@ -1,10 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useAuthStore } from '@/stores/authStore'
+import Loading from '@/components/ui/loading'
 import { 
   Sprout, 
   TrendingUp, 
-  Leaf, 
-  BarChart3,
+  Leaf,
   Activity,
   MapPin
 } from 'lucide-react'
@@ -25,55 +25,73 @@ import {
   Legend,
   ResponsiveContainer
 } from 'recharts'
-import {
-  estadisticasAgricolasMock,
-  produccionMensual,
-  rendimientoPorHectarea,
-  distribucionCultivos,
-  laboresDiarias,
-  calidadProduccion,
-  eficienciaPorCampo
-} from '@/data/agriculturalMockData'
+import { useDashboardQuery } from './hooks/useDashboardQuery'
 
 export default function DashboardPage() {
   const { user } = useAuthStore()
+  const {
+    estadisticas,
+    produccionMensual,
+    rendimientoHectarea,
+    distribucionCultivos,
+    eficienciaCampos,
+    laboresDiarias,
+    calidadProduccion,
+    isLoading,
+    isError
+  } = useDashboardQuery()
+
+  if (isLoading) {
+    return <Loading text="Cargando dashboard..." />
+  }
+
+  if (isError || !estadisticas) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+        <div className="text-center">
+          <p className="text-red-600 font-semibold mb-2">Error al cargar los datos del dashboard</p>
+          <p className="text-gray-600">Por favor, intenta recargar la página</p>
+        </div>
+      </div>
+    )
+  }
 
   const stats = [
     {
       title: 'Producción Total',
-      value: `${(estadisticasAgricolasMock.totalProduccion / 1000).toFixed(1)}t`,
-      change: `+${estadisticasAgricolasMock.variacionMensual}%`,
+      value: `${(estadisticas.totalProduccion / 1000).toFixed(1)}t`,
+      change: `+${estadisticas.variacionMensual}%`,
       icon: Sprout,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
       description: 'Este mes'
     },
     {
-      title: 'Rendimiento Promedio',
-      value: `${estadisticasAgricolasMock.rendimientoPromedio.toFixed(1)} kg/ha`,
-      change: `+${estadisticasAgricolasMock.variacionSemanal}%`,
-      icon: TrendingUp,
+      title: 'Área Total',
+      value: `${estadisticas.totalArea} ha`,
+      change: `${estadisticas.camposActivos} campos activos`,
+      icon: MapPin,
       color: 'text-blue-600',
       bgColor: 'bg-blue-100',
-      description: 'Última semana'
+      description: 'Gestionadas'
     },
     {
-      title: 'Campos Activos',
-      value: `${estadisticasAgricolasMock.camposActivos}`,
-      change: `${estadisticasAgricolasMock.cultivosEnProceso} cultivos`,
-      icon: MapPin,
+      title: 'Rendimiento Promedio',
+      value: `${estadisticas.rendimientoPromedio} kg/ha`,
+      change: `+${estadisticas.variacionSemanal}%`,
+      icon: TrendingUp,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
-      description: 'En producción'
+      description: 'Esta semana'
     },
     {
-      title: 'Eficiencia',
-      value: `${estadisticasAgricolasMock.eficienciaPromedio}%`,
-      change: '+3.2%',
-      icon: BarChart3,
+      title: 'Eficiencia Operacional',
+      value: `${estadisticas.eficienciaPromedio}%`,
+      change: `${estadisticas.cultivosEnProceso} cultivos`,
+      icon: Activity,
       color: 'text-orange-600',
       bgColor: 'bg-orange-100',
-      description: 'Vs. objetivo'
+      description: 'En proceso'
     },
   ]
 
@@ -139,7 +157,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={350}>
-            <AreaChart data={produccionMensual}>
+            <AreaChart data={produccionMensual || []}>
               <defs>
                 <linearGradient id="colorCafe" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#8B4513" stopOpacity={0.8}/>
@@ -185,7 +203,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={rendimientoPorHectarea}>
+              <LineChart data={rendimientoHectarea || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="mes" stroke="#666" />
                 <YAxis stroke="#666" />
@@ -228,7 +246,7 @@ export default function DashboardPage() {
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={distribucionCultivos}
+                  data={distribucionCultivos || []}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -237,7 +255,7 @@ export default function DashboardPage() {
                   fill="#8884d8"
                   dataKey="area"
                 >
-                  {distribucionCultivos.map((_, index) => (
+                  {(distribucionCultivos || []).map((_: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -245,7 +263,7 @@ export default function DashboardPage() {
               </PieChart>
             </ResponsiveContainer>
             <div className="grid grid-cols-2 gap-3 mt-4">
-              {distribucionCultivos.map((cultivo, index) => (
+              {(distribucionCultivos || []).map((cultivo: any, index: number) => (
                 <div key={cultivo.nombre} className="flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-full" 
@@ -274,7 +292,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={laboresDiarias}>
+              <BarChart data={laboresDiarias || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="dia" stroke="#666" />
                 <YAxis stroke="#666" />
@@ -301,7 +319,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={calidadProduccion}>
+              <AreaChart data={calidadProduccion || []}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="mes" stroke="#666" />
                 <YAxis stroke="#666" />
@@ -329,7 +347,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={eficienciaPorCampo} layout="vertical">
+            <BarChart data={eficienciaCampos || []} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis type="number" stroke="#666" />
               <YAxis dataKey="campo" type="category" width={120} stroke="#666" />

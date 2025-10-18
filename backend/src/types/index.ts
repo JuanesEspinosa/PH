@@ -3,7 +3,7 @@ export interface Usuario {
   nombre: string;
   email: string;
   password: string;
-  rol: 'admin' | 'usuario';
+  rol: string;
   avatar?: string;
   reset_token?: string;
   reset_token_expiry?: Date;
@@ -36,7 +36,7 @@ export interface AuthResponse {
     id: number;
     nombre: string;
     email: string;
-    rol: 'admin' | 'usuario';
+    rol: string;
     avatar?: string;
   };
   token: string;
@@ -46,7 +46,7 @@ export interface VerifyResponse {
   id: number;
   nombre: string;
   email: string;
-  rol: 'admin' | 'usuario';
+  rol: string;
   avatar?: string;
 }
 

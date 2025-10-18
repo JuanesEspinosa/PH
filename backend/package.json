@@ -7,7 +7,7 @@
     "dev": "nodemon src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "db:setup": "node dist/config/setupDatabase.js",
+    "db:setup": "ts-node src/config/setupDatabase.ts",
     "create:admin": "ts-node scripts/createAdmin.ts"
   },
   "keywords": ["express", "typescript", "mysql", "auth", "jwt"],

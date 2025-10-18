@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { lotesController } from '../controllers/lotes.controller'
-import { authMiddleware } from '../middlewares/authMiddleware'
+import { authMiddleware } from '../middlewares/auth.middleware'
 
 const router = Router()
 
