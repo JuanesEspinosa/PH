@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { tiposLaborController } from '../controllers/tiposLabor.controller'
-import { authMiddleware } from '../middlewares/authMiddleware'
+import { authMiddleware } from '../middlewares/auth.middleware'
 
 const router = Router()
 

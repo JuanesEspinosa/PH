@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { trabajadoresController } from '../controllers/trabajadores.controller'
-import { authMiddleware } from '../middlewares/authMiddleware'
+import { authMiddleware } from '../middlewares/auth.middleware'
 
 const router = Router()
 
