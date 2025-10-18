@@ -1,4 +1,4 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
 import {
@@ -30,6 +30,7 @@ import { useState } from 'react'
 export default function DashboardLayout() {
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const handleLogout = () => {
@@ -38,16 +39,23 @@ export default function DashboardLayout() {
   }
 
   const navigation = [
+    // Nivel 1: Gestión Principal y Monitoreo
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Reportes', href: '/dashboard/reportes', icon: FileText },
-    { name: 'Usuarios', href: '/dashboard/usuarios', icon: Users },
-    { name: 'Trabajadores', href: '/dashboard/trabajadores', icon: Briefcase },
-    { name: 'Tipos de Labor', href: '/dashboard/tipos-labor', icon: Sprout },
-    { name: 'Registro de Labores', href: '/dashboard/labores', icon: Clipboard },
-    { name: 'Roles', href: '/dashboard/roles', icon: Shield },
     { name: 'Lotes', href: '/dashboard/lotes', icon: Map },
     { name: 'Cultivos', href: '/dashboard/cultivos', icon: Leaf },
+    
+    // Nivel 2: Operaciones Diarias
+    { name: 'Registro de Labores', href: '/dashboard/labores', icon: Clipboard },
+    { name: 'Trabajadores', href: '/dashboard/trabajadores', icon: Briefcase },
+    { name: 'Tipos de Labor', href: '/dashboard/tipos-labor', icon: Sprout },
+    
+    // Nivel 3: Planificación y Análisis
     { name: 'Planificación', href: '/dashboard/planificacion', icon: Calendar },
+    { name: 'Reportes', href: '/dashboard/reportes', icon: FileText },
+    
+    // Nivel 4: Administración del Sistema
+    { name: 'Usuarios', href: '/dashboard/usuarios', icon: Users },
+    { name: 'Roles', href: '/dashboard/roles', icon: Shield },
   ]
 
   return (
@@ -111,20 +119,109 @@ export default function DashboardLayout() {
           `}
         >
           <nav className="flex flex-col gap-1 p-4">
-            {navigation.map((item) => {
-              const Icon = item.icon
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 hover:text-primary transition-colors"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span className="font-medium">{item.name}</span>
-                </Link>
-              )
-            })}
+            {/* Nivel 1: Gestión Principal y Monitoreo */}
+            <div className="mb-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-3">
+                Gestión Principal
+              </h3>
+              {navigation.slice(0, 3).map((item) => {
+                const Icon = item.icon
+                const isActive = location.pathname === item.href
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                      isActive
+                        ? 'bg-gray-100 text-primary border-l-4 border-l-primary font-semibold'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
+                    }`}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-primary' : ''}`} />
+                    <span className="font-medium">{item.name}</span>
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* Nivel 2: Operaciones Diarias */}
+            <div className="mb-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-3">
+                Operaciones Diarias
+              </h3>
+              {navigation.slice(3, 6).map((item) => {
+                const Icon = item.icon
+                const isActive = location.pathname === item.href
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                      isActive
+                        ? 'bg-gray-100 text-primary border-l-4 border-l-primary font-semibold'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
+                    }`}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-primary' : ''}`} />
+                    <span className="font-medium">{item.name}</span>
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* Nivel 3: Planificación y Análisis */}
+            <div className="mb-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-3">
+                Planificación y Análisis
+              </h3>
+              {navigation.slice(6, 8).map((item) => {
+                const Icon = item.icon
+                const isActive = location.pathname === item.href
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                      isActive
+                        ? 'bg-gray-100 text-primary border-l-4 border-l-primary font-semibold'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
+                    }`}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-primary' : ''}`} />
+                    <span className="font-medium">{item.name}</span>
+                  </Link>
+                )
+              })}
+            </div>
+
+            {/* Nivel 4: Administración del Sistema */}
+            <div className="mb-2">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-3">
+                Administración
+              </h3>
+              {navigation.slice(8).map((item) => {
+                const Icon = item.icon
+                const isActive = location.pathname === item.href
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-colors ${
+                      isActive
+                        ? 'bg-gray-100 text-primary border-l-4 border-l-primary font-semibold'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-primary'
+                    }`}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-primary' : ''}`} />
+                    <span className="font-medium">{item.name}</span>
+                  </Link>
+                )
+              })}
+            </div>
           </nav>
         </aside>
 
