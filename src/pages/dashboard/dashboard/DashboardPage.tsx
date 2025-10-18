@@ -37,6 +37,12 @@ export default function DashboardPage() {
     eficienciaCampos,
     laboresDiarias,
     calidadProduccion,
+    actividadesPlanificadas,
+    trabajadoresPorCargo,
+    tiposLaborFrecuentes,
+    estadoLotes,
+    rendimientoPorTrabajador,
+    costosPorActividad,
     isLoading,
     isError
   } = useDashboardQuery()
@@ -60,7 +66,7 @@ export default function DashboardPage() {
     {
       title: 'Producción Total',
       value: `${(estadisticas.totalProduccion / 1000).toFixed(1)}t`,
-      change: `+${estadisticas.variacionMensual}%`,
+      change: `${estadisticas.variacionMensual >= 0 ? '+' : ''}${estadisticas.variacionMensual.toFixed(1)}%`,
       icon: Sprout,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
@@ -78,7 +84,7 @@ export default function DashboardPage() {
     {
       title: 'Rendimiento Promedio',
       value: `${estadisticas.rendimientoPromedio} kg/ha`,
-      change: `+${estadisticas.variacionSemanal}%`,
+      change: `${estadisticas.variacionSemanal >= 0 ? '+' : ''}${estadisticas.variacionSemanal.toFixed(1)}%`,
       icon: TrendingUp,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100',
@@ -95,7 +101,7 @@ export default function DashboardPage() {
     },
   ]
 
-  const COLORS = ['#8B4513', '#90EE90', '#FFD700', '#FFE135']
+  // Los colores ahora vienen del backend en distribucionCultivos
 
   return (
     <div className="space-y-6">
@@ -133,7 +139,11 @@ export default function DashboardPage() {
               <CardContent>
                 <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
                 <div className="flex items-center justify-between mt-2">
-                  <p className="text-xs text-green-600 font-medium">
+                  <p className={`text-xs font-medium ${
+                    stat.title === 'Producción Total' || stat.title === 'Rendimiento Promedio' 
+                      ? (estadisticas.variacionMensual >= 0 ? 'text-green-600' : 'text-red-600')
+                      : 'text-gray-600'
+                  }`}>
                     {stat.change}
                   </p>
                   <p className="text-xs text-gray-500">{stat.description}</p>
@@ -144,134 +154,130 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Producción Mensual - Gráfico de Área */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Leaf className="h-5 w-5 text-green-600" />
-            Producción Mensual por Cultivo
-          </CardTitle>
-          <CardDescription>
-            Últimos 6 meses - Comparativa de producción en kilogramos
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={350}>
-            <AreaChart data={produccionMensual || []}>
-              <defs>
-                <linearGradient id="colorCafe" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8B4513" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#8B4513" stopOpacity={0.1}/>
-                </linearGradient>
-                <linearGradient id="colorCana" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#90EE90" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#90EE90" stopOpacity={0.1}/>
-                </linearGradient>
-                <linearGradient id="colorMaiz" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#FFD700" stopOpacity={0.8}/>
-                  <stop offset="95%" stopColor="#FFD700" stopOpacity={0.1}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="mes" stroke="#666" />
-              <YAxis stroke="#666" />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                formatter={(value: number) => `${value.toLocaleString()} kg`}
-              />
-              <Legend />
-              <Area type="monotone" dataKey="cafe" stroke="#8B4513" fillOpacity={1} fill="url(#colorCafe)" name="Café" />
-              <Area type="monotone" dataKey="maiz" stroke="#FFD700" fillOpacity={1} fill="url(#colorMaiz)" name="Maíz" />
-              <Area type="monotone" dataKey="platano" stroke="#FFE135" fillOpacity={1} fill="#FFE135" name="Plátano" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+      {/* Nuevas gráficas adicionales */}
+      <div className="grid gap-6 ">
 
-      {/* Dos columnas */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Rendimiento por Hectárea */}
+        {/* Trabajadores por Cargo */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
-              Rendimiento por Hectárea
+              <Sprout className="h-5 w-5 text-green-600" />
+              Distribución de Trabajadores por Cargo
             </CardTitle>
             <CardDescription>
-              Evolución vs. objetivos establecidos
+              Personal activo e inactivo por posición
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={rendimientoHectarea || []}>
+              <BarChart data={trabajadoresPorCargo || []} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="mes" stroke="#666" />
-                <YAxis stroke="#666" />
+                <XAxis type="number" stroke="#666" />
+                <YAxis dataKey="cargo" type="category" width={120} stroke="#666" />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                  formatter={(value: number) => `${value} kg/ha`}
+                  formatter={(value: number, name: string) => [`${value} trabajadores`, name]}
                 />
                 <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="rendimiento" 
-                  stroke="#10b981" 
-                  strokeWidth={3}
-                  dot={{ fill: '#10b981', r: 5 }}
-                  name="Rendimiento Real"
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="objetivo" 
-                  stroke="#94a3b8" 
-                  strokeWidth={2}
-                  strokeDasharray="5 5"
-                  dot={{ fill: '#94a3b8', r: 4 }}
-                  name="Objetivo"
-                />
-              </LineChart>
+                <Bar dataKey="activos" fill="#10B981" name="Activos" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="inactivos" fill="#6B7280" name="Inactivos" radius={[0, 4, 4, 0]} />
+              </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Distribución de Cultivos - Pie Chart */}
+      {/* Segunda fila de nuevas gráficas */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Tipos de Labor más Frecuentes */}
         <Card>
           <CardHeader>
-            <CardTitle>Distribución de Cultivos</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Leaf className="h-5 w-5 text-purple-600" />
+              Tipos de Labor más Frecuentes
+            </CardTitle>
             <CardDescription>
-              Por área cultivada y porcentaje de ocupación
+              Actividades más realizadas en los últimos 6 meses
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
-                  data={distribucionCultivos || []}
+                  data={(tiposLaborFrecuentes || []) as any[]}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ nombre, porcentaje }) => `${nombre}: ${porcentaje}%`}
+                  label={({ tipo, porcentaje }: any) => `${tipo}: ${porcentaje}%`}
                   outerRadius={100}
                   fill="#8884d8"
-                  dataKey="area"
+                  dataKey="cantidad"
                 >
-                  {(distribucionCultivos || []).map((_: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  {(tiposLaborFrecuentes || []).map((tipo: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={tipo.color || '#8884d8'} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => `${value} labores`} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              {(tiposLaborFrecuentes || []).map((tipo: any) => (
+                <div key={tipo.tipo} className="flex items-center gap-2">
+                  <div 
+                    className="w-3 h-3 rounded-full" 
+                    style={{ backgroundColor: tipo.color || '#8884d8' }}
+                  />
+                  <div className="text-sm">
+                    <p className="font-medium">{tipo.tipo}</p>
+                    <p className="text-gray-500">{tipo.cantidad} labores ({tipo.porcentaje}%)</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Estado de Lotes */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-orange-600" />
+              Estado de Lotes
+            </CardTitle>
+            <CardDescription>
+              Distribución por estado y área total
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={(estadoLotes || []) as any[]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ estado, porcentaje }: any) => `${estado}: ${porcentaje}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="area_total"
+                >
+                  {(estadoLotes || []).map((lote: any, index: number) => (
+                    <Cell key={`cell-${index}`} fill={lote.color || '#8884d8'} />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: number) => `${value} ha`} />
               </PieChart>
             </ResponsiveContainer>
             <div className="grid grid-cols-2 gap-3 mt-4">
-              {(distribucionCultivos || []).map((cultivo: any, index: number) => (
-                <div key={cultivo.nombre} className="flex items-center gap-2">
+              {(estadoLotes || []).map((lote: any) => (
+                <div key={lote.estado} className="flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: COLORS[index] }}
+                    style={{ backgroundColor: lote.color || '#8884d8' }}
                   />
                   <div className="text-sm">
-                    <p className="font-medium">{cultivo.nombre}</p>
-                    <p className="text-gray-500">{cultivo.area} ha</p>
+                    <p className="font-medium">{lote.estado}</p>
+                    <p className="text-gray-500">{lote.area_total} ha ({lote.porcentaje}%)</p>
                   </div>
                 </div>
               ))}
@@ -280,88 +286,37 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Labores Diarias y Eficiencia */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Labores Diarias */}
+      {/* Tercera fila de nuevas gráficas */}
+      <div className="grid gap-6 ">
+        {/* Rendimiento por Trabajador */}
         <Card>
           <CardHeader>
-            <CardTitle>Labores Diarias (Última Semana)</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-indigo-600" />
+              Rendimiento por Trabajador
+            </CardTitle>
             <CardDescription>
-              Distribución de actividades por día
+              Top 10 trabajadores por rendimiento promedio (últimos 3 meses)
             </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={laboresDiarias || []}>
+              <BarChart data={rendimientoPorTrabajador || []} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="dia" stroke="#666" />
-                <YAxis stroke="#666" />
+                <XAxis type="number" stroke="#666" />
+                <YAxis dataKey="trabajador" type="category" width={150} stroke="#666" />
                 <Tooltip 
                   contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                  formatter={(value: number, name: string) => [`${value} kg/h`, name]}
                 />
                 <Legend />
-                <Bar dataKey="cosecha" fill="#22c55e" name="Cosecha" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="riego" fill="#3b82f6" name="Riego" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="fertilizacion" fill="#f59e0b" name="Fertilización" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="transporte" fill="#8b5cf6" name="Transporte" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="rendimiento_promedio" fill="#8B5CF6" name="Rendimiento (kg/h)" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Calidad de Producción */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Calidad de Producción</CardTitle>
-            <CardDescription>
-              Evolución de la calidad en los últimos 6 meses (%)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={calidadProduccion || []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="mes" stroke="#666" />
-                <YAxis stroke="#666" />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                />
-                <Legend />
-                <Area type="monotone" dataKey="excelente" stackId="1" stroke="#22c55e" fill="#22c55e" name="Excelente" />
-                <Area type="monotone" dataKey="buena" stackId="1" stroke="#3b82f6" fill="#3b82f6" name="Buena" />
-                <Area type="monotone" dataKey="regular" stackId="1" stroke="#f59e0b" fill="#f59e0b" name="Regular" />
-                <Area type="monotone" dataKey="mala" stackId="1" stroke="#ef4444" fill="#ef4444" name="Mala" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
       </div>
-
-      {/* Eficiencia por Campo */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Eficiencia por Campo vs. Meta</CardTitle>
-          <CardDescription>
-            Comparativa de eficiencia operacional de cada campo
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={eficienciaCampos || []} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis type="number" stroke="#666" />
-              <YAxis dataKey="campo" type="category" width={120} stroke="#666" />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                formatter={(value: number) => `${value}%`}
-              />
-              <Legend />
-              <Bar dataKey="eficiencia" fill="#10b981" name="Eficiencia Actual" radius={[0, 4, 4, 0]} />
-              <Bar dataKey="meta" fill="#94a3b8" name="Meta" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
     </div>
   )
 }
