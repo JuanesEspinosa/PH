@@ -25,6 +25,9 @@ router.post('/', planificacionController.create.bind(planificacionController))
 // PUT /api/planificacion/:id - Actualizar actividad
 router.put('/:id', planificacionController.update.bind(planificacionController))
 
+// PUT /api/planificacion/:id/progreso - Actualizar progreso de actividad
+router.put('/:id/progreso', planificacionController.updateProgreso.bind(planificacionController))
+
 // DELETE /api/planificacion/:id - Eliminar actividad
 router.delete('/:id', planificacionController.delete.bind(planificacionController))
 

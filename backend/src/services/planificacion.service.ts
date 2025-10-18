@@ -208,6 +208,35 @@ export class PlanificacionService {
       }
     }
   }
+
+  /**
+   * Actualizar progreso de una actividad
+   */
+  async updateProgreso(id: number, data: any): Promise<ActividadPlanificada> {
+    const actividad = await this.getActividadById(id)
+    
+    const updateData: UpdateActividadDto = {
+      progreso_porcentaje: data.progreso_porcentaje,
+      fecha_inicio_real: data.fecha_inicio_real,
+      fecha_fin_real: data.fecha_fin_real,
+      duracion_real_horas: data.duracion_real_horas
+    }
+
+    // Actualizar estado basado en el progreso
+    if (data.progreso_porcentaje === 100) {
+      updateData.estado = EstadoActividad.COMPLETADA
+    } else if (data.progreso_porcentaje > 0) {
+      updateData.estado = EstadoActividad.EN_PROGRESO
+    }
+
+    const success = await PlanificacionModel.update(id, updateData)
+    
+    if (!success) {
+      throw new Error('No se pudo actualizar el progreso de la actividad')
+    }
+
+    return await this.getActividadById(id)
+  }
 }
 
 export const planificacionService = new PlanificacionService()

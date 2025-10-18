@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import LaborForm from '../components/LaborForm'
 import { useLaborQuery, useUpdateLaborMutation } from '../hooks/useLaboresQuery'
+import { useLotes } from '../../lotes/hooks/useLotesQuery'
+import { useActividades } from '../../planificacion/hooks/usePlanificacionQuery'
 import { UpdateLaborDto } from '../services/laboresService'
 
 export default function LaborEditView() {
@@ -11,6 +13,8 @@ export default function LaborEditView() {
   const navigate = useNavigate()
   const { data: labor, isLoading } = useLaborQuery(id!)
   const { mutate: updateLabor, isPending } = useUpdateLaborMutation()
+  const { data: lotes = [] } = useLotes()
+  const { data: actividades = [] } = useActividades()
 
   const handleSubmit = (data: UpdateLaborDto) => {
     if (!id) return
@@ -68,6 +72,8 @@ export default function LaborEditView() {
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         loading={isPending}
+        lotes={lotes}
+        actividades={actividades}
       />
     </div>
   )

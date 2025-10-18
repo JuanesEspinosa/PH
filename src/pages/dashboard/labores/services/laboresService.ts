@@ -31,6 +31,7 @@ export interface Labor {
   fecha_creacion: string
   ultima_modificacion?: string
   supervisor_id?: number
+  actividad_planificada_id?: number
 }
 
 export interface CreateLaborDto {
@@ -56,6 +57,7 @@ export interface CreateLaborDto {
   herramientas_insumos?: string[]
   observaciones?: string
   fotos?: string[]
+  actividad_planificada_id?: string
 }
 
 export interface UpdateLaborDto {
@@ -81,6 +83,7 @@ export interface UpdateLaborDto {
   herramientas_insumos?: string[]
   observaciones?: string
   estado?: 'en_proceso' | 'completada' | 'pausada' | 'cancelada'
+  actividad_planificada_id?: number
 }
 
 import api from '@/lib/axios'

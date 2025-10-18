@@ -222,9 +222,9 @@ export class PlanificacionModel {
    */
   static async getTrabajadoresNombres(actividadId: number): Promise<string[]> {
     const [rows] = await pool.execute<RowDataPacket[]>(`
-      SELECT u.nombre
+      SELECT CONCAT(t.nombres, ' ', t.apellidos) as nombre
       FROM actividad_trabajadores at
-      JOIN usuarios u ON at.trabajador_id = u.id
+      JOIN trabajadores t ON at.trabajador_id = t.id
       WHERE at.actividad_id = ?
     `, [actividadId])
     return rows.map(r => r.nombre)
