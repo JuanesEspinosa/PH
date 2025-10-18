@@ -1,40 +1,20 @@
 import { Usuario } from '../services/usuariosService'
 import { Button } from '@/components/ui/button'
-import { Edit, Trash2, Eye, Mail, Phone } from 'lucide-react'
+import { Edit, Trash2, Eye } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 interface UsuariosTableProps {
   usuarios: Usuario[]
-  onDelete: (id: string, nombre: string) => void
-  loading?: boolean
+  onDelete: (id: number) => void
 }
 
-export default function UsuariosTable({ usuarios, onDelete, loading }: UsuariosTableProps) {
-  // const formatFecha = (fecha: string) => {
-  //   return new Date(fecha).toLocaleDateString('es-ES', {
-  //     day: '2-digit',
-  //     month: '2-digit',
-  //     year: 'numeric',
-  //     })
-  // }
-
-  const formatFechaHora = (fecha?: string) => {
-    if (!fecha) return 'Nunca'
+export default function UsuariosTable({ usuarios, onDelete }: UsuariosTableProps) {
+  const formatFecha = (fecha: string) => {
     return new Date(fecha).toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     })
-  }
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-12">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
   }
 
   if (usuarios.length === 0) {
@@ -51,11 +31,9 @@ export default function UsuariosTable({ usuarios, onDelete, loading }: UsuariosT
         <thead>
           <tr className="border-b bg-muted/50">
             <th className="text-left p-4 font-medium text-sm">Usuario</th>
-            <th className="text-left p-4 font-medium text-sm">Contacto</th>
+            <th className="text-left p-4 font-medium text-sm">Email</th>
             <th className="text-left p-4 font-medium text-sm">Rol</th>
-            <th className="text-left p-4 font-medium text-sm">Departamento</th>
-            <th className="text-left p-4 font-medium text-sm">Estado</th>
-            <th className="text-left p-4 font-medium text-sm">Último Acceso</th>
+            <th className="text-left p-4 font-medium text-sm">Fecha Creación</th>
             <th className="text-right p-4 font-medium text-sm">Acciones</th>
           </tr>
         </thead>
@@ -65,102 +43,69 @@ export default function UsuariosTable({ usuarios, onDelete, loading }: UsuariosT
               {/* Usuario */}
               <td className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-semibold text-primary">
-                      {usuario.nombre
-                        .split(' ')
-                        .map((n) => n[0])
-                        .join('')
-                        .toUpperCase()
-                        .slice(0, 2)}
-                    </span>
-                  </div>
+                  {usuario.avatar ? (
+                    <img 
+                      src={usuario.avatar} 
+                      alt={usuario.nombre}
+                      className="w-10 h-10 rounded-full"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <span className="text-sm font-semibold text-primary">
+                        {usuario.nombre
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()
+                          .slice(0, 2)}
+                      </span>
+                    </div>
+                  )}
                   <div>
                     <p className="font-medium">{usuario.nombre}</p>
-                    <p className="text-xs text-muted-foreground">
-                      ID: {usuario.id}
-                    </p>
+                    <p className="text-xs text-muted-foreground">ID: {usuario.id}</p>
                   </div>
                 </div>
               </td>
 
-              {/* Contacto */}
+              {/* Email */}
               <td className="p-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-muted-foreground">{usuario.email}</span>
-                  </div>
-                  {usuario.telefono && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-muted-foreground">{usuario.telefono}</span>
-                    </div>
-                  )}
-                </div>
+                <p className="text-sm">{usuario.email}</p>
               </td>
 
               {/* Rol */}
               <td className="p-4">
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    usuario.rol === 'admin'
-                      ? 'bg-purple-100 text-purple-800'
-                      : 'bg-blue-100 text-blue-800'
-                  }`}
-                >
-                  {usuario.rol === 'admin' ? 'Administrador' : 'Usuario'}
+                <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-800">
+                  {usuario.rol}
                 </span>
               </td>
 
-              {/* Departamento */}
+              {/* Fecha Creación */}
               <td className="p-4">
-                <span className="text-sm text-muted-foreground">
-                  {usuario.departamento || '-'}
-                </span>
-              </td>
-
-              {/* Estado */}
-              <td className="p-4">
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    usuario.estado === 'activo'
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {usuario.estado === 'activo' ? 'Activo' : 'Inactivo'}
-                </span>
-              </td>
-
-              {/* Último acceso */}
-              <td className="p-4">
-                <span className="text-sm text-muted-foreground">
-                  {formatFechaHora(usuario.ultimoAcceso)}
-                </span>
+                <p className="text-sm text-muted-foreground">
+                  {formatFecha(usuario.created_at)}
+                </p>
               </td>
 
               {/* Acciones */}
               <td className="p-4">
-                <div className="flex justify-end gap-1">
+                <div className="flex items-center justify-end gap-2">
                   <Link to={`/dashboard/usuarios/${usuario.id}`}>
-                    <Button variant="ghost" size="sm" title="Ver detalles">
+                    <Button variant="ghost" size="sm">
                       <Eye className="h-4 w-4" />
                     </Button>
                   </Link>
                   <Link to={`/dashboard/usuarios/${usuario.id}/editar`}>
-                    <Button variant="ghost" size="sm" title="Editar">
+                    <Button variant="ghost" size="sm">
                       <Edit className="h-4 w-4" />
                     </Button>
                   </Link>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => onDelete(usuario.id, usuario.nombre)}
-                    title="Eliminar"
+                    onClick={() => onDelete(usuario.id)}
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 text-red-600" />
                   </Button>
                 </div>
               </td>
@@ -171,4 +116,3 @@ export default function UsuariosTable({ usuarios, onDelete, loading }: UsuariosT
     </div>
   )
 }
-

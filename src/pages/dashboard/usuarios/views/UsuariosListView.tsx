@@ -1,36 +1,25 @@
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { UserPlus, Search, RefreshCw, X } from 'lucide-react'
-import { useUsuariosQuery, useDeleteUsuarioMutation, useUsuariosSearch } from '../hooks/useUsuariosQuery'
+import { UserPlus, RefreshCw } from 'lucide-react'
+import { useUsuariosQuery, useDeleteUsuarioMutation, useEstadisticasQuery } from '../hooks/useUsuariosQuery'
 import UsuariosTable from '../components/UsuariosTable'
 import DeleteConfirmDialog from '../components/DeleteConfirmDialog'
 import { useState } from 'react'
-import { Usuario } from '../services/usuariosService'
+import Loading from '@/components/ui/loading'
+import type { Usuario } from '../services/usuariosService'
 
 export default function UsuariosListView() {
   const { data: usuarios = [], isLoading, refetch } = useUsuariosQuery()
+  const { data: estadisticas } = useEstadisticasQuery()
   const { mutate: deleteUsuario, isPending: isDeleting } = useDeleteUsuarioMutation()
-  const { searchQuery, setSearch, clearSearch } = useUsuariosSearch()
   
-  const [searchInput, setSearchInput] = useState(searchQuery)
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; usuario: Usuario | null }>({
     open: false,
     usuario: null,
   })
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    setSearch(searchInput)
-  }
-
-  const handleClearSearch = () => {
-    setSearchInput('')
-    clearSearch()
-  }
-
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = (id: number) => {
     const usuario = usuarios.find((u) => u.id === id)
     if (usuario) {
       setDeleteDialog({ open: true, usuario })
@@ -42,6 +31,10 @@ export default function UsuariosListView() {
     deleteUsuario(deleteDialog.usuario.id, {
       onSuccess: () => setDeleteDialog({ open: false, usuario: null })
     })
+  }
+
+  if (isLoading) {
+    return <Loading text="Cargando usuarios..." />
   }
 
   return (
@@ -62,104 +55,84 @@ export default function UsuariosListView() {
         </Link>
       </div>
 
-      {/* Estadísticas */}
+      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Total Usuarios</CardDescription>
+            <CardTitle className="text-3xl">{estadisticas?.total || 0}</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{usuarios.length}</div>
-          </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Activos</CardDescription>
+            <CardTitle className="text-3xl text-green-600">
+              {estadisticas?.activos || 0}
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">
-              {usuarios.filter((u) => u.estado === 'activo').length}
-            </div>
-          </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Inactivos</CardDescription>
+            <CardTitle className="text-3xl text-gray-500">
+              {estadisticas?.inactivos || 0}
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-500">
-              {usuarios.filter((u) => u.estado === 'inactivo').length}
-            </div>
-          </CardContent>
         </Card>
-
+        
         <Card>
           <CardHeader className="pb-3">
             <CardDescription>Administradores</CardDescription>
+            <CardTitle className="text-3xl text-purple-600">
+              {estadisticas?.administradores || 0}
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-600">
-              {usuarios.filter((u) => u.rol === 'admin').length}
-            </div>
-          </CardContent>
         </Card>
       </div>
 
-      {/* Búsqueda y Acciones */}
+      {/* Actions Bar */}
       <Card>
         <CardContent className="pt-6">
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar por nombre, email o departamento..."
-                className="pl-10 pr-10"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={handleClearSearch}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-            <Button type="submit" variant="secondary">
-              Buscar
-            </Button>
-            <Button type="button" variant="outline" onClick={() => refetch()} disabled={isLoading}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          <div className="flex gap-2 justify-between items-center">
+            <p className="text-sm text-muted-foreground">
+              {usuarios.length} usuario{usuarios.length !== 1 ? 's' : ''} en el sistema
+            </p>
+            <Button type="button" variant="outline" onClick={() => refetch()}>
+              <RefreshCw className="h-4 w-4 mr-2" />
               Actualizar
             </Button>
-          </form>
-          {searchQuery && (
-            <p className="text-sm text-muted-foreground mt-2">
-              Buscando: <strong>{searchQuery}</strong>
-            </p>
-          )}
+          </div>
         </CardContent>
       </Card>
 
-      {/* Tabla de Usuarios */}
+      {/* Table */}
       <Card>
         <CardHeader>
           <CardTitle>Lista de Usuarios</CardTitle>
           <CardDescription>
-            {usuarios.length} usuario{usuarios.length !== 1 ? 's' : ''} encontrado
-            {usuarios.length !== 1 ? 's' : ''}
+            Gestiona y administra todos los usuarios del sistema
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <UsuariosTable usuarios={usuarios} onDelete={handleDeleteClick} loading={isLoading} />
+          {usuarios.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-muted-foreground mb-4">No hay usuarios registrados</p>
+              <Link to="/dashboard/usuarios/nuevo">
+                <Button>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Crear primer usuario
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <UsuariosTable usuarios={usuarios} onDelete={handleDeleteClick} />
+          )}
         </CardContent>
       </Card>
 
-      {/* Dialog de confirmación de eliminación */}
+      {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog({ open, usuario: null })}

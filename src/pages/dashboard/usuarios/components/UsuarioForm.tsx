@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Usuario } from '../services/usuariosService'
+import { useRolesQuery } from '../../roles/hooks/useRolesQuery'
+import type { Usuario } from '../services/usuariosService'
+import Loading from '@/components/ui/loading'
 
 interface UsuarioFormProps {
   usuario?: Usuario
@@ -12,14 +14,13 @@ interface UsuarioFormProps {
 }
 
 export default function UsuarioForm({ usuario, onSubmit, onCancel, loading }: UsuarioFormProps) {
+  const { data: roles, isLoading: rolesLoading } = useRolesQuery()
+  
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
     password: '',
-    rol: 'usuario' as 'admin' | 'usuario',
-    telefono: '',
-    departamento: '',
-    estado: 'activo' as 'activo' | 'inactivo',
+    rol: '',
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -31,16 +32,16 @@ export default function UsuarioForm({ usuario, onSubmit, onCancel, loading }: Us
         email: usuario.email,
         password: '', // No mostramos la contraseña
         rol: usuario.rol,
-        telefono: usuario.telefono || '',
-        departamento: usuario.departamento || '',
-        estado: usuario.estado,
       })
     }
   }, [usuario])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+    const { name, value, type } = e.target
+    const finalValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    
+    setFormData((prev) => ({ ...prev, [name]: finalValue }))
+    
     // Limpiar error al escribir
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: '' }))
@@ -66,6 +67,10 @@ export default function UsuarioForm({ usuario, onSubmit, onCancel, loading }: Us
       newErrors.password = 'La contraseña debe tener al menos 6 caracteres'
     }
 
+    if (!formData.rol) {
+      newErrors.rol = 'El rol es requerido'
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -79,30 +84,28 @@ export default function UsuarioForm({ usuario, onSubmit, onCancel, loading }: Us
 
     const data = usuario
       ? {
-          // Update
           nombre: formData.nombre,
           email: formData.email,
+          ...(formData.password && { password: formData.password }),
           rol: formData.rol,
-          telefono: formData.telefono || undefined,
-          departamento: formData.departamento || undefined,
-          estado: formData.estado,
         }
       : {
-          // Create
           nombre: formData.nombre,
           email: formData.email,
           password: formData.password,
           rol: formData.rol,
-          telefono: formData.telefono || undefined,
-          departamento: formData.departamento || undefined,
         }
 
-    await onSubmit(data)
+    onSubmit(data)
+  }
+
+  if (rolesLoading) {
+    return <Loading text="Cargando formulario..." />
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Nombre */}
         <div className="space-y-2">
           <Label htmlFor="nombre">
@@ -113,8 +116,7 @@ export default function UsuarioForm({ usuario, onSubmit, onCancel, loading }: Us
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
-            placeholder="Juan Pérez"
-            disabled={loading}
+            placeholder="Ej: Juan Pérez"
             className={errors.nombre ? 'border-red-500' : ''}
           />
           {errors.nombre && <p className="text-sm text-red-500">{errors.nombre}</p>}
@@ -131,57 +133,28 @@ export default function UsuarioForm({ usuario, onSubmit, onCancel, loading }: Us
             type="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="usuario@example.com"
-            disabled={loading}
+            placeholder="juan@example.com"
             className={errors.email ? 'border-red-500' : ''}
           />
           {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
         </div>
 
-        {/* Contraseña (solo en crear) */}
-        {!usuario && (
-          <div className="space-y-2">
-            <Label htmlFor="password">
-              Contraseña <span className="text-red-500">*</span>
-            </Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              disabled={loading}
-              className={errors.password ? 'border-red-500' : ''}
-            />
-            {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
-          </div>
-        )}
-
-        {/* Teléfono */}
+        {/* Contraseña */}
         <div className="space-y-2">
-          <Label htmlFor="telefono">Teléfono</Label>
+          <Label htmlFor="password">
+            Contraseña {!usuario && <span className="text-red-500">*</span>}
+            {usuario && <span className="text-gray-500 text-xs">(Dejar vacío para no cambiar)</span>}
+          </Label>
           <Input
-            id="telefono"
-            name="telefono"
-            value={formData.telefono}
+            id="password"
+            name="password"
+            type="password"
+            value={formData.password}
             onChange={handleChange}
-            placeholder="+34 600 000 000"
-            disabled={loading}
+            placeholder="••••••••"
+            className={errors.password ? 'border-red-500' : ''}
           />
-        </div>
-
-        {/* Departamento */}
-        <div className="space-y-2">
-          <Label htmlFor="departamento">Departamento</Label>
-          <Input
-            id="departamento"
-            name="departamento"
-            value={formData.departamento}
-            onChange={handleChange}
-            placeholder="Tecnología"
-            disabled={loading}
-          />
+          {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
         </div>
 
         {/* Rol */}
@@ -194,43 +167,40 @@ export default function UsuarioForm({ usuario, onSubmit, onCancel, loading }: Us
             name="rol"
             value={formData.rol}
             onChange={handleChange}
-            disabled={loading}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className={`flex h-10 w-full rounded-md border ${
+              errors.rol ? 'border-red-500' : 'border-input'
+            } bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2`}
           >
-            <option value="usuario">Usuario</option>
-            <option value="admin">Administrador</option>
+            <option value="">Seleccionar rol</option>
+            {roles && roles.length > 0 ? (
+              roles.map((rol) => (
+                <option key={rol.id} value={rol.nombre}>
+                  {rol.nombre}
+                </option>
+              ))
+            ) : (
+              <option value="" disabled>No hay roles disponibles</option>
+            )}
           </select>
+          {errors.rol && <p className="text-sm text-red-500">{errors.rol}</p>}
+          {roles && roles.length === 0 && (
+            <p className="text-sm text-amber-600">
+              ⚠️ No hay roles creados. Por favor, crea un rol primero en la sección de Roles.
+            </p>
+          )}
         </div>
 
-        {/* Estado (solo en editar) */}
-        {usuario && (
-          <div className="space-y-2">
-            <Label htmlFor="estado">Estado</Label>
-            <select
-              id="estado"
-              name="estado"
-              value={formData.estado}
-              onChange={handleChange}
-              disabled={loading}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="activo">Activo</option>
-              <option value="inactivo">Inactivo</option>
-            </select>
-          </div>
-        )}
       </div>
 
       {/* Botones */}
-      <div className="flex justify-end gap-3">
+      <div className="flex items-center justify-end gap-4 pt-4 border-t">
         <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
           Cancelar
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? 'Guardando...' : usuario ? 'Actualizar' : 'Crear'}
+          {loading ? 'Guardando...' : usuario ? 'Actualizar Usuario' : 'Crear Usuario'}
         </Button>
       </div>
     </form>
   )
 }
-

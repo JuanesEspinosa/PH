@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { cultivosController } from '../controllers/cultivos.controller'
-import { authMiddleware } from '../middlewares/authMiddleware'
+import { authMiddleware } from '../middlewares/auth.middleware'
 
 const router = Router()
 

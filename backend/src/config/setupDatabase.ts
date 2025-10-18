@@ -11,7 +11,7 @@ async function setupDatabase() {
     connection = await mysql.createConnection({
       host: process.env.DB_HOST || 'localhost',
       port: Number(process.env.DB_PORT) || 3306,
-      user: process.env.DB_USERNAME || process.env.DB_USER || 'root',
+      user: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || ''
     });
 
@@ -42,6 +42,18 @@ async function setupDatabase() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     `);
     console.log('✅ Tabla usuarios creada/verificada');
+
+    // Crear tabla de roles
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS roles (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(255) UNIQUE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_nombre (nombre)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    `);
+    console.log('✅ Tabla roles creada/verificada');
 
     // Crear tabla de tokens (opcional, para blacklist de tokens)
     await connection.query(`

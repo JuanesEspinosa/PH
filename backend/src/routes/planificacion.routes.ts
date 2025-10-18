@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { planificacionController } from '../controllers/planificacion.controller'
-import { authMiddleware } from '../middlewares/authMiddleware'
+import { authMiddleware } from '../middlewares/auth.middleware'
 
 const router = Router()
 
