@@ -1,163 +1,119 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
-import { queryKeys } from '@/lib/queryClient'
 import {
   usuariosService,
-  CreateUsuarioDto,
-  UpdateUsuarioDto,
+  type CreateUsuarioDTO,
+  type UpdateUsuarioDTO,
 } from '../services/usuariosService'
 
-/**
- * Hook para obtener lista de usuarios con React Query
- * Incluye soporte para búsqueda con searchParams
- */
 export function useUsuariosQuery() {
-  const [searchParams] = useSearchParams()
-  const searchQuery = searchParams.get('q') || ''
-
   return useQuery({
-    queryKey: queryKeys.usuarios.list(searchQuery),
-    queryFn: async () => {
-      if (searchQuery) {
-        return usuariosService.search(searchQuery)
-      }
-      return usuariosService.getAll()
-    },
+    queryKey: ['usuarios'],
+    queryFn: usuariosService.getUsuarios,
+    retry: 1,
+    staleTime: 30000,
   })
 }
 
-/**
- * Hook para obtener un usuario por ID
- */
-export function useUsuarioQuery(id: string) {
+export function useUsuarioQuery(id: number) {
   return useQuery({
-    queryKey: queryKeys.usuarios.detail(id),
-    queryFn: () => usuariosService.getById(id),
+    queryKey: ['usuarios', id],
+    queryFn: () => usuariosService.getUsuario(id),
     enabled: !!id,
+    retry: 1,
   })
 }
 
-/**
- * Hook para crear usuario con React Query
- */
+export function useEstadisticasQuery() {
+  return useQuery({
+    queryKey: ['usuarios', 'estadisticas'],
+    queryFn: usuariosService.getEstadisticas,
+    retry: 1,
+    staleTime: 60000, // 1 minuto
+  })
+}
+
 export function useCreateUsuarioMutation() {
   const { toast } = useToast()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: CreateUsuarioDto) => usuariosService.create(data),
+    mutationFn: (data: CreateUsuarioDTO) => usuariosService.createUsuario(data),
     onSuccess: (data) => {
-      // Invalidar lista de usuarios para refrescarla
-      queryClient.invalidateQueries({ queryKey: queryKeys.usuarios.lists() })
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] })
+      queryClient.invalidateQueries({ queryKey: ['usuarios', 'estadisticas'] })
       
       toast({
-        title: 'Usuario creado',
+        title: '✅ Usuario creado',
         description: `${data.nombre} ha sido creado exitosamente.`,
       })
       
       navigate('/dashboard/usuarios')
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
-        title: 'Error',
-        description: 'No se pudo crear el usuario.',
+        title: '❌ Error',
+        description: error?.response?.data?.message || 'No se pudo crear el usuario.',
         variant: 'destructive',
       })
     },
   })
 }
 
-/**
- * Hook para actualizar usuario con React Query
- */
 export function useUpdateUsuarioMutation() {
   const { toast } = useToast()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateUsuarioDto }) =>
-      usuariosService.update(id, data),
+    mutationFn: ({ id, data }: { id: number; data: UpdateUsuarioDTO }) =>
+      usuariosService.updateUsuario(id, data),
     onSuccess: (data, variables) => {
-      // Invalidar queries relacionadas
-      queryClient.invalidateQueries({ queryKey: queryKeys.usuarios.lists() })
-      queryClient.invalidateQueries({ queryKey: queryKeys.usuarios.detail(variables.id) })
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] })
+      queryClient.invalidateQueries({ queryKey: ['usuarios', variables.id] })
+      queryClient.invalidateQueries({ queryKey: ['usuarios', 'estadisticas'] })
       
       toast({
-        title: 'Usuario actualizado',
+        title: '✅ Usuario actualizado',
         description: `${data.nombre} ha sido actualizado exitosamente.`,
       })
       
       navigate(`/dashboard/usuarios/${variables.id}`)
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
-        title: 'Error',
-        description: 'No se pudo actualizar el usuario.',
+        title: '❌ Error',
+        description: error?.response?.data?.message || 'No se pudo actualizar el usuario.',
         variant: 'destructive',
       })
     },
   })
 }
 
-/**
- * Hook para eliminar usuario con React Query
- */
 export function useDeleteUsuarioMutation() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => usuariosService.delete(id),
+    mutationFn: (id: number) => usuariosService.deleteUsuario(id),
     onSuccess: (_, id) => {
-      // Invalidar lista de usuarios
-      queryClient.invalidateQueries({ queryKey: queryKeys.usuarios.lists() })
-      
-      // Remover usuario específico de la caché
-      queryClient.removeQueries({ queryKey: queryKeys.usuarios.detail(id) })
+      queryClient.invalidateQueries({ queryKey: ['usuarios'] })
+      queryClient.removeQueries({ queryKey: ['usuarios', id] })
+      queryClient.invalidateQueries({ queryKey: ['usuarios', 'estadisticas'] })
       
       toast({
-        title: 'Usuario eliminado',
+        title: '✅ Usuario eliminado',
         description: 'El usuario ha sido eliminado exitosamente.',
       })
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
-        title: 'Error',
-        description: 'No se pudo eliminar el usuario.',
+        title: '❌ Error',
+        description: error?.response?.data?.message || 'No se pudo eliminar el usuario.',
         variant: 'destructive',
       })
     },
   })
 }
-
-/**
- * Hook para búsqueda de usuarios
- * Usa searchParams para mantener el estado en la URL
- */
-export function useUsuariosSearch() {
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const setSearch = (query: string) => {
-    if (query) {
-      searchParams.set('q', query)
-    } else {
-      searchParams.delete('q')
-    }
-    setSearchParams(searchParams)
-  }
-
-  const clearSearch = () => {
-    searchParams.delete('q')
-    setSearchParams(searchParams)
-  }
-
-  return {
-    searchQuery: searchParams.get('q') || '',
-    setSearch,
-    clearSearch,
-  }
-}
-
