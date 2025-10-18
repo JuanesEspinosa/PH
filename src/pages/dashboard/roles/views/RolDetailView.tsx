@@ -30,7 +30,6 @@ export default function RolDetailView() {
             <Shield className="h-8 w-8 text-primary" />
             <div>
               <h1 className="text-3xl font-bold">{rol.nombre}</h1>
-              <p className="text-gray-600">{rol.descripcion}</p>
             </div>
           </div>
         </div>
@@ -42,37 +41,6 @@ export default function RolDetailView() {
         </Link>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Usuarios Asignados
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{rol.usuariosAsignados}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm font-medium text-gray-600 flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Fecha de Creación
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg font-medium">
-              {new Date(rol.createdAt).toLocaleDateString('es-ES', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
 
       <Card>
         <CardHeader>
@@ -89,13 +57,25 @@ export default function RolDetailView() {
           <div className="flex justify-between">
             <span className="text-gray-600">Fecha de Creación:</span>
             <span className="font-medium">
-              {new Date(rol.createdAt).toLocaleDateString('es-ES')}
+              {new Date(rol.created_at).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Última Actualización:</span>
             <span className="font-medium">
-              {new Date(rol.updatedAt).toLocaleDateString('es-ES')}
+              {new Date(rol.updated_at).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              })}
             </span>
           </div>
         </CardContent>
