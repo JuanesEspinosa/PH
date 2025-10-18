@@ -19,7 +19,7 @@ export const LoteDetailView = () => {
 
   // Preparar datos de trabajadores para el mapa
   const trabajadoresParaMapa = actividadesLote
-    .filter(act => act.estado === 'EN_PROGRESO' || act.estado === 'PENDIENTE')
+    .filter(act => act.estado === 'EN_PROGRESO' || act.estado === 'PENDIENTE' || act.estado === 'ATRASADA')
     .flatMap(act => 
       (act.trabajadores_nombres || []).map((nombre) => ({
         nombre,
@@ -30,6 +30,14 @@ export const LoteDetailView = () => {
     .filter((trabajador, index, self) => 
       index === self.findIndex((t: { nombre: string; actividad: string }) => t.nombre === trabajador.nombre)
     );
+
+  // Debug: Log para verificar datos
+  console.log('🔍 Debug LoteDetailView:', {
+    actividadesLote: actividadesLote.length,
+    actividadesConTrabajadores: actividadesLote.filter(act => act.trabajadores_nombres?.length > 0),
+    trabajadoresParaMapa: trabajadoresParaMapa.length,
+    trabajadoresData: trabajadoresParaMapa
+  });
   
   const handleDelete = async () => {
     if (!lote || !window.confirm(`¿Estás seguro de eliminar el lote "${lote.nombre}"?`)) {
@@ -259,7 +267,7 @@ export const LoteDetailView = () => {
                 // Obtener trabajadores únicos de actividades activas
                 const trabajadoresMap = new Map();
                 actividadesLote
-                  .filter(act => act.estado === 'EN_PROGRESO' || act.estado === 'PENDIENTE')
+                  .filter(act => act.estado === 'EN_PROGRESO' || act.estado === 'PENDIENTE' || act.estado === 'ATRASADA')
                   .forEach(act => {
                     (act.trabajadores_nombres || []).forEach((nombre, index) => {
                       const id = act.trabajadores_asignados?.[index] || `temp-${nombre}`;

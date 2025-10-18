@@ -77,6 +77,16 @@ export const queryKeys = {
     detail: (id: string) => [...queryKeys.labores.details(), id] as const,
     search: (query: string) => [...queryKeys.labores.all, 'search', query] as const,
   },
+  
+  // Planificación
+  planificacion: {
+    all: ['planificacion'] as const,
+    lists: () => [...queryKeys.planificacion.all, 'list'] as const,
+    list: (filters?: string) => [...queryKeys.planificacion.lists(), filters] as const,
+    details: () => [...queryKeys.planificacion.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.planificacion.details(), id] as const,
+    search: (query: string) => [...queryKeys.planificacion.all, 'search', query] as const,
+  },
 }
 
 

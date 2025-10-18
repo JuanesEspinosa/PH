@@ -57,6 +57,7 @@ export interface Labor extends RowDataPacket {
   fecha_creacion: Date
   ultima_modificacion?: Date
   supervisor_id?: number
+  actividad_planificada_id?: number
 }
 
 export interface CreateLaborDto {
@@ -75,6 +76,7 @@ export interface CreateLaborDto {
   herramientas_insumos?: string[]
   observaciones?: string
   fotos?: string[]
+  actividad_planificada_id?: number
 }
 
 export interface UpdateLaborDto {
@@ -93,6 +95,7 @@ export interface UpdateLaborDto {
   herramientas_insumos?: string[]
   observaciones?: string
   estado?: EstadoLabor
+  actividad_planificada_id?: number
 }
 
 // ============================================================================
@@ -226,8 +229,8 @@ export class LaborModel {
        (fecha, cultivo, lote, trabajador_id, tipo_labor_id, cantidad_recolectada, 
         unidad_medida, peso_total, hora_inicio, hora_fin, ubicacion_gps, 
         condiciones_climaticas, herramientas_insumos, observaciones, fotos,
-        duracion_minutos, rendimiento_por_hora, costo_estimado, estado) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        duracion_minutos, rendimiento_por_hora, costo_estimado, estado, actividad_planificada_id) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.fecha,
         data.cultivo,
@@ -247,7 +250,8 @@ export class LaborModel {
         metricas.duracionMinutos,
         metricas.rendimientoPorHora,
         metricas.costoEstimado,
-        EstadoLabor.COMPLETADA
+        EstadoLabor.COMPLETADA,
+        data.actividad_planificada_id || null
       ]
     )
     return result.insertId
@@ -319,6 +323,10 @@ export class LaborModel {
     if (data.estado !== undefined) {
       fields.push('estado = ?')
       values.push(data.estado)
+    }
+    if (data.actividad_planificada_id !== undefined) {
+      fields.push('actividad_planificada_id = ?')
+      values.push(data.actividad_planificada_id)
     }
 
     // Agregar métricas si se proporcionan

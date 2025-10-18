@@ -124,6 +124,33 @@ export class PlanificacionController {
   }
 
   /**
+   * PUT /api/planificacion/:id/progreso
+   * Actualizar progreso de una actividad
+   */
+  async updateProgreso(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = parseInt(req.params.id)
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: 'ID inválido' })
+      }
+
+      const data = req.body
+      const actividad = await planificacionService.updateProgreso(id, data)
+      
+      res.json(actividad)
+    } catch (error) {
+      if (error instanceof Error && error.message === 'Actividad no encontrada') {
+        return res.status(404).json({ message: error.message })
+      }
+      if (error instanceof Error) {
+        return res.status(400).json({ message: error.message })
+      }
+      next(error)
+    }
+  }
+
+  /**
    * DELETE /api/planificacion/:id
    * Eliminar una actividad
    */

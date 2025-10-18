@@ -3,11 +3,15 @@ import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import LaborForm from '../components/LaborForm'
 import { useCreateLaborMutation } from '../hooks/useLaboresQuery'
+import { useLotes } from '../../lotes/hooks/useLotesQuery'
+import { useActividades } from '../../planificacion/hooks/usePlanificacionQuery'
 import { CreateLaborDto } from '../services/laboresService'
 
 export default function LaborCreateView() {
   const navigate = useNavigate()
   const { mutate: createLabor, isPending } = useCreateLaborMutation()
+  const { data: lotes = [] } = useLotes()
+  const { data: actividades = [] } = useActividades()
 
   const handleSubmit = (data: CreateLaborDto) => {
     createLabor(data)
@@ -31,7 +35,13 @@ export default function LaborCreateView() {
         </div>
       </div>
 
-      <LaborForm onSubmit={handleSubmit} onCancel={handleCancel} loading={isPending} />
+      <LaborForm 
+        onSubmit={handleSubmit} 
+        onCancel={handleCancel} 
+        loading={isPending}
+        lotes={lotes}
+        actividades={actividades}
+      />
     </div>
   )
 }

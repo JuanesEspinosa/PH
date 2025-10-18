@@ -24,7 +24,7 @@ export const TrabajadoresEnMapa = ({ loteId, googleMap }: TrabajadoresEnMapaProp
     // Obtener trabajadores únicos de actividades activas
     const trabajadoresMap = new Map();
     actividadesLote
-      .filter(act => act.estado === 'EN_PROGRESO' || act.estado === 'PENDIENTE')
+      .filter(act => act.estado === 'EN_PROGRESO' || act.estado === 'PENDIENTE' || act.estado === 'ATRASADA')
       .forEach(act => {
         (act.trabajadores_nombres || []).forEach((nombre, index) => {
           const id = act.trabajadores_asignados?.[index] || `temp-${nombre}`;
