@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Coordenada } from '@/types/lotes';
+import { Coordenada, Lote } from '@/types/lotes';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { MapPin, Trash2, Undo, X } from 'lucide-react';
+import { MapPin, Trash2, Undo } from 'lucide-react';
 import { calcularArea, calcularPerimetro } from '../services/lotesService';
 import { getGoogleMapsScriptUrl } from '@/config/googleMaps';
 
@@ -15,20 +15,22 @@ interface SelectorMapaInteractivoProps {
   value: Coordenada[];
   onChange: (coordenadas: Coordenada[]) => void;
   height?: string;
+  lotesExistentes?: Lote[];
 }
 
 export const SelectorMapaInteractivo = ({
   value,
   onChange,
-  height = '500px'
+  height = '500px',
+  lotesExistentes = []
 }: SelectorMapaInteractivoProps) => {
   const [modoSeleccion, setModoSeleccion] = useState(false);
   const [mapaListo, setMapaListo] = useState(false);
-  const [dibujando, setDibujando] = useState(false);
   const mapRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const polygonRef = useRef<google.maps.Polygon | null>(null);
   const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(null);
+  const lotesExistentesRef = useRef<google.maps.Polygon[]>([]);
   
   // Inicializar Google Maps con Drawing Tools
   useEffect(() => {
@@ -110,6 +112,77 @@ export const SelectorMapaInteractivo = ({
       document.head.appendChild(script);
     }
   }, []);
+  
+  // Dibujar lotes existentes cuando el mapa esté listo
+  useEffect(() => {
+    if (!googleMapRef.current || !mapaListo || lotesExistentes.length === 0) return;
+    
+    // Limpiar lotes existentes anteriores
+    lotesExistentesRef.current.forEach(polygon => {
+      polygon.setMap(null);
+    });
+    lotesExistentesRef.current = [];
+    
+    // Dibujar cada lote existente
+    lotesExistentes.forEach((lote, index) => {
+      if (lote.coordenadas && lote.coordenadas.length >= 3) {
+        const path = lote.coordenadas.map(coord => ({
+          lat: coord.lat,
+          lng: coord.lng
+        }));
+        
+        const polygon = new google.maps.Polygon({
+          paths: path,
+          fillColor: '#ef4444', // Rojo para lotes existentes
+          fillOpacity: 0.3,
+          strokeColor: '#dc2626',
+          strokeWeight: 2,
+          strokeOpacity: 0.8,
+          clickable: false,
+          zIndex: 1
+        });
+        
+        polygon.setMap(googleMapRef.current);
+        lotesExistentesRef.current.push(polygon);
+        
+        // Agregar etiqueta con el nombre del lote
+        const bounds = new google.maps.LatLngBounds();
+        path.forEach(point => bounds.extend(point));
+        const center = bounds.getCenter();
+        
+        const infoWindow = new google.maps.InfoWindow({
+          content: `
+            <div class="p-2">
+              <h4 class="font-semibold text-sm">${lote.nombre}</h4>
+              <p class="text-xs text-gray-600">${lote.codigo}</p>
+              <p class="text-xs text-gray-600">${lote.area_hectareas} ha</p>
+            </div>
+          `,
+          disableAutoPan: true
+        });
+        
+        const marker = new google.maps.Marker({
+          position: center,
+          map: googleMapRef.current,
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#dc2626" stroke="white" stroke-width="2"/>
+                <text x="12" y="16" text-anchor="middle" fill="white" font-size="10" font-weight="bold">${index + 1}</text>
+              </svg>
+            `),
+            scaledSize: new google.maps.Size(24, 24),
+            anchor: new google.maps.Point(12, 12)
+          },
+          title: `${lote.nombre} (${lote.codigo})`
+        });
+        
+        marker.addListener('click', () => {
+          infoWindow.open(googleMapRef.current, marker);
+        });
+      }
+    });
+  }, [mapaListo, lotesExistentes]);
   
   // Manejar cuando se completa el dibujo de un polígono
   const handlePolygonComplete = (polygon: google.maps.Polygon) => {
@@ -196,9 +269,6 @@ export const SelectorMapaInteractivo = ({
     iniciarDibujo();
   };
   
-  const esPoligonoCerrado = value.length >= 4 && 
-    value[0].lat === value[value.length - 1].lat &&
-    value[0].lng === value[value.length - 1].lng;
   
   const area = value.length >= 3 ? calcularArea(value) : 0;
   const perimetro = value.length >= 2 ? calcularPerimetro(value) : 0;
@@ -239,6 +309,20 @@ export const SelectorMapaInteractivo = ({
         {mapaListo && (
           <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-gray-200 z-10 max-w-xs">
             <div className="space-y-2">
+              {/* Leyenda de colores */}
+              {lotesExistentes.length > 0 && (
+                <div className="text-xs space-y-1 mb-3 pb-2 border-b border-gray-200">
+                  <div className="font-semibold text-gray-700 mb-1">Leyenda:</div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-400 rounded-sm"></div>
+                    <span className="text-gray-600">Lotes existentes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-blue-400 rounded-sm"></div>
+                    <span className="text-gray-600">Nuevo lote</span>
+                  </div>
+                </div>
+              )}
               {value.length === 0 ? (
                 <Button
                   size="sm"

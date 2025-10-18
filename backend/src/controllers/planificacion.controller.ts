@@ -81,7 +81,8 @@ export class PlanificacionController {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const data: CreateActividadDto = req.body
-      const userId = (req as any).user?.id || 1 // ID del usuario autenticado
+      // Obtener el ID del usuario autenticado, o null si no hay sesión
+      const userId = (req as any).user?.id || null
 
       const actividad = await planificacionService.createActividad(data, userId)
       
