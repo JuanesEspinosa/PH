@@ -8,139 +8,95 @@ import {
   BarChart3,
   DollarSign,
   Award,
-  GitCompare,
   Calendar,
   CheckCircle2,
   Sparkles,
-  ArrowRight
+  Trash2,
+  RefreshCw
 } from 'lucide-react'
-import { generarReportePDF, generarReporteExcel, generarReporteComparativo } from '@/lib/reportGenerator'
+import { useReportesQuery } from './hooks/useReportesQuery'
 import { useState } from 'react'
-import { useToast } from '@/hooks/use-toast'
 
 export default function ReportesView() {
-  const { toast } = useToast()
-  const [generando, setGenerando] = useState<string | null>(null)
+  const [mostrarGenerados, setMostrarGenerados] = useState(false)
+
+  const {
+    reportesDisponibles,
+    reportesGenerados,
+    isLoadingDisponibles,
+    isLoadingGenerados,
+    generarPDF,
+    generarExcel,
+    isGeneratingPDF,
+    isGeneratingExcel,
+    descargarReporte,
+    eliminarReporte,
+    isEliminando
+  } = useReportesQuery()
 
   const handleGenerarPDF = (tipo: string) => {
-    setGenerando(tipo + '-pdf')
-    try {
-      generarReportePDF(tipo)
-      toast({
-        title: '✅ Reporte generado',
-        description: `El reporte de ${tipo} en PDF se ha descargado correctamente.`,
-      })
-    } catch (error) {
-      toast({
-        title: '❌ Error',
-        description: 'Hubo un problema al generar el reporte.',
-        variant: 'destructive'
-      })
-    } finally {
-      setTimeout(() => setGenerando(null), 1000)
-    }
+    // Mapear IDs a nombres completos
+    const tipoMapeado = tipo === 'productividad' ? 'Productividad' :
+                       tipo === 'rendimiento' ? 'Rendimiento' :
+                       tipo === 'costos' ? 'Costos' : tipo
+    generarPDF({ tipoReporte: tipoMapeado as any })
   }
 
   const handleGenerarExcel = (tipo: string) => {
-    setGenerando(tipo + '-excel')
-    try {
-      generarReporteExcel(tipo)
-      toast({
-        title: '✅ Reporte generado',
-        description: `El reporte de ${tipo} en Excel se ha descargado correctamente.`,
-      })
-    } catch (error) {
-      toast({
-        title: '❌ Error',
-        description: 'Hubo un problema al generar el reporte.',
-        variant: 'destructive'
-      })
-    } finally {
-      setTimeout(() => setGenerando(null), 1000)
+    // Mapear IDs a nombres completos
+    const tipoMapeado = tipo === 'productividad' ? 'Productividad' :
+                       tipo === 'rendimiento' ? 'Rendimiento' :
+                       tipo === 'costos' ? 'Costos' : tipo
+    generarExcel({ tipoReporte: tipoMapeado as any })
+  }
+
+
+  const handleDescargar = (filename: string) => {
+    descargarReporte(filename)
+  }
+
+  const handleEliminar = (filename: string) => {
+    if (window.confirm('¿Estás seguro de que quieres eliminar este reporte?')) {
+      eliminarReporte(filename)
     }
   }
 
-  const handleGenerarComparativo = () => {
-    setGenerando('comparativo')
-    try {
-      generarReporteComparativo()
-      toast({
-        title: '✅ Reporte Comparativo generado',
-        description: 'El reporte comparativo integral se ha descargado correctamente.',
-      })
-    } catch (error) {
-      toast({
-        title: '❌ Error',
-        description: 'Hubo un problema al generar el reporte.',
-        variant: 'destructive'
-      })
-    } finally {
-      setTimeout(() => setGenerando(null), 1000)
-    }
+  const formatearTamaño = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
-  const reportes = [
-    {
-      id: 'productividad',
-      titulo: 'Reporte de Productividad',
-      descripcion: 'Análisis detallado de producción por cultivo, distribución de áreas y estadísticas generales del sistema agrícola.',
-      icon: TrendingUp,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
-      borderColor: 'border-green-600',
-      metricas: [
-        'Producción total por cultivo',
-        'Distribución de áreas cultivadas',
-        'Estadísticas generales',
-        'Variaciones semanales y mensuales'
-      ]
-    },
-    {
-      id: 'rendimiento',
-      titulo: 'Reporte de Rendimiento',
-      descripcion: 'Evaluación del rendimiento por hectárea, eficiencia de campos y cumplimiento de objetivos establecidos.',
-      icon: BarChart3,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
-      borderColor: 'border-blue-600',
-      metricas: [
-        'Rendimiento por hectárea',
-        'Eficiencia operacional por campo',
-        'Comparativa con objetivos',
-        'Tendencias y proyecciones'
-      ]
-    },
-    {
-      id: 'costos',
-      titulo: 'Reporte de Costos Operacionales',
-      descripcion: 'Desglose completo de costos por categoría: personal, insumos, transporte y otros gastos operacionales.',
-      icon: DollarSign,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100',
-      borderColor: 'border-orange-600',
-      metricas: [
-        'Costos de personal',
-        'Inversión en insumos',
-        'Gastos de transporte',
-        'Análisis de costos totales'
-      ]
-    },
-    {
-      id: 'calidad',
-      titulo: 'Reporte de Calidad',
-      descripcion: 'Evaluación de la calidad de producción, clasificación por categorías y evolución temporal de estándares.',
-      icon: Award,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
-      borderColor: 'border-purple-600',
-      metricas: [
-        'Clasificación por calidad',
-        'Evolución temporal',
-        'Porcentajes de producción',
-        'Indicadores de excelencia'
-      ]
-    }
-  ]
+  const formatearFecha = (fecha: string) => {
+    return new Date(fecha).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  // Mapeo de iconos
+  const iconMap = {
+    TrendingUp,
+    BarChart3,
+    DollarSign,
+    Award
+  }
+
+  if (isLoadingDisponibles) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Cargando reportes disponibles...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-8">
@@ -181,88 +137,106 @@ export default function ReportesView() {
         </div>
       </div>
 
-      {/* Reporte Comparativo Especial - Mejorado */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 border-2 border-orange-200 shadow-xl">
-        <div className="absolute top-0 right-0 opacity-10">
-          <GitCompare className="h-64 w-64 text-orange-600" />
-        </div>
-        
-        <div className="relative p-6">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-start gap-4">
-              <div className="p-4 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl shadow-lg">
-                <GitCompare className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-2xl font-bold text-gray-900">Reporte Comparativo Integral</h3>
-                  <span className="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-bold rounded-full">
-                    PREMIUM
-                  </span>
-                </div>
-                <p className="text-gray-600 max-w-2xl">
-                  Análisis completo con resumen ejecutivo, mejores desempeños, gráficos comparativos y recomendaciones estratégicas personalizadas
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={handleGenerarComparativo}
-              disabled={generando === 'comparativo'}
-              className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg hover:shadow-xl transition-all"
-              size="lg"
-            >
-              {generando === 'comparativo' ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                  Generando...
-                </>
-              ) : (
-                <>
-                  <Download className="h-5 w-5 mr-2" />
-                  Descargar PDF
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </>
-              )}
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-3 gap-4 mt-6">
-            <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm p-3 rounded-lg">
-              <CheckCircle2 className="h-5 w-5 text-orange-600 flex-shrink-0" />
-              <span className="text-sm font-medium text-gray-700">Estadísticas completas con gráficos</span>
-            </div>
-            <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm p-3 rounded-lg">
-              <CheckCircle2 className="h-5 w-5 text-orange-600 flex-shrink-0" />
-              <span className="text-sm font-medium text-gray-700">Análisis de mejor desempeño</span>
-            </div>
-            <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm p-3 rounded-lg">
-              <CheckCircle2 className="h-5 w-5 text-orange-600 flex-shrink-0" />
-              <span className="text-sm font-medium text-gray-700">Recomendaciones estratégicas</span>
-            </div>
-          </div>
-        </div>
+
+      {/* Botón para mostrar reportes generados */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gray-900">Reportes Disponibles</h2>
+        <Button
+          onClick={() => setMostrarGenerados(!mostrarGenerados)}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <RefreshCw className="h-4 w-4" />
+          {mostrarGenerados ? 'Ocultar' : 'Ver'} Reportes Generados
+        </Button>
       </div>
+
+      {/* Lista de reportes generados */}
+      {mostrarGenerados && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Reportes Generados
+            </CardTitle>
+            <CardDescription>
+              Lista de reportes previamente generados y disponibles para descarga
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoadingGenerados ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Cargando reportes generados...</p>
+              </div>
+            ) : reportesGenerados && reportesGenerados.length > 0 ? (
+              <div className="space-y-3">
+                {reportesGenerados.map((reporte) => (
+                  <div key={reporte.filename} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <FileText className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">{reporte.filename}</p>
+                        <p className="text-sm text-gray-500">
+                          {formatearTamaño(reporte.size)} • {formatearFecha(reporte.created)}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => handleDescargar(reporte.filename)}
+                        size="sm"
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        <Download className="h-4 w-4" />
+                        Descargar
+                      </Button>
+                      <Button
+                        onClick={() => handleEliminar(reporte.filename)}
+                        size="sm"
+                        variant="outline"
+                        className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        disabled={isEliminando}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Eliminar
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No hay reportes generados aún</p>
+                <p className="text-sm text-gray-500">Genera tu primer reporte usando los botones de arriba</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Grid de Reportes Mejorado */}
       <div className="grid gap-6 md:grid-cols-2">
-        {reportes.map((reporte) => {
-          const Icon = reporte.icon
-          const generandoPDF = generando === reporte.id + '-pdf'
-          const generandoExcel = generando === reporte.id + '-excel'
+        {reportesDisponibles?.map((reporte) => {
+          const Icon = iconMap[reporte.icono as keyof typeof iconMap] || FileText
           
           return (
             <Card key={reporte.id} className="group relative overflow-hidden hover:shadow-2xl transition-all duration-500 border-2 hover:border-green-200">
               {/* Decoración de fondo */}
-              <div className={`absolute top-0 right-0 w-32 h-32 ${reporte.bgColor} opacity-20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500`}></div>
+              <div className={`absolute top-0 right-0 w-32 h-32 bg-${reporte.color.replace('#', '')}-100 opacity-20 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-500`}></div>
               
               <CardHeader className="relative">
                 <div className="flex items-start gap-4">
-                  <div className={`p-4 rounded-2xl ${reporte.bgColor} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`p-4 rounded-2xl bg-${reporte.color.replace('#', '')}-100 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className={`h-7 w-7 ${reporte.color}`} />
                   </div>
                   <div className="flex-1">
                     <CardTitle className="text-xl mb-2 group-hover:text-green-600 transition-colors">
-                      {reporte.titulo}
+                      {reporte.nombre}
                     </CardTitle>
                     <CardDescription className="text-sm leading-relaxed">
                       {reporte.descripcion}
@@ -272,33 +246,30 @@ export default function ReportesView() {
               </CardHeader>
               
               <CardContent className="space-y-5 relative">
-                {/* Métricas incluidas */}
+                {/* Formatos disponibles */}
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
                   <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    Incluye:
+                    Formatos disponibles:
                   </p>
-                  <ul className="space-y-2">
-                    {reporte.metricas.map((metrica, index) => (
-                      <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
-                        <div className={`w-2 h-2 rounded-full ${reporte.bgColor} mt-1.5 flex-shrink-0`} />
-                        <span>{metrica}</span>
-                      </li>
+                  <div className="flex gap-2">
+                    {reporte.formatos.map((formato) => (
+                      <span key={formato} className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                        {formato}
+                      </span>
                     ))}
-                  </ul>
+                  </div>
                 </div>
 
                 {/* Botones de descarga mejorados */}
                 <div className="flex gap-3">
                   <Button
-                    onClick={() => handleGenerarPDF(
-                      reporte.id.charAt(0).toUpperCase() + reporte.id.slice(1)
-                    )}
-                    disabled={generandoPDF || generandoExcel}
+                    onClick={() => handleGenerarPDF(reporte.id)}
+                    disabled={isGeneratingPDF || isGeneratingExcel}
                     className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-lg hover:shadow-xl transition-all group/btn"
                     size="lg"
                   >
-                    {generandoPDF ? (
+                    {isGeneratingPDF ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                         <span className="text-sm">Generando...</span>
@@ -310,26 +281,26 @@ export default function ReportesView() {
                       </>
                     )}
                   </Button>
-                  <Button
-                    onClick={() => handleGenerarExcel(
-                      reporte.id.charAt(0).toUpperCase() + reporte.id.slice(1)
-                    )}
-                    disabled={generandoPDF || generandoExcel}
-                    className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all group/btn"
-                    size="lg"
-                  >
-                    {generandoExcel ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                        <span className="text-sm">Generando...</span>
-                      </>
-                    ) : (
-                      <>
-                        <FileSpreadsheet className="h-4 w-4 mr-2 group-hover/btn:scale-110 transition-transform" />
-                        <span className="text-sm font-medium">Excel</span>
-                      </>
-                    )}
-                  </Button>
+                  {reporte.formatos.includes('Excel') && (
+                    <Button
+                      onClick={() => handleGenerarExcel(reporte.id)}
+                      disabled={isGeneratingPDF || isGeneratingExcel}
+                      className="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all group/btn"
+                      size="lg"
+                    >
+                      {isGeneratingExcel ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                          <span className="text-sm">Generando...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FileSpreadsheet className="h-4 w-4 mr-2 group-hover/btn:scale-110 transition-transform" />
+                          <span className="text-sm font-medium">Excel</span>
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
